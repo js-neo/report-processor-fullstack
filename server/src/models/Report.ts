@@ -24,6 +24,7 @@ interface IVideoData {
 }
 
 interface IAnalysisData {
+    objectName: string;
     task: string;
     workers: string[];
     time: number;

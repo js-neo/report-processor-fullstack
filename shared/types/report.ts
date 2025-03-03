@@ -1,3 +1,5 @@
+// shared/types/report.ts
+
 export interface IUser {
     username: string;
     telegram_id: string;
@@ -22,6 +24,7 @@ export interface IVideoData {
 }
 
 export interface IAnalysisData {
+    objectName: string;
     task: string;
     workers: string[];
     time: number;

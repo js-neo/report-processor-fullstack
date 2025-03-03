@@ -2,7 +2,7 @@ import express from 'express';
 import {
     getAllReports,
     getReportsByUser,
-    getReportsByPeriod
+    getReportsByPeriod, getReportsByObject
 } from '../controllers/reportController.ts';
 
 const router = express.Router();
@@ -10,5 +10,6 @@ const router = express.Router();
 router.get('/', getAllReports);
 router.get('/user/:username', getReportsByUser);
 router.get('/user/:username/period', getReportsByPeriod);
+router.get('/object/:objectName/period', getReportsByObject);
 
 export default router;

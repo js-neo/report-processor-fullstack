@@ -1,20 +1,23 @@
-"use client";
-
-import { ReactNode } from 'react';
+import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
 import './globals.css';
+import React from "react";
+
+const inter = Inter({ subsets: ['latin'] });
+
+export const metadata: Metadata = {
+    title: 'Табель работ',
+    description: 'Приложение для управления табелями сотрудников',
+};
 
 export default function RootLayout({
                                        children,
                                    }: {
-    children: ReactNode
+    children: React.ReactNode;
 }) {
     return (
         <html lang="ru">
-        <body className="min-h-screen bg-gray-50">
-        <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            {children}
-        </main>
-        </body>
+        <body className={inter.className}>{children}</body>
         </html>
     );
 }
