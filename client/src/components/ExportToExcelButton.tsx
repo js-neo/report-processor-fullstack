@@ -55,9 +55,10 @@ export const ExportToExcelButton = ({
                 { header: 'Вид работы', key: 'task', width: 35 },
                 { header: 'Часы', key: 'hours', width: 12 },
                 { header: 'Общее за день', key: 'dailyTotal', width: 15 },
-                { header: 'Ссылка', key: 'link', width: 40 },
-                { header: 'Комментарий', key: 'comment', width: 50 },
-                { header: 'Дата создания', key: 'created', width: 20 }
+                { header: 'Ссылка на медиа', key: 'link', width: 40 },
+                { header: 'Транскрипт', key: 'comment', width: 50 },
+                { header: 'Дата формирования медиа', key: 'created_media', width: 20 },
+                { header: 'Дата отправки отчета', key: 'created_report', width: 20 }
             ]
 
             Object.entries(grouped).forEach(([date, dailyReports]) => {
@@ -73,7 +74,8 @@ export const ExportToExcelButton = ({
                         dailyTotal: index === 0 ? dailyTotal.toFixed(1) : '',
                         link: report.video.drive_link,
                         comment: report.transcript,
-                        created: report.video.metadata.creation_date ? formatDate(report.video.metadata.creation_date) : "-"
+                        created_media: formatDate(report.video.metadata.creation_date),
+                        created_report: formatDate(report.video.metadata.creation_date)
                     })
                 })
 

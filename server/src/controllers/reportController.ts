@@ -4,7 +4,7 @@ import { Request, Response, NextFunction } from 'express';
 import { ParsedQs } from 'qs';
 import Report, { IReport } from '../models/Report.ts';
 import { BadRequestError, NotFoundError } from '../errors/errorClasses.ts';
-import { format } from 'date-fns';
+import { format, parse } from 'date-fns';
 import mongoose from 'mongoose';
 
 declare module 'express' {
@@ -45,6 +45,26 @@ const validateDates = (start: Date, end: Date): void => {
     if (start > end) throw new BadRequestError('End date must be after start date');
 };
 
+const parseCreationDate = (dateStr: string): Date => {
+    const formats = [
+        'yyyy-MM-dd HH:mm:ss XXX',
+        'yyyy-MM-dd HH:mm:ss.SSSSSS',
+        'yyyy-MM-dd HH:mm:ss',
+        'yyyy-MM-dd\'T\'HH:mm:ss.SSSSSS'
+    ];
+
+    for (const formatStr of formats) {
+        try {
+            const parsed = parse(dateStr, formatStr, new Date());
+            if (!isNaN(parsed.getTime())) return parsed;
+        } catch (e) {
+            continue;
+        }
+    }
+
+    return new Date(dateStr);
+};
+
 const asyncHandler = <T extends Request>(
     fn: (req: T, res: Response, next: NextFunction) => Promise<void>
 ) => async (req: T, res: Response, next: NextFunction) => {
@@ -75,57 +95,69 @@ export const getAllReports = asyncHandler<Request>(async (_req, res) => {
     res.json({
         success: true,
         data: reports.map(report => ({
-            ...report,
-            _id: report._id.toHexString()
+            ...report
         }))
     });
 });
 
-export const getWorkerPeriodReports =
-    asyncHandler<WorkerReportRequest>(async (req, res) => {
-    const rawWorkerName = req.params.workerName;
-    const workerName = decodeURIComponent(decodeURIComponent(rawWorkerName)); // Двойное декодирование
+export const getWorkerPeriodReports = asyncHandler<WorkerReportRequest>(
+    async (req, res) => {
+        const rawWorkerName = req.params.workerName;
+        const workerName = decodeURIComponent(decodeURIComponent(rawWorkerName));
 
-    const { start, end } = req.query;
+        if (!workerName.trim()) {
+            throw new BadRequestError('Invalid worker name', {
+                received: rawWorkerName,
+                decoded: workerName
+            });
+        }
 
-    if (!workerName.trim()) {
-        throw new BadRequestError('Invalid worker name', {
-            received: rawWorkerName,
-            decoded: workerName
-        });
-    }
+        const { start, end } = req.query;
+        const startDate = new Date(start);
+        const endDate = new Date(end);
+        validateDates(startDate, endDate);
+console.log("workerName: ", workerName);
+        const reports = await Report.find({
+            'analysis.workers': workerName,
+            timestamp: { $gte: startDate, $lte: endDate }
+        })
+            .select('timestamp analysis video transcript')
+            .sort({ timestamp: 1 })
+            .lean<Array<ReportDocument>>();
 
-    const startDate = new Date(start);
-    const endDate = new Date(end);
-    validateDates(startDate, endDate);
+        console.log("reports: ", reports);
 
-    const reports = await Report.find({
-        'analysis.workers': workerName,
-        timestamp: { $gte: startDate, $lte: endDate }
-    })
-        .select('timestamp analysis report_logs')
-        .sort({ timestamp: 1 })
-        .lean<Array<ReportDocument>>();
-console.log("reports.length: ", reports.length);
-    if (reports.length === 0) {
-        console.log("Ошибка в контроллере")
+        if (reports.length === 0) {
+            throw new NotFoundError("Запрашиваемые данные не найдены", {
+                period: { start, end },
+                workerName,
+                suggestion: "Проверьте параметры запроса"
+            });
+        }
 
-        throw new NotFoundError("Запрашиваемые данные не найдены", {
-            period: { start, end },
-            workerName,
-            suggestion: "Проверьте параметры запроса"
-        });
-    }
-
-    res.json({
-        success: true,
-        count: reports.length,
-        data: reports.map(report => ({
+        const processedReports = reports.map(report => ({
             ...report,
-            _id: report._id.toHexString()
-        }))
-    });
-});
+            video: {
+                ...report.video,
+                metadata: {
+                    ...report.video.metadata,
+                    creation_date: report.video.metadata?.creation_date
+                        ? parseCreationDate(report.video.metadata.creation_date).toISOString()
+                        : undefined
+                }
+            }
+        }));
+
+        res.json({
+            success: true,
+            count: processedReports.length,
+            data: processedReports.map(report => ({
+                ...report,
+                objectName: report.analysis.objectName || "ТРК Небо"
+            }))
+        });
+    }
+);
 
 export const getObjectPeriodReports = asyncHandler<ObjectReportRequest>(async (req, res) => {
     const { objectName } = req.params;

@@ -1,7 +1,6 @@
 // client/src/lib/api.ts
 
-import { IReport } from '@shared/types/report';
-import { ObjectReport } from '@/interfaces/object.interface';
+import { EmployeeReportsResponse, ObjectReportResponse } from "@shared/types/api";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
@@ -52,7 +51,7 @@ export const fetchEmployeeReports = async (
     startDate: string,
     endDate: string,
     options?: RequestInit
-): Promise<IReport[]> => {
+): Promise<EmployeeReportsResponse> => {
     const params = new URLSearchParams({ start: startDate, end: endDate });
 
     const response = await fetch(
@@ -72,7 +71,7 @@ export const fetchObjectReport = async (
     startDate: string,
     endDate: string,
     options?: RequestInit
-): Promise<ObjectReport> => {
+): Promise<ObjectReportResponse> => {
     const params = new URLSearchParams({ start: startDate, end: endDate });
 
     const response = await fetch(
@@ -89,7 +88,7 @@ export const fetchObjectReport = async (
 
 export const fetchReports = async (
     options?: RequestInit
-): Promise<IReport[]> => {
+): Promise<EmployeeReportsResponse> => {
     try {
         const response = await fetch(`${BASE_URL}/reports`, {
             headers: defaultHeaders,

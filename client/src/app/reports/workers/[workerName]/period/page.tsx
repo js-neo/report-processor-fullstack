@@ -17,7 +17,7 @@ export default function UserReportPage() {
     const start = searchParams.get('start')!;
     const end = searchParams.get('end')!;
 
-    const { data: reports, loading, error } = useReports({
+    const { response: reports, loading, error } = useReports({
         type: 'employee',
         workerName,
         startDate: start,
@@ -46,7 +46,7 @@ export default function UserReportPage() {
         );
     }
 
-    if (!reports || reports.length === 0) {
+    if (!reports.data || reports.data.length === 0) {
         return (
             <div className="p-6 text-gray-500">
                 Нет данных за выбранный период ({start} - {end}).
@@ -58,19 +58,19 @@ export default function UserReportPage() {
         <div className="p-6 max-w-7xl mx-auto">
             <ExportToExcelButton
                 type="employee"
-                data={reports}
+                data={reports.data}
                 fileName={`отчет_${workerName}_${start}-${end}`}
                 startDate={start}
                 endDate={end}
             />
             <EmployeeTable>
                 <EmployeeTableHead
-                    reports={reports}
+                    reports={reports.data}
                     startDate={start}
                     endDate={end}
                     workerName={workerName}
                 />
-                <EmployeeTableBody reports={reports} />
+                <EmployeeTableBody reports={reports.data} />
             </EmployeeTable>
         </div>
     );

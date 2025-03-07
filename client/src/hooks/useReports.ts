@@ -7,8 +7,8 @@ import {
     fetchEmployeeReports,
     fetchObjectReport
 } from '@/lib/api';
-import { IReport} from '@/interfaces/report.interface';
-import { ObjectReport } from '@/interfaces/object.interface';
+import { EmployeeReportsResponse} from "@shared/types/api";
+import { ObjectReportResponse } from "@shared/types/api";
 
 type ReportParams =
     | {
@@ -26,13 +26,13 @@ type ReportParams =
 
 export const useReports = <T extends ReportParams>(params: T) => {
     const [state, setState] = useState<{
-        data: T extends { type: 'employee' } ? IReport[] :
-            T extends { type: 'object' } ? ObjectReport :
+        response: T extends { type: 'employee' } ? EmployeeReportsResponse :
+            T extends { type: 'object' } ? ObjectReportResponse :
                 never;
         loading: boolean;
         error: string | null;
     }>({
-        data: null as any,
+        response: null as any,
         loading: true,
         error: null,
     });
@@ -49,6 +49,7 @@ export const useReports = <T extends ReportParams>(params: T) => {
                     params.endDate,
                     { signal }
                 );
+                console.log("result_useReports: ", result);
             } else if (params.type === 'object') {
                 result = await fetchObjectReport(
                     params.objectName,
@@ -61,7 +62,7 @@ export const useReports = <T extends ReportParams>(params: T) => {
             }
 
             setState({
-                data: result as any,
+                response: result as any,
                 loading: false,
                 error: null
             });
@@ -81,7 +82,7 @@ export const useReports = <T extends ReportParams>(params: T) => {
                 }
 
                 setState({
-                    data: null as any,
+                    response: null as any,
                     loading: false,
                     error: errorMessage
                 });

@@ -2,7 +2,7 @@
 
 'use client';
 
-import { ObjectReport } from '@/interfaces/object.interface';
+import { ObjectReport } from "@shared/types/report";
 import { generateDateHeaders, formatReportPeriod } from '@/utils/helpers';
 
 interface ObjectTableHeadProps {

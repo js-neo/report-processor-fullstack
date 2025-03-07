@@ -1,6 +1,6 @@
 // client/src/utils/helpers.ts
 
-import { IReport, IAnalysisData, IGroupedReports } from '@/interfaces/report.interface';
+import { IReport, IAnalysisData, IGroupedReports} from "@shared/types/report";
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 
@@ -13,20 +13,36 @@ export const groupByDay = (reports: IReport[]): IGroupedReports => {
     }, {} as IGroupedReports);
 };
 
-export const formatDate = (date: Date | string, format: 'dd' | 'full' = 'full') => {
-    const d = new Date(date);
-    if (format === 'dd') return d.getDate().toString();
+export const formatDate = (
+    date: Date | string | undefined,
+    formatType: 'dd' | 'full' = 'full'
+): string => {
+    if (!date) return '-';
+
+    const parsedDate = typeof date === 'string'
+        ? new Date(date)
+        : date;
+
+    if (isNaN(parsedDate.getTime())) {
+        console.warn('Invalid date:', date);
+        return '-';
+    }
+
+    if (formatType === 'dd') {
+        return parsedDate.getDate().toString();
+    }
+
     return new Intl.DateTimeFormat('ru-RU', {
         year: 'numeric',
         month: '2-digit',
         day: '2-digit',
         hour: '2-digit',
         minute: '2-digit',
-    }).format(d);
+    }).format(parsedDate);
 };
 
 export const extractLocation = (analysis: IAnalysisData): string => {
-    return analysis.objectName;
+    return analysis.objectName || "Нет данных об объекте";
 };
 
 

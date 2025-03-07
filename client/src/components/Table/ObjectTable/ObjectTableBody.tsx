@@ -1,7 +1,7 @@
 // client/src/components/Table/ObjectTable/ObjectTableBody.tsx
 'use client';
 
-import { ObjectReport } from '@/interfaces/object.interface';
+import { ObjectReport } from "@shared/types/report"
 import { generateDateHeaders } from '@/utils/helpers';
 
 interface ObjectTableBodyProps {

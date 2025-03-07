@@ -2,7 +2,7 @@
 
 'use client';
 
-import { IReport, IGroupedReports } from '@/interfaces/report.interface';
+import { IReport, IGroupedReports } from "@shared/types/report";
 import { formatDate, groupByDay, extractLocation } from '@/utils/helpers';
 
 interface BodyTableProps {
@@ -10,8 +10,16 @@ interface BodyTableProps {
 }
 
 const EmployeeTableBody = ({ reports }: BodyTableProps) => {
+    console.log("reports_Body: ", reports);
     const groupedReports: IGroupedReports = groupByDay(reports);
     const totalHours = reports.reduce((sum, report) => sum + report.analysis.time, 0);
+
+    console.log("groupedReports: ", groupedReports);
+    console.log("totalHours: ", totalHours);
+
+    reports.map(report => {
+        console.log("report.video.metadata.creation_date: ", report.video.metadata.creation_date);
+    })
 
     return (
         <tbody className="bg-white divide-y divide-gray-200">
@@ -28,15 +36,21 @@ const EmployeeTableBody = ({ reports }: BodyTableProps) => {
         })}
         <tr>
             <td colSpan={3} className="px-6 py-3 font-medium">Всего часов за месяц:</td>
-            <td colSpan={6} className="px-6 py-3">{totalHours.toFixed(1)}</td>
+            <td colSpan={6} className="px-6 py-3">{totalHours ? totalHours.toFixed(1) : "н/д"}</td>
         </tr>
         </tbody>
     );
 };
 
 const DailyReportsGroup = ({ date, reports, dailyTotal }: { date: string; reports: IReport[]; dailyTotal: number }) => {
+    console.log("reports: ", reports);
+    console.log("date: ", date);
+    console.log("dailyTotal: ", dailyTotal);
+
     const formattedDate = formatDate(date, 'dd');
+    console.log("formattedDate: ", formattedDate);
     const rowCount = reports.length;
+    console.log("rowCount: ", rowCount);
 
     return (
         <>
@@ -51,10 +65,10 @@ const DailyReportsGroup = ({ date, reports, dailyTotal }: { date: string; report
                         <td className="px-6 py-4">{extractLocation(report.analysis)}</td>
                     )}
                     <td className="px-6 py-4">{report.analysis.task}</td>
-                    <td className="px-6 py-4">{report.analysis.time.toFixed(1)}</td>
+                    <td className="px-6 py-4">{report.analysis.time ? report.analysis.time.toFixed(1) : "н/д"}</td>
                     {index === 0 && (
                         <td rowSpan={rowCount} className="px-6 py-4 align-top">
-                            {dailyTotal.toFixed(1)}
+                            {dailyTotal?.toFixed(1)}
                         </td>
                     )}
                     <td className="px-6 py-4">

@@ -1,55 +1,16 @@
 // server/src/models/Report.ts
-
 import { Document, Schema, model, Model } from 'mongoose';
+import {
+    IUser,
+    IVideoMetadata,
+    IVideoData,
+    IAnalysisData,
+    IReportLog,
+    IReportBase
+} from "@shared/types/report.ts";
 
-interface IUser {
-    username: string;
-    telegram_id: string;
-}
-
-interface IVideoMetadata {
-    creation_date?: string;
-    gps_latitude?: string | null;
-    gps_longitude?: string | null;
-    duration?: string;
-}
-
-interface IVideoData {
-    file_id: string;
-    file_url: string;
-    local_path: string;
-    file_name: string;
-    file_size_mb: number;
-    mime_type: string;
-    metadata: IVideoMetadata;
-    drive_link: string;
-}
-
-interface IAnalysisData {
-    objectName: string;
-    task: string;
-    workers: string[];
-    time: number;
-}
-
-interface IReportLog {
-    timestamp: Date;
-    field: string;
-    old_value?: any;
-    new_value: any;
-    type: string;
-}
-
-interface IReport extends Document {
-    _id: string;
-    timestamp: Date;
-    user: IUser;
-    video: IVideoData;
-    transcript: string;
-    analysis: IAnalysisData;
-    telegram_id: string;
-    report_logs: IReportLog[];
-    updated_at: Date;
+interface IReport extends IReportBase, Document {
+    _id: "string";
 }
 
 const UserSchema = new Schema<IUser>({

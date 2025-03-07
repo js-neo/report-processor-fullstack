@@ -6,7 +6,7 @@ export interface IUser {
 }
 
 export interface IVideoMetadata {
-    creation_date?: Date;
+    creation_date?: string;
     gps_latitude?: number | null;
     gps_longitude?: number | null;
     duration?: number;
@@ -24,7 +24,7 @@ export interface IVideoData {
 }
 
 export interface IAnalysisData {
-    objectName: string;
+    objectName?: string;
     task: string;
     workers: string[];
     time: number;
@@ -33,13 +33,12 @@ export interface IAnalysisData {
 export interface IReportLog {
     timestamp: Date;
     field: string;
-    old_value?: any;
-    new_value: any;
+    old_value?: unknown;
+    new_value: unknown;
     type: 'create' | 'update' | 'delete';
 }
 
-export interface IReport {
-    _id: string;
+export interface IReportBase {
     timestamp: Date;
     user: IUser;
     video: IVideoData;
@@ -48,4 +47,35 @@ export interface IReport {
     telegram_id: string;
     report_logs: IReportLog[];
     updated_at: Date;
+}
+
+export interface IReport extends IReportBase {
+    _id: string;
+}
+
+export interface ObjectReportEmployee {
+    id: string;
+    position: string;
+    workerName: string;
+    rate: number;
+    totalHours: number;
+    totalCost: number;
+    dailyHours: number[];
+    comment?: string;
+}
+
+export interface ObjectReport {
+    id: string;
+    objectName: string;
+    employees: ObjectReportEmployee[];
+    totalHours: number;
+    totalCost: number;
+    period: {
+        start: Date;
+        end: Date;
+    };
+}
+
+export interface IGroupedReports {
+    [key: string]: IReport[];
 }

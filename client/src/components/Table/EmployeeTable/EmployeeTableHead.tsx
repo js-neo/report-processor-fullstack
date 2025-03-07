@@ -2,7 +2,7 @@
 
 'use client';
 
-import { IReport } from '@/interfaces/report.interface';
+import { IReport } from "@shared/types/report";
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 
@@ -14,7 +14,8 @@ interface HeadTableProps {
 }
 
 const EmployeeTableHead = ({ startDate, endDate, workerName }: HeadTableProps) => {
-    const employeeName = workerName;
+    const employeeName = decodeURIComponent(workerName);
+    console.log('employeeName: ', employeeName);
 
     const formatPeriod = () => {
         try {
@@ -29,6 +30,8 @@ const EmployeeTableHead = ({ startDate, endDate, workerName }: HeadTableProps) =
             return 'Некорректный период';
         }
     };
+
+    console.log("formatPeriod: ", formatPeriod());
 
     return (
         <thead className="bg-gray-50">
