@@ -1,4 +1,4 @@
-// client/src/app/reports/object/[objectName]/page.tsx
+// client/src/app/reports/objects/[objectName]/page.tsx
 
 'use client';
 

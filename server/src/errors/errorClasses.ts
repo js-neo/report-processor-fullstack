@@ -1,3 +1,5 @@
+// server/src/errors/errorClasses.ts
+
 export class ApiError extends Error {
     constructor(
         public message: string,

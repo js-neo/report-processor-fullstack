@@ -39,6 +39,12 @@ export const ExportToExcelButton = ({
         const workbook = new ExcelJS.Workbook()
         const worksheet = workbook.addWorksheet('Отчет')
 
+        const headerStyle: Partial<ExcelJS.Style> = {
+            font: { bold: true, color: { argb: 'FFFFFFFF' } },
+            fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0070C0' } },
+            alignment: { vertical: 'middle', horizontal: 'center' }
+        };
+
         if (type === 'employee') {
             const reports = data as IReport[]
             const grouped = groupByDay(reports)
@@ -120,11 +126,7 @@ export const ExportToExcelButton = ({
         }
 
         worksheet.getRow(1).eachCell(cell => {
-            cell.style = {
-                font: { bold: true, color: { argb: 'FFFFFFFF' } },
-                fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0070C0' } },
-                alignment: { vertical: 'middle', horizontal: 'center' }
-            }
+            cell.style = headerStyle;
         })
 
         const buffer = await workbook.xlsx.writeBuffer()

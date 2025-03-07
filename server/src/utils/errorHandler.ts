@@ -1,34 +1,74 @@
-import { ErrorRequestHandler, Request, Response } from 'express';
-import { ApiError } from '../errors/errorClasses.ts';
+// server/src/utils/errorHandler.ts
+
+import { ErrorRequestHandler, Request, Response, NextFunction } from 'express';
+import { ApiError, NotFoundError } from '../errors/errorClasses.ts';
 import { MongooseError } from 'mongoose';
+
+const decodeSafe = (encodedString: string): string => {
+    let decoded = encodedString;
+    try {
+        // Двойное декодирование для случаев двойного кодирования
+        decoded = decodeURIComponent(decoded);
+        decoded = decodeURIComponent(decoded);
+    } catch (e) {
+        try {
+            decoded = decodeURI(decoded);
+        } catch (e) {
+            return encodedString;
+        }
+    }
+    return decoded;
+};
 
 export const errorHandler: ErrorRequestHandler = (
     err: ApiError | MongooseError | Error,
     req: Request,
-    res: Response
+    res: Response,
+    _next: NextFunction
 ) => {
     const statusCode = err instanceof ApiError ? err.statusCode : 500;
     const message = err.message || 'Internal Server Error';
 
-    console.error(`[${new Date().toISOString()}] ${statusCode} ${req.method} ${req.path}`, {
-        error: message,
-        stack: process.env.NODE_ENV === 'development' ? err.stack : undefined,
-        details: err instanceof ApiError ? err.details : undefined
+    const decodedDetails = err instanceof ApiError
+        ? Object.entries(err.details || {}).reduce((acc, [key, value]) => {
+            acc[key] = typeof value === 'string' ? decodeSafe(value) : value;
+            return acc;
+        }, {} as Record<string, any>)
+        : undefined;
+
+    const decodedPath = decodeSafe(req.path);
+    const decodedUrl = decodeSafe(req.originalUrl);
+    const decodedMethod = req.method;
+
+    console.error('🚨 Decoded error details:', {
+        message,
+        details: decodedDetails,
+        path: decodedPath,
+        fullUrl: decodedUrl,
+        method: decodedMethod,
+        timestamp: new Date().toISOString(),
+        ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
     });
 
     res.status(statusCode).json({
         success: false,
         message,
-        ...(process.env.NODE_ENV === 'development' && {
-            stack: err.stack,
-            ...(err instanceof ApiError && { details: err.details })
-        })
+        ...(decodedDetails && { details: decodedDetails }),
+        ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
     });
 };
 
 export const notFoundHandler = (req: Request, res: Response) => {
-    res.status(404).json({
+    console.log(`🔍 notFoundHandler: Route ${req.originalUrl} not found`);
+    const error = new NotFoundError("Запрашиваемый ресурс не найден", {
+        method: req.method,
+        path: req.originalUrl,
+        suggestion: "Проверьте правильность URL"
+    });
+
+    res.status(error.statusCode).json({
         success: false,
-        message: `Route ${req.originalUrl} not found`
+        message: error.message,
+        details: error.details
     });
 };

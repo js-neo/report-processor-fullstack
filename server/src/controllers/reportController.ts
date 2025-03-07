@@ -1,14 +1,28 @@
+// server/src/controllers/reportController.ts
+
 import { Request, Response, NextFunction } from 'express';
 import { ParsedQs } from 'qs';
 import Report, { IReport } from '../models/Report.ts';
 import { BadRequestError, NotFoundError } from '../errors/errorClasses.ts';
 import { format } from 'date-fns';
+import mongoose from 'mongoose';
 
-interface CustomRequest<T extends ParsedQs = ParsedQs> extends Request {
+declare module 'express' {
+    interface Request {
+        params: {
+            [key: string]: string;
+        };
+    }
+}
+
+interface WorkerReportRequest extends Request {
     params: {
-        username?: string;
+        workerName: string;
     };
-    query: T;
+    query: {
+        start: string;
+        end: string;
+    } & ParsedQs;
 }
 
 interface ObjectReportRequest extends Request {
@@ -18,17 +32,184 @@ interface ObjectReportRequest extends Request {
     query: {
         start: string;
         end: string;
-    };
+    } & ParsedQs;
 }
 
-const generateDailyHoursArray = (
+type ReportDocument = Omit<IReport, '_id'> & {
+    _id: mongoose.Types.ObjectId;
+};
+
+const validateDates = (start: Date, end: Date): void => {
+    if (isNaN(start.getTime())) throw new BadRequestError('Invalid start date');
+    if (isNaN(end.getTime())) throw new BadRequestError('Invalid end date');
+    if (start > end) throw new BadRequestError('End date must be after start date');
+};
+
+const asyncHandler = <T extends Request>(
+    fn: (req: T, res: Response, next: NextFunction) => Promise<void>
+) => async (req: T, res: Response, next: NextFunction) => {
+    try {
+        await fn(req, res, next);
+    } catch (err) {
+        if (err instanceof mongoose.Error.CastError) {
+            next(new BadRequestError(`Invalid ${err.path}: ${err.value}`));
+        } else if (err instanceof Error) {
+            next(err);
+        } else {
+            next(new Error('Unknown error occurred'));
+        }
+    }
+};
+
+export const getAllReports = asyncHandler<Request>(async (_req, res) => {
+    const reports = await Report.find()
+        .select('-__v')
+        .lean<Array<ReportDocument>>();
+
+    if (reports.length === 0) {
+        throw new NotFoundError("Запрашиваемый ресурс не найден", {
+            details: "Отчеты отсутствуют в базе данных"
+        });
+    }
+
+    res.json({
+        success: true,
+        data: reports.map(report => ({
+            ...report,
+            _id: report._id.toHexString()
+        }))
+    });
+});
+
+export const getWorkerPeriodReports =
+    asyncHandler<WorkerReportRequest>(async (req, res) => {
+    const rawWorkerName = req.params.workerName;
+    const workerName = decodeURIComponent(decodeURIComponent(rawWorkerName)); // Двойное декодирование
+
+    const { start, end } = req.query;
+
+    if (!workerName.trim()) {
+        throw new BadRequestError('Invalid worker name', {
+            received: rawWorkerName,
+            decoded: workerName
+        });
+    }
+
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+    validateDates(startDate, endDate);
+
+    const reports = await Report.find({
+        'analysis.workers': workerName,
+        timestamp: { $gte: startDate, $lte: endDate }
+    })
+        .select('timestamp analysis report_logs')
+        .sort({ timestamp: 1 })
+        .lean<Array<ReportDocument>>();
+console.log("reports.length: ", reports.length);
+    if (reports.length === 0) {
+        console.log("Ошибка в контроллере")
+
+        throw new NotFoundError("Запрашиваемые данные не найдены", {
+            period: { start, end },
+            workerName,
+            suggestion: "Проверьте параметры запроса"
+        });
+    }
+
+    res.json({
+        success: true,
+        count: reports.length,
+        data: reports.map(report => ({
+            ...report,
+            _id: report._id.toHexString()
+        }))
+    });
+});
+
+export const getObjectPeriodReports = asyncHandler<ObjectReportRequest>(async (req, res) => {
+    const { objectName } = req.params;
+    const { start, end } = req.query;
+
+    if (!objectName.trim()) {
+        throw new BadRequestError('Object name is required');
+    }
+
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+    validateDates(startDate, endDate);
+
+    const reports = await Report.find({
+        'analysis.objectName': objectName,
+        timestamp: { $gte: startDate, $lte: endDate }
+    }).lean<Array<ReportDocument>>();
+
+    if (reports.length === 0) {
+        throw new NotFoundError("Запрашиваемый ресурс не найден", {
+            objectName,
+            period: { start, end },
+            suggestion: "Убедитесь в правильности имени объекта"
+        });
+    }
+
+    const employeesMap = new Map<string, {
+        id: string;
+        position: string;
+        workerName: string;
+        rate: number;
+        dailyHours: Record<string, number>;
+        totalHours: number;
+    }>();
+
+    for (const report of reports) {
+        if (!report.analysis?.workers?.length) continue;
+
+        const uniqueWorkers = [...new Set(report.analysis.workers)];
+        const dateKey = format(report.timestamp, 'dd.MM');
+
+        for (const worker of uniqueWorkers) {
+            const employee = employeesMap.get(worker) || {
+                id: worker,
+                position: 'монтажник',
+                workerName: worker,
+                rate: 600,
+                dailyHours: {},
+                totalHours: 0
+            };
+
+            employee.dailyHours[dateKey] = (employee.dailyHours[dateKey] || 0) + report.analysis.time;
+            employee.totalHours += report.analysis.time;
+            employeesMap.set(worker, employee);
+        }
+    }
+
+    const employees = Array.from(employeesMap.values()).map(emp => ({
+        ...emp,
+        totalCost: emp.totalHours * emp.rate,
+        dailyHours: generateDailyHours(emp.dailyHours, start, end)
+    }));
+
+    res.json({
+        success: true,
+        objectName,
+        period: { start, end },
+        employees,
+        totalHours: employees.reduce((sum, emp) => sum + emp.totalHours, 0),
+        totalCost: employees.reduce((sum, emp) => sum + emp.totalCost, 0)
+    });
+});
+
+const generateDailyHours = (
     dailyHours: Record<string, number>,
     start: string,
     end: string
-) => {
-    const result: number[] = [];
-    let current = new Date(start);
+): number[] => {
+    const startDate = new Date(start);
     const endDate = new Date(end);
+    validateDates(startDate, endDate);
+
+    const result: number[] = [];
+    let current = new Date(startDate);
 
     while (current <= endDate) {
         const dateKey = format(current, 'dd.MM');
@@ -38,170 +219,3 @@ const generateDailyHoursArray = (
 
     return result;
 };
-
-const asyncHandler = (fn: Function) =>
-    (req: Request, res: Response, next: NextFunction) =>
-        Promise.resolve(fn(req, res, next)).catch(next);
-
-export const getAllReports = asyncHandler(async (_req: Request, res: Response) => {
-    const reports: IReport[] = await Report.find().select('-__v').lean();
-    if (reports.length === 0) {
-        throw new NotFoundError('No reports found');
-    }
-    res.json(reports);
-});
-
-export const getReportsByUser = asyncHandler(async (
-    req: CustomRequest,
-    res: Response
-) => {
-    const { username } = req.params;
-    if (!username) {
-        throw new BadRequestError('Username is required', {
-            receivedParams: req.params
-        });
-    }
-
-    const reports = await Report.find({ 'analysis.workers': username })
-        .select('timestamp analysis video.transcript')
-        .sort({ timestamp: -1 })
-        .lean();
-
-    if (reports.length === 0) {
-        throw new NotFoundError('Reports for user not found', {
-            username,
-            count: reports.length
-        });
-    }
-
-    res.json(reports);
-});
-
-export const getReportsByPeriod = asyncHandler(async (
-    req: CustomRequest<{ start?: string; end?: string }>,
-    res: Response
-) => {
-    const { username } = req.params;
-    const { start, end } = req.query;
-
-    if (!username || !start || !end) {
-        throw new BadRequestError('Missing parameters', {
-            required: ['username', 'start', 'end'],
-            received: { username, start, end }
-        });
-    }
-
-    const startDate = new Date(start);
-    const endDate = new Date(end);
-
-    if (isNaN(startDate.getTime())) {
-        throw new BadRequestError('Invalid start date format', {
-            received: start
-        });
-    }
-
-    if (isNaN(endDate.getTime())) {
-        throw new BadRequestError('Invalid end date format', {
-            received: end
-        });
-    }
-
-    const reports = await Report.find({
-        'analysis.workers': username,
-        timestamp: {
-            $gte: startDate,
-            $lte: endDate
-        }
-    })
-        .select('timestamp analysis report_logs')
-        .sort({ timestamp: 1 })
-        .lean();
-
-    if (reports.length === 0) {
-        throw new NotFoundError('No reports in this period', {
-            start: startDate.toISOString(),
-            end: endDate.toISOString()
-        });
-    }
-
-    res.json(reports);
-});
-
-export const getReportsByObject = asyncHandler(
-    async (req: ObjectReportRequest, res: Response) => {
-        const { objectName } = req.params;
-        const { start, end } = req.query;
-
-        const startDate = new Date(start);
-        const endDate = new Date(end);
-
-        if (isNaN(startDate.getTime())) {
-            throw new BadRequestError('Неверный формат начальной даты');
-        }
-
-        if (isNaN(endDate.getTime())) {
-            throw new BadRequestError('Неверный формат конечной даты');
-        }
-
-        const reports = await Report.find({
-            'analysis.objectName': objectName,
-            timestamp: {
-                $gte: startDate,
-                $lte: endDate
-            }
-        }).lean<IReport[]>();
-
-        const employeesMap = new Map<string, {
-            id: string;
-            position: string;
-            workerName: string;
-            rate: number;
-            dailyHours: Record<string, number>;
-            totalHours: number;
-        }>();
-
-        reports.forEach(report => {
-            const workers = report.analysis.workers;
-
-            if (workers.length === 0) {
-                console.warn(`Отчет ${report._id} не содержит работников`);
-                return;
-            }
-
-            const uniqueWorkers = [...new Set(workers)];
-
-            uniqueWorkers.forEach(workerUsername => {
-                if (!employeesMap.has(workerUsername)) {
-                    employeesMap.set(workerUsername, {
-                        id: workerUsername,
-                        position: 'монтажник',
-                        workerName: workerUsername,
-                        rate: 600,
-                        dailyHours: {},
-                        totalHours: 0
-                    });
-                }
-
-                const employee = employeesMap.get(workerUsername)!;
-                const dateKey = format(report.timestamp, 'dd.MM');
-
-                employee.dailyHours[dateKey] = (employee.dailyHours[dateKey] || 0) + report.analysis.time;
-                employee.totalHours += report.analysis.time;
-            });
-        });
-
-        const employees = Array.from(employeesMap.values()).map(emp => ({
-            ...emp,
-            totalCost: emp.totalHours * emp.rate,
-            dailyHours: generateDailyHoursArray(emp.dailyHours, start, end)
-        }));
-
-        res.json({
-            id: objectName,
-            name: objectName,
-            employees,
-            totalHours: employees.reduce((sum, emp) => sum + emp.totalHours, 0),
-            totalCost: employees.reduce((sum, emp) => sum + emp.totalCost, 0)
-        });
-    }
-);

@@ -1,4 +1,4 @@
-// client/src/app/reports/user/[username]/page.tsx
+// client/src/app/reports/workers/[workerName]/page.tsx
 'use client';
 
 import { useParams, useSearchParams } from 'next/navigation';
@@ -13,25 +13,35 @@ export default function UserReportPage() {
     const params = useParams();
     const searchParams = useSearchParams();
 
-    const username = params.username as string;
+    const workerName = params.workerName as string;
     const start = searchParams.get('start')!;
     const end = searchParams.get('end')!;
 
     const { data: reports, loading, error } = useReports({
         type: 'employee',
-        username,
+        workerName,
         startDate: start,
         endDate: end
     });
+
+    console.log("error_2:", error);
 
     if (loading) {
         return <div className="p-6 text-center"><LoadingSpinner /></div>;
     }
 
     if (error) {
+
         return (
-            <div className="p-6 text-red-500">
-                Ошибка загрузки данных: {error}
+            <div className="p-6 bg-red-50 rounded-lg">
+                <div className="text-red-600 font-medium">
+                    Ошибка загрузки данных:
+                </div>
+                <pre className="mt-2 p-4 bg-red-100 rounded-md text-red-700 overflow-x-auto">
+                    <code className="font-mono text-sm">
+                        {error}
+                    </code>
+                </pre>
             </div>
         );
     }
@@ -49,7 +59,7 @@ export default function UserReportPage() {
             <ExportToExcelButton
                 type="employee"
                 data={reports}
-                fileName={`отчет_${username}_${start}-${end}`}
+                fileName={`отчет_${workerName}_${start}-${end}`}
                 startDate={start}
                 endDate={end}
             />
@@ -58,7 +68,7 @@ export default function UserReportPage() {
                     reports={reports}
                     startDate={start}
                     endDate={end}
-                    username={username}
+                    workerName={workerName}
                 />
                 <EmployeeTableBody reports={reports} />
             </EmployeeTable>

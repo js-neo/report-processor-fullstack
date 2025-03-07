@@ -1,3 +1,5 @@
+// server/src/server.ts
+
 import express, { Express } from 'express';
 import { cors } from './middleware/cors.ts';
 import connectDB from './config/db.ts';
@@ -12,9 +14,7 @@ const PORT: string | number = process.env.PORT || 5000;
 
 app.use(cors);
 app.use(express.json());
-
 app.use('/api/reports', reportRoutes);
-
 app.use(notFoundHandler);
 app.use(errorHandler);
 

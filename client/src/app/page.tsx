@@ -10,7 +10,7 @@ export default function HomePage() {
     const [activeTab, setActiveTab] = useState<'employee' | 'object'>('employee');
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
-    const [username, setUsername] = useState('');
+    const [workerName, setWorkerName] = useState('');
     const [objectName, setObjectName] = useState('');
     const [error, setError] = useState('');
 
@@ -24,8 +24,8 @@ export default function HomePage() {
 
         const baseQuery = `?start=${startDate}&end=${endDate}`;
         const path = activeTab === 'employee'
-            ? `/reports/user/${username}${baseQuery}`
-            : `/reports/object/${encodeURIComponent(objectName)}${baseQuery}`;
+            ? `/reports/workers/${encodeURIComponent(workerName)}/period${baseQuery}`
+            : `/reports/objects/${encodeURIComponent(objectName)}/period${baseQuery}`;
 
         router.push(path);
     };
@@ -95,9 +95,9 @@ export default function HomePage() {
                         <input
                             type="text"
                             className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                            placeholder="Введите username сотрудника"
-                            value={username}
-                            onChange={(e) => setUsername(e.target.value)}
+                            placeholder="Введите workerName сотрудника"
+                            value={workerName}
+                            onChange={(e) => setWorkerName(e.target.value)}
                         />
                     </div>
                 ) : (

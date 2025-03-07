@@ -1,15 +1,15 @@
+// server/src/routes/reportRoutes.ts
+
 import express from 'express';
 import {
     getAllReports,
-    getReportsByUser,
-    getReportsByPeriod, getReportsByObject
+    getWorkerPeriodReports, getObjectPeriodReports
 } from '../controllers/reportController.ts';
 
 const router = express.Router();
 
 router.get('/', getAllReports);
-router.get('/user/:username', getReportsByUser);
-router.get('/user/:username/period', getReportsByPeriod);
-router.get('/object/:objectName/period', getReportsByObject);
+router.get('/workers/:workerName/period', getWorkerPeriodReports);
+router.get('/objects/:objectName/period', getObjectPeriodReports);
 
 export default router;

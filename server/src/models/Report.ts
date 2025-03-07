@@ -1,3 +1,5 @@
+// server/src/models/Report.ts
+
 import { Document, Schema, model, Model } from 'mongoose';
 
 interface IUser {
@@ -99,10 +101,8 @@ const ReportSchema = new Schema<IReport>({
     updated_at: { type: Date, required: true }
 });
 
-ReportSchema.index({ 'user.username': 1 });
-ReportSchema.index({ 'user.username': 1, timestamp: -1 });
-ReportSchema.index({ telegram_id: 1, timestamp: -1 });
-ReportSchema.index({ 'analysis.task': 'text' });
+ReportSchema.index({ 'analysis.workers': 1, timestamp: 1 });
+ReportSchema.index({ 'analysis.objectName': 1, timestamp: 1 });
 
 const Report: Model<IReport> = model<IReport>('Report', ReportSchema);
 export {IReport};

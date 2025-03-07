@@ -1,3 +1,5 @@
+// server/src/middleware/cors.ts
+
 import { RequestHandler } from 'express';
 
 const allowedCors = [

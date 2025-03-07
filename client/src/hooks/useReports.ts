@@ -1,3 +1,5 @@
+// client/src/hooks/useReports.ts
+
 "use client";
 
 import { useEffect, useState, useCallback } from 'react';
@@ -11,7 +13,7 @@ import { ObjectReport } from '@/interfaces/object.interface';
 type ReportParams =
     | {
     type: 'employee';
-    username: string;
+    workerName: string;
     startDate: string;
     endDate: string;
 }
@@ -42,7 +44,7 @@ export const useReports = <T extends ReportParams>(params: T) => {
             let result;
             if (params.type === 'employee') {
                 result = await fetchEmployeeReports(
-                    params.username,
+                    params.workerName,
                     params.startDate,
                     params.endDate,
                     { signal }
@@ -64,17 +66,30 @@ export const useReports = <T extends ReportParams>(params: T) => {
                 error: null
             });
         } catch (err) {
+            console.log("error", err);
             if (!signal?.aborted) {
+                let errorMessage = 'Ошибка загрузки';
+
+                if (typeof err === 'object' && err !== null) {
+                    if ('message' in err && typeof err.message === 'string') {
+                        errorMessage = err.message;
+                        console.log("errorMessage:", errorMessage);
+                    }
+                } else if (typeof err === 'string') {
+                    errorMessage = err;
+                    console.log("errorMessage_err:", errorMessage);
+                }
+
                 setState({
                     data: null as any,
                     loading: false,
-                    error: err instanceof Error ? err.message : 'Ошибка загрузки'
+                    error: errorMessage
                 });
             }
         }
     }, [
         params.type,
-        params.type === 'employee' ? params.username : null,
+        params.type === 'employee' ? params.workerName : null,
         params.startDate,
         params.endDate,
         params.type === 'object' ? params.objectName : null

@@ -1,3 +1,5 @@
+// server/src/config/db.ts
+
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import { DatabaseError } from '../errors/errorClasses.ts';

@@ -1,4 +1,4 @@
-// client/src/interfaces/object.interface.ts
+// client/src/interfaces/objects.interface.ts
 
 export interface ObjectReport {
     id: string;

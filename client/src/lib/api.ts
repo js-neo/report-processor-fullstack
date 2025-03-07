@@ -9,20 +9,46 @@ const defaultHeaders = {
     'Content-Type': 'application/json',
 };
 
-const handleError = async (response: Response) => {
+interface ApiErrorResponse {
+    success: boolean;
+    message: string;
+    details?: Record<string, any>;
+    suggestion?: string;
+}
+function isError(error: unknown): error is { message: string } {
+    return typeof error === 'object' && error !== null && 'message' in error;
+}
+
+const handleError = async (response: Response): Promise<Response> => {
     if (!response.ok) {
         try {
-            const errorData = await response.json();
-            throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+            const errorData: ApiErrorResponse = await response.json();
+            console.error('API Error:', errorData);
+
+            let errorMessage = errorData.message || `HTTP error! Status: ${response.status}`;
+            if (errorData.details) {
+                errorMessage += `\nDetails: ${JSON.stringify(errorData.details, null, 2)}`;
+            }
+            if (errorData.suggestion) {
+                errorMessage += `\nSuggestion: ${errorData.suggestion}`;
+            }
+
+            throw new Error(errorMessage);
         } catch (e) {
-            throw new Error(`Request failed: ${response.statusText}`);
+            console.error('Failed to parse error response:', e);
+
+            // type guard для проверки
+            if (isError(e)) {
+                throw new Error(`Request failed: ${e.message}`);
+            } else {
+                throw new Error(`Request failed: Unknown error occurred`);
+            }
         }
     }
     return response;
 };
-
 export const fetchEmployeeReports = async (
-    username: string,
+    workerName: string,
     startDate: string,
     endDate: string,
     options?: RequestInit
@@ -30,7 +56,7 @@ export const fetchEmployeeReports = async (
     const params = new URLSearchParams({ start: startDate, end: endDate });
 
     const response = await fetch(
-        `${BASE_URL}/reports/user/${encodeURIComponent(username)}?${params}`,
+        `${BASE_URL}/reports/workers/${encodeURIComponent(workerName)}/period?${params}`,
         {
             headers: defaultHeaders,
             ...options
@@ -50,7 +76,7 @@ export const fetchObjectReport = async (
     const params = new URLSearchParams({ start: startDate, end: endDate });
 
     const response = await fetch(
-        `${BASE_URL}/reports/object/${encodeURIComponent(objectName)}?${params}`,
+        `${BASE_URL}/reports/objects/${encodeURIComponent(objectName)}/period?${params}`,
         {
             headers: defaultHeaders,
             ...options

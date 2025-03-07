@@ -10,11 +10,11 @@ interface HeadTableProps {
     reports: IReport[];
     startDate: string;
     endDate: string;
-    username?: string;
+    workerName: string;
 }
 
-const EmployeeTableHead = ({ reports, startDate, endDate, username }: HeadTableProps) => {
-    const employeeName = username ? reports[0]?.user?.username || 'Неизвестный сотрудник' : 'Все сотрудники';
+const EmployeeTableHead = ({ startDate, endDate, workerName }: HeadTableProps) => {
+    const employeeName = workerName;
 
     const formatPeriod = () => {
         try {
