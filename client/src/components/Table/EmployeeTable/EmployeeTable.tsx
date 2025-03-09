@@ -6,7 +6,7 @@ import { ReactNode } from 'react';
 
 const EmployeeTable = ({ children }: { children: ReactNode }) => (
     <div className="overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
-        <table className="min-w-full divide-y divide-gray-200 text-sm">{children}</table>
+        <table className="min-w-full table-fixed border-collapse text-sm">{children}</table>
     </div>
 );
 

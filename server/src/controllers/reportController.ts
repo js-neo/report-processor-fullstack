@@ -153,7 +153,7 @@ console.log("workerName: ", workerName);
             count: processedReports.length,
             data: processedReports.map(report => ({
                 ...report,
-                objectName: report.analysis.objectName || "ТРК Небо"
+                analysis: {...report.analysis, objectName: report.analysis.objectName || "ТРК Небо"}
             }))
         });
     }

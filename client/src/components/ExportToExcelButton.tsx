@@ -3,8 +3,7 @@
 
 import ExcelJS from 'exceljs'
 import { saveAs } from 'file-saver'
-import {IReport} from '@/interfaces/report.interface'
-import { ObjectReport } from '@/interfaces/object.interface'
+import {IReport, ObjectReport} from "@shared/types/report";
 import {groupByDay} from "@/utils/helpers";
 import { formatDate, extractLocation, generateDateHeaders } from '@/utils/helpers'
 
@@ -39,18 +38,64 @@ export const ExportToExcelButton = ({
         const workbook = new ExcelJS.Workbook()
         const worksheet = workbook.addWorksheet('Отчет')
 
+        const borderStyle: Partial<ExcelJS.Borders> = {
+            top: {
+                style: "thin"
+            },
+            left: {
+                style: "thin"
+            },
+            bottom: {
+                style: "thin"
+            },
+            right: {
+                style: "thin"
+            }
+        };
         const headerStyle: Partial<ExcelJS.Style> = {
             font: { bold: true, color: { argb: 'FFFFFFFF' } },
             fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0070C0' } },
-            alignment: { vertical: 'middle', horizontal: 'center' }
+            alignment: { vertical: 'middle', horizontal: 'center', wrapText: true },
+            border: borderStyle,
         };
+
+        const contentStyle: Partial<ExcelJS.Style> = {
+            font: {
+                name: "Arial",
+                    size: 9,
+                    bold: false
+            },
+            alignment: {
+                horizontal: "center",
+                    vertical: "middle",
+                    wrapText: true
+            },
+            border: borderStyle
+        }
+
+        const linkStyle: Partial<ExcelJS.Style> = {
+            font: {
+                name: "Arial",
+                size: 9,
+                bold: true,
+                color: { argb: 'FF0000FF' },
+                underline: true
+            },
+            alignment: {
+                horizontal: "center",
+                vertical: "middle",
+                wrapText: true
+            },
+            border: borderStyle
+        };
+
 
         if (type === 'employee') {
             const reports = data as IReport[]
             const grouped = groupByDay(reports)
 
             worksheet.columns = [
-                { header: 'Число', key: 'date', width: 15 },
+                { header: 'Дата', key: 'date', width: 15 },
                 { header: 'Объект', key: 'object', width: 25 },
                 { header: 'Вид работы', key: 'task', width: 35 },
                 { header: 'Часы', key: 'hours', width: 12 },
@@ -60,6 +105,8 @@ export const ExportToExcelButton = ({
                 { header: 'Дата формирования медиа', key: 'created_media', width: 20 },
                 { header: 'Дата отправки отчета', key: 'created_report', width: 20 }
             ]
+
+            const totalHours = reports.reduce((sum, report) => sum + report.analysis.time, 0);
 
             Object.entries(grouped).forEach(([date, dailyReports]) => {
                 const dailyTotal = dailyReports.reduce((sum, r) => sum + r.analysis.time, 0)
@@ -72,10 +119,10 @@ export const ExportToExcelButton = ({
                         task: report.analysis.task,
                         hours: report.analysis.time.toFixed(1),
                         dailyTotal: index === 0 ? dailyTotal.toFixed(1) : '',
-                        link: report.video.drive_link,
+                        link: {text: "Ссылка", hyperlink: report.video.drive_link},
                         comment: report.transcript,
                         created_media: formatDate(report.video.metadata.creation_date),
-                        created_report: formatDate(report.video.metadata.creation_date)
+                        created_report: formatDate(report.timestamp)
                     })
                 })
 
@@ -84,6 +131,14 @@ export const ExportToExcelButton = ({
                     worksheet.mergeCells(`E${startRow}:E${startRow + dailyReports.length - 1}`)
                 }
             })
+
+            console.log("totalHours:", totalHours);
+            const totalRow = worksheet.addRow(['', '', '', totalHours]);
+
+            worksheet.mergeCells(`A${totalRow.number}:C${totalRow.number}`);
+            worksheet.getCell(`A${totalRow.number}`).value = 'Всего часов за месяц:';
+
+            //worksheet.mergeCells(`D${totalRow.number}:E${totalRow.number}`);
         }
 
         if (type === 'object') {
@@ -127,12 +182,27 @@ export const ExportToExcelButton = ({
             worksheet.mergeCells(`A${totalRow.number}:D${totalRow.number}`)
         }
 
-        worksheet.getRow(1).eachCell(cell => {
-            cell.style = headerStyle;
-        })
+        const totalRows = worksheet.rowCount;
 
-        const buffer = await workbook.xlsx.writeBuffer()
-        saveAs(new Blob([buffer]), `${fileName}.xlsx`)
+        for (let row = 1; row <= totalRows; row++) {
+
+            for (let col = 1; col <= worksheet.columnCount; col++) {
+                const cell = worksheet.getCell(row, col);
+
+                if (row === 1) {
+                    cell.style = headerStyle;
+                } else if (row !== 1 && col === 6) {
+                    cell.style = linkStyle;
+                } else {
+                    cell.style = contentStyle;
+                }
+
+            }
+        }
+
+        const buffer = await workbook.xlsx.writeBuffer();
+        const sanitizedFileName = decodeURIComponent(fileName).replace(/\s+/g, '_');
+        saveAs(new Blob([buffer]), `${sanitizedFileName}.xlsx`);
     }
 
     return (

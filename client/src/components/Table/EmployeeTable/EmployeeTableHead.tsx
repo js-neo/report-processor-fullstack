@@ -3,8 +3,7 @@
 'use client';
 
 import { IReport } from "@shared/types/report";
-import { format } from 'date-fns';
-import { ru } from 'date-fns/locale';
+import { formatReportPeriod } from "@/utils/helpers";
 
 interface HeadTableProps {
     reports: IReport[];
@@ -17,48 +16,49 @@ const EmployeeTableHead = ({ startDate, endDate, workerName }: HeadTableProps) =
     const employeeName = decodeURIComponent(workerName);
     console.log('employeeName: ', employeeName);
 
-    const formatPeriod = () => {
-        try {
-            const start = new Date(startDate);
-            const end = new Date(endDate);
-
-            if (isNaN(start.getTime())) return 'Некорректный период';
-            if (isNaN(end.getTime())) return 'Некорректный период';
-
-            return format(start, 'LLLL yyyy', { locale: ru });
-        } catch (e) {
-            return 'Некорректный период';
-        }
-    };
-
-    console.log("formatPeriod: ", formatPeriod());
-
     return (
         <thead className="bg-gray-50">
         <tr>
-            <th colSpan={9} className="px-6 py-4 text-center text-lg font-semibold">
+            <th colSpan={9} className="px-2 py-4 text-center text-lg font-semibold">
                 Табель выполнения работ
             </th>
         </tr>
         <tr>
-            <td colSpan={2} className="px-6 py-2 font-medium">Сотрудник:</td>
-            <td colSpan={3} className="px-6 py-2">{employeeName}</td>
+            <td colSpan={2} className="px-2 py-2 font-medium">Сотрудник:</td>
+            <td colSpan={3} className="px-2 py-2">{employeeName}</td>
             <td colSpan={4}></td>
         </tr>
         <tr>
-            <td colSpan={2} className="px-6 py-2 font-medium">Отчетный период:</td>
-            <td colSpan={3} className="px-6 py-2">{formatPeriod()}</td>
+            <td colSpan={2} className="px-2 py-2 font-medium">Отчетный период:</td>
+            <td colSpan={3} className="px-2 py-2">{formatReportPeriod(startDate, endDate)}</td>
             <td colSpan={4}></td>
         </tr>
         <tr>
-            {['Число', 'Объект', 'Вид работы', 'Затраченное время/час', 'Общее время за день/час', 'Ссылка на медиа', 'Транскрипт', 'Дата формирования медиа', 'Дата отправки отчета'].map((header, idx) => (
-                <th key={idx} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    {header}
-                </th>
-            ))}
+            {['Дата', 'Объект', 'Вид работы', 'Затраченное время/час', 'Общее время за день/час', 'Ссылка на медиа', 'Транскрипт', 'Дата формирования медиа', 'Дата отправки отчета']
+                .map((header, idx) => (
+                    <th key={idx} className={`px-2 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border border-gray-300 ${getColumnWidthClass(idx)}`}>
+                        {header}
+                    </th>
+                ))}
         </tr>
         </thead>
     );
+};
+
+
+const getColumnWidthClass = (index: number) => {
+    switch (index) {
+        case 0: return 'w-1/12';
+        case 1: return 'w-1/12';
+        case 2: return 'w-1/6';
+        case 3: return 'w-1/12';
+        case 4: return 'w-1/12';
+        case 5: return 'w-1/12';
+        case 6: return 'w-1/4';
+        case 7: return 'w-1/12';
+        case 8: return 'w-1/12';
+        default: return '';
+    }
 };
 
 export default EmployeeTableHead;

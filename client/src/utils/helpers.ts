@@ -58,6 +58,21 @@ export const generateDateHeaders = (start: string, end: string): string[] => {
     return dates;
 };
 
-export const formatReportPeriod = (start: string, end: string): string => {
-    return `${format(new Date(start), 'LLLL yyyy', { locale: ru })} - ${format(new Date(end), 'dd.MM')}`;
+export const formatReportPeriod = (startDate: string, endDate: string): string => {
+    try {
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+
+        if (isNaN(start.getTime())) return 'Некорректный период';
+        if (isNaN(end.getTime())) return 'Некорректный период';
+
+        if (start.getMonth() === end.getMonth()) {
+            return format(start, 'LLLL yyyy', { locale: ru });
+        }
+
+        return `${format(start, 'dd.MM.yyyy', { locale: ru })} - ${format(end, 'dd.MM.yyyy', { locale: ru })}`;
+
+    } catch (e) {
+        return 'Некорректный период';
+    }
 };
