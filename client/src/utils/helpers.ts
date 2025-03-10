@@ -15,7 +15,7 @@ export const groupByDay = (reports: IReport[]): IGroupedReports => {
 
 export const formatDate = (
     date: Date | string | undefined,
-    formatType: 'dd' | 'full' = 'full'
+    formatType: 'dd' | 'dd.MM' | 'full' = 'full'
 ): string => {
     if (!date) return '-';
 
@@ -30,6 +30,10 @@ export const formatDate = (
 
     if (formatType === 'dd') {
         return parsedDate.getDate().toString();
+    }
+
+    if (formatType === 'dd.MM') {
+        return format(date, "dd.MM")
     }
 
     return new Intl.DateTimeFormat('ru-RU', {
@@ -76,3 +80,13 @@ export const formatReportPeriod = (startDate: string, endDate: string): string =
         return 'Некорректный период';
     }
 };
+
+export function getColumnLetter(columnIndex: number): string {
+    let letter = "";
+    while (columnIndex > 0) {
+        const modulo = (columnIndex - 1) % 26;
+        letter = String.fromCharCode(65 + modulo) + letter;
+        columnIndex = Math.floor((columnIndex - modulo) / 26);
+    }
+    return letter;
+}

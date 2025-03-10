@@ -5,22 +5,23 @@ export interface IUser {
     telegram_id: string;
 }
 
-export interface IVideoMetadata {
+export interface IMediaMetadata {
     creation_date?: string;
     gps_latitude?: number | null;
     gps_longitude?: number | null;
-    duration?: number;
+    duration?: string;
 }
 
-export interface IVideoData {
+export interface IMediaData {
     file_id: string;
     file_url: string;
     local_path: string;
     file_name: string;
     file_size_mb: number;
     mime_type: string;
-    metadata: IVideoMetadata;
+    metadata: IMediaMetadata;
     drive_link: string;
+    is_audio: boolean;
 }
 
 export interface IAnalysisData {
@@ -41,19 +42,20 @@ export interface IReportLog {
 export interface IReportBase {
     timestamp: Date;
     user: IUser;
-    video: IVideoData;
+    media: IMediaData;
     transcript: string;
     analysis: IAnalysisData;
     telegram_id: string;
     report_logs: IReportLog[];
     updated_at: Date;
+    sent_to_managers?: string[];
 }
 
 export interface IReport extends IReportBase {
     _id: string;
 }
 
-export interface ObjectReportEmployee {
+export interface IObjectReportEmployee {
     id: string;
     position: string;
     workerName: string;
@@ -64,15 +66,15 @@ export interface ObjectReportEmployee {
     comment?: string;
 }
 
-export interface ObjectReport {
+export interface IObjectReport {
     id: string;
     objectName: string;
-    employees: ObjectReportEmployee[];
+    employees: IObjectReportEmployee[];
     totalHours: number;
     totalCost: number;
     period: {
-        start: Date;
-        end: Date;
+        start: string;
+        end: string;
     };
 }
 

@@ -62,6 +62,7 @@ export default function UserReportPage() {
                 fileName={`отчет_${workerName}_${start}-${end}`}
                 startDate={start}
                 endDate={end}
+                workerName={workerName}
             />
             <EmployeeTable>
                 <EmployeeTableHead

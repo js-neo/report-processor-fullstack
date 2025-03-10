@@ -121,7 +121,7 @@ console.log("workerName: ", workerName);
             'analysis.workers': workerName,
             timestamp: { $gte: startDate, $lte: endDate }
         })
-            .select('timestamp analysis video transcript')
+            .select('timestamp analysis media transcript')
             .sort({ timestamp: 1 })
             .lean<Array<ReportDocument>>();
 
@@ -137,12 +137,12 @@ console.log("workerName: ", workerName);
 
         const processedReports = reports.map(report => ({
             ...report,
-            video: {
-                ...report.video,
+            media: {
+                ...report.media,
                 metadata: {
-                    ...report.video.metadata,
-                    creation_date: report.video.metadata?.creation_date
-                        ? parseCreationDate(report.video.metadata.creation_date).toISOString()
+                    ...report.media.metadata,
+                    creation_date: report.media.metadata?.creation_date
+                        ? parseCreationDate(report.media.metadata.creation_date).toISOString()
                         : undefined
                 }
             }
@@ -160,8 +160,10 @@ console.log("workerName: ", workerName);
 );
 
 export const getObjectPeriodReports = asyncHandler<ObjectReportRequest>(async (req, res) => {
-    const { objectName } = req.params;
+    const rawObjectName  = req.params.objectName;
     const { start, end } = req.query;
+
+    const objectName = decodeURIComponent(decodeURIComponent(rawObjectName));
 
     if (!objectName.trim()) {
         throw new BadRequestError('Object name is required');
@@ -223,11 +225,15 @@ export const getObjectPeriodReports = asyncHandler<ObjectReportRequest>(async (r
 
     res.json({
         success: true,
-        objectName,
-        period: { start, end },
-        employees,
-        totalHours: employees.reduce((sum, emp) => sum + emp.totalHours, 0),
-        totalCost: employees.reduce((sum, emp) => sum + emp.totalCost, 0)
+        data: {
+            objectName,
+            period: { start, end },
+            employees,
+            totalHours: employees.reduce((sum, emp) =>
+                sum + emp.totalHours, 0),
+            totalCost: employees.reduce((sum, emp) =>
+                sum + emp.totalCost, 0)
+        }
     });
 });
 

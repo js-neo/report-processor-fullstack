@@ -63,7 +63,7 @@ const DailyReportsGroup = ({ date, reports, dailyTotal }: { date: string; report
                     )}
                     <td className="px-2 py-4 w-1/12 border border-gray-300">
                         <a
-                            href={report.video.drive_link}
+                            href={report.media.drive_link}
                             className="text-blue-600 hover:text-blue-900"
                             target="_blank"
                             rel="noopener noreferrer"
@@ -72,7 +72,7 @@ const DailyReportsGroup = ({ date, reports, dailyTotal }: { date: string; report
                         </a>
                     </td>
                     <td className="px-2 py-4 w-1/4 border border-gray-300">{report.transcript}</td>
-                    <td className="px-2 py-4 w-1/12 border border-gray-300">{formatDate(report.video.metadata.creation_date)}</td>
+                    <td className="px-2 py-4 w-1/12 border border-gray-300">{formatDate(report.media.metadata.creation_date)}</td>
                     <td className="px-2 py-4 w-1/12 border border-gray-300">{formatDate(report.timestamp)}</td>
                 </tr>
             ))}

@@ -2,8 +2,8 @@
 import { Document, Schema, model, Model } from 'mongoose';
 import {
     IUser,
-    IVideoMetadata,
-    IVideoData,
+    IMediaMetadata,
+    IMediaData,
     IAnalysisData,
     IReportLog,
     IReportBase
@@ -18,22 +18,23 @@ const UserSchema = new Schema<IUser>({
     telegram_id: { type: String, required: true }
 }, { _id: false });
 
-const VideoMetadataSchema = new Schema<IVideoMetadata>({
+const MediaMetadataSchema = new Schema<IMediaMetadata>({
     creation_date: { type: String },
     gps_latitude: { type: String, default: null },
     gps_longitude: { type: String, default: null },
     duration: { type: String }
 }, { _id: false });
 
-const VideoDataSchema = new Schema<IVideoData>({
+const MediaDataSchema = new Schema<IMediaData>({
     file_id: { type: String, required: true },
     file_url: { type: String, required: true },
     local_path: { type: String, required: true },
     file_name: { type: String, required: true },
     file_size_mb: { type: Number, required: true },
     mime_type: { type: String, required: true },
-    metadata: { type: VideoMetadataSchema, required: true },
-    drive_link: { type: String, required: true }
+    metadata: { type: MediaMetadataSchema, required: true },
+    drive_link: { type: String, required: true },
+    is_audio: { type: Boolean, required: true }
 }, { _id: false });
 
 const AnalysisDataSchema = new Schema<IAnalysisData>({
@@ -54,12 +55,13 @@ const ReportSchema = new Schema<IReport>({
     _id: { type: String, required: true },
     timestamp: { type: Date, required: true },
     user: { type: UserSchema, required: true },
-    video: { type: VideoDataSchema, required: true },
+    media: { type: MediaDataSchema, required: true },
     transcript: { type: String, required: true },
     analysis: { type: AnalysisDataSchema, required: true },
     telegram_id: { type: String, required: true },
     report_logs: { type: [ReportLogSchema], default: [] },
-    updated_at: { type: Date, required: true }
+    updated_at: { type: Date, required: true },
+    sent_to_managers: { type: [String], default: [] }
 });
 
 ReportSchema.index({ 'analysis.workers': 1, timestamp: 1 });

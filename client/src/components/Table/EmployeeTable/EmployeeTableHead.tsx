@@ -36,7 +36,8 @@ const EmployeeTableHead = ({ startDate, endDate, workerName }: HeadTableProps) =
         <tr>
             {['Дата', 'Объект', 'Вид работы', 'Затраченное время/час', 'Общее время за день/час', 'Ссылка на медиа', 'Транскрипт', 'Дата формирования медиа', 'Дата отправки отчета']
                 .map((header, idx) => (
-                    <th key={idx} className={`px-2 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border border-gray-300 ${getColumnWidthClass(idx)}`}>
+                    <th key={idx} className={`px-2 py-3 text-center text-xs font-medium text-gray-500 
+                    uppercase tracking-wider border border-gray-300 ${getColumnWidthClass(idx)}`}>
                         {header}
                     </th>
                 ))}
