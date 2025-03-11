@@ -3,9 +3,28 @@
 
 interface ObjectTableHeaderRowProps {
     columns: string[];
+    objectName: string;
+    period: string;
 }
 
-const ObjectTableHeaderRow = ({ columns }: ObjectTableHeaderRowProps) => (
+const ObjectTableHeaderRow = ({ columns, objectName, period}: ObjectTableHeaderRowProps) => {
+   const len = columns.length;
+    return <>
+    <tr>
+        <th colSpan={len} className="px-2 py-4 text-left text-lg font-semibold">
+            Табель учета рабочего времени
+        </th>
+    </tr>
+    <tr>
+        <td colSpan={2} className="px-2 py-2 font-medium">Отчет по объекту:</td>
+        <td colSpan={3} className="px-2 py-2">{objectName}</td>
+        <td colSpan={len - 5}></td>
+    </tr>
+    <tr>
+        <td colSpan={2} className="px-2 py-2 font-medium">Отчетный период:</td>
+        <td colSpan={3} className="px-2 py-2">{period}</td>
+        <td colSpan={len - 5}></td>
+    </tr>
     <tr>
         {columns.map((header, idx) => (
             <th
@@ -17,6 +36,7 @@ const ObjectTableHeaderRow = ({ columns }: ObjectTableHeaderRowProps) => (
             </th>
         ))}
     </tr>
-);
+    </>
+}
 
 export default ObjectTableHeaderRow;

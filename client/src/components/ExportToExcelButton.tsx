@@ -12,7 +12,7 @@ interface ExportButtonProps {
     fileName: string
     startDate?: string
     endDate?: string
-    workerName: string
+    name: string
 }
 
 interface RowData {
@@ -32,7 +32,7 @@ export const ExportToExcelButton = ({
                                         fileName,
                                         startDate,
                                         endDate,
-                                        workerName
+                                        name
                                     }: ExportButtonProps) => {
     const exportToExcel = async () => {
         const workbook = new ExcelJS.Workbook()
@@ -71,12 +71,14 @@ export const ExportToExcelButton = ({
             border: borderStyle
         };
 
+        const createEmptyRow = (columnsCount: number) =>
+            new Array(columnsCount).fill("");
+
         if (type === 'employee') {
             const reports = data as IReport[]
             const grouped = groupByDay(reports);
-            const employeeName = decodeURIComponent(workerName);
+            const employeeName = decodeURIComponent(name);
 
-            // Устанавливаем ширину колонок
             worksheet.columns = [
                 { key: 'date', width: 10 },
                 { key: 'object', width: 20 },
@@ -90,10 +92,8 @@ export const ExportToExcelButton = ({
             ] as ExcelJS.Column[];
 
             const columnsCount = worksheet.columns.length;
-            const createEmptyRow = () =>
-                new Array(columnsCount).fill("");
 
-            const titleRow = worksheet.addRow(createEmptyRow());
+            const titleRow = worksheet.addRow(createEmptyRow(columnsCount));
             worksheet.mergeCells(`A${titleRow.number}:${getColumnLetter(columnsCount)}${titleRow.number}`);
             titleRow.getCell(1).value = 'Табель выполнения работ';
             titleRow.eachCell({includeEmpty: true}, cell => {
@@ -105,7 +105,7 @@ export const ExportToExcelButton = ({
                 }
             })
 
-            const employeeRow = worksheet.addRow(createEmptyRow())
+            const employeeRow = worksheet.addRow(createEmptyRow(columnsCount))
             employeeRow.getCell(1).value = 'Сотрудник:'
             employeeRow.getCell(3).value = employeeName;
             worksheet.mergeCells(`A${employeeRow.number}:B${employeeRow.number}`)
@@ -119,7 +119,7 @@ export const ExportToExcelButton = ({
             })
             employeeRow.getCell(1).style.font = { bold: true }
 
-            const periodRow = worksheet.addRow(createEmptyRow())
+            const periodRow = worksheet.addRow(createEmptyRow(columnsCount))
             periodRow.getCell(1).value = 'Отчетный период:'
             periodRow.getCell(3).value = formatReportPeriod(startDate!, endDate!)
             worksheet.mergeCells(`A${periodRow.number}:B${periodRow.number}`)
@@ -184,7 +184,7 @@ export const ExportToExcelButton = ({
                 }
             })
 
-            const totalRow = worksheet.addRow(createEmptyRow())
+            const totalRow = worksheet.addRow(createEmptyRow(columnsCount))
             worksheet.mergeCells(`A${totalRow.number}:C${totalRow.number}`)
             totalRow.getCell(1).value = 'Всего часов за месяц:';
             totalRow.getCell(4).value = totalHours.toFixed(1);
@@ -198,18 +198,76 @@ export const ExportToExcelButton = ({
 
         if (type === 'object') {
             const reportData = data as IObjectReport
+            const objectName = decodeURIComponent(name);
 
             const dateHeaders = generateDateHeaders(startDate!, endDate!)
             worksheet.columns = [
-                { header: '№', key: 'id', width: 8 },
-                { header: 'Должность', key: 'position', width: 20 },
-                { header: 'Сотрудник', key: 'employee', width: 25 },
-                { header: 'Ставка', key: 'rate', width: 15 },
-                { header: 'Всего часов', key: 'totalHours', width: 15 },
-                { header: 'Стоимость', key: 'totalCost', width: 15 },
-                ...dateHeaders.map(date => ({ header: date, key: date, width: 12 })),
-                { header: 'Примечания', key: 'comment', width: 30 }
-            ]
+                { key: 'id', width: 8 },
+                { key: 'position', width: 20 },
+                { key: 'employee', width: 25 },
+                { key: 'rate', width: 15 },
+                { key: 'totalHours', width: 15 },
+                { key: 'totalCost', width: 15 },
+                ...dateHeaders.map(date => ({ key: date, width: 12 })),
+                { key: 'comment', width: 30 }
+            ] as ExcelJS.Column[]
+
+            const columnsCount = worksheet.columns.length;
+
+            const titleRow = worksheet.addRow(createEmptyRow(columnsCount));
+            worksheet.mergeCells(`A${titleRow.number}:${getColumnLetter(columnsCount)}${titleRow.number}`);
+            titleRow.getCell(1).value = 'Табель учета рабочего времени';
+            titleRow.eachCell({includeEmpty: true}, cell => {
+                cell.style = {
+                    font: { bold: true, size: 14 },
+                    alignment: { horizontal: 'left', vertical: 'middle', indent: 20 },
+                    fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD9D9D9' } },
+                    border: borderStyle
+                }
+            })
+
+            const infoObjectRow = worksheet.addRow(createEmptyRow(columnsCount))
+            infoObjectRow.getCell(1).value = 'Отчет по объекту:'
+            infoObjectRow.getCell(3).value = objectName;
+            worksheet.mergeCells(`A${infoObjectRow.number}:B${infoObjectRow.number}`)
+            worksheet.mergeCells(`C${infoObjectRow.number}:E${infoObjectRow.number}`)
+            infoObjectRow.eachCell({includeEmpty: true}, cell => {
+                cell.style = {
+                    font: { size: 11 },
+                    alignment: { vertical: 'middle' },
+                    border: borderStyle
+                }
+            })
+            infoObjectRow.getCell(1).style.font = { bold: true }
+
+            const periodObjectRow = worksheet.addRow(createEmptyRow(columnsCount))
+            periodObjectRow.getCell(1).value = 'Отчетный период:'
+            periodObjectRow.getCell(3).value = formatReportPeriod(startDate!, endDate!)
+            worksheet.mergeCells(`A${periodObjectRow.number}:B${periodObjectRow.number}`)
+            worksheet.mergeCells(`C${periodObjectRow.number}:E${periodObjectRow.number}`)
+            periodObjectRow.eachCell({includeEmpty: true}, cell => {
+                cell.style = {
+                    font: { size: 11 },
+                    alignment: { vertical: 'middle' },
+                    border: borderStyle
+                }
+            })
+            periodObjectRow.getCell(1).style.font = { bold: true }
+
+            const headerObjectRow =  worksheet.insertRow(4, [
+                  '№',
+                'Должность',
+                'Сотрудник',
+                'Ставка',
+                'Всего часов',
+                'Стоимость',
+                ...dateHeaders.map(date => (date)),
+                'Примечания'
+            ]);
+
+            headerObjectRow.eachCell(cell => {
+                cell.style = headerStyle
+            })
 
             reportData.employees.forEach((emp, idx) => {
                 const rowData: RowData = {
@@ -226,30 +284,25 @@ export const ExportToExcelButton = ({
                     rowData[date] = emp.dailyHours[i] || '-'
                 })
 
-                worksheet.addRow(rowData)
+                const newRows = worksheet.addRow(rowData)
+
+                newRows.eachCell({ includeEmpty: true }, (cell) => {
+                    cell.style = contentStyle;
+
+                })
             })
 
-            const totalRow = worksheet.addRow({
-                id: 'Итого',
-                totalHours: reportData.totalHours,
-                totalCost: `${reportData.totalCost} ₽`
-            })
+            const totalRow = worksheet.addRow(createEmptyRow(columnsCount))
+            totalRow.getCell(1).value = 'Итого:'
+            totalRow.getCell(5).value = reportData.totalHours;
+            totalRow.getCell(6).value = `${reportData.totalCost} ₽`;
             worksheet.mergeCells(`A${totalRow.number}:D${totalRow.number}`)
-        }
-
-        if (type === 'object') {
-            const totalRows = worksheet.rowCount;
-            for (let row = 1; row <= totalRows; row++) {
-                for (let col = 1; col <= worksheet.columnCount; col++) {
-                    const cell = worksheet.getCell(row, col);
-
-                    if (row === 1) {
-                        cell.style = headerStyle;
-                    } else {
-                        cell.style = contentStyle;
-                    }
+            totalRow.eachCell({includeEmpty: true}, cell => {
+                cell.style = {
+                    ...contentStyle,
+                    font: {...contentStyle.font, bold: cell.address === `A${totalRow.number}`}
                 }
-            }
+            })
         }
 
         const buffer = await workbook.xlsx.writeBuffer();

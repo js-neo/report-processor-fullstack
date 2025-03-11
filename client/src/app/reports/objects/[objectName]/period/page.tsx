@@ -28,6 +28,7 @@ export default function ObjectReportPage() {
     if (!objectReport?.data) return <div className="p-6 text-gray-500">Нет данных по объекту</div>;
 
     const data = objectReport.data;
+    const period = formatReportPeriod(start, end);
     const columns = [
         'Номер',
         'Должность',
@@ -39,6 +40,8 @@ export default function ObjectReportPage() {
         'Примечания'
     ];
 
+    console.log("columns.length: ", columns.length);
+
     return (
         <div className="p-6 max-w-7xl mx-auto space-y-4">
             <ExportToExcelButton
@@ -47,18 +50,12 @@ export default function ObjectReportPage() {
                 fileName={`отчет_${objectName}_${start}-${end}`}
                 startDate={start}
                 endDate={end}
-                workerName={""}
+                name={objectName}
             />
-
-            <div className="p-4 bg-gray-50">
-                <h2 className="text-xl font-semibold">
-                    Отчет по объекту: {data.objectName} ({formatReportPeriod(start, end)})
-                </h2>
-            </div>
 
             <ObjectTable>
                 <ObjectTable.Head>
-                    <ObjectTable.HeaderRow columns={columns} />
+                    <ObjectTable.HeaderRow columns={columns} objectName={data.objectName} period={period} />
                 </ObjectTable.Head>
                 <ObjectTable.Body>
                     {data.employees.map((employee, idx) => (
