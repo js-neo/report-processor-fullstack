@@ -1,8 +1,17 @@
+// client/src/components/Common/LoadingSpinner.tsx
 'use client';
 
-export default function LoadingSpinner() {
+interface LoadingSpinnerProps {
+    small?: boolean;
+}
+
+export default function LoadingSpinner({ small = false }: LoadingSpinnerProps) {
+    const sizeClasses = small
+        ? 'h-4 w-4 border-2'
+        : 'h-8 w-8 border-4';
+
     return (
-        <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]">
+        <div className={`inline-block animate-spin rounded-full border-solid border-current border-r-transparent ${sizeClasses}`}>
             <span className="sr-only">Загрузка...</span>
         </div>
     );

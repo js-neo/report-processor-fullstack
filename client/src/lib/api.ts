@@ -1,5 +1,6 @@
 // client/src/lib/api.ts
 
+import _ from "lodash";
 import { EmployeeReportsResponse, ObjectReportResponse } from "@shared/types/api";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
@@ -25,7 +26,7 @@ const handleError = async (response: Response): Promise<Response> => {
             console.error('API Error:', errorData);
 
             let errorMessage = errorData.message || `HTTP error! Status: ${response.status}`;
-            if (errorData.details) {
+            if (!_.isEmpty(errorData.details)) {
                 errorMessage += `\nDetails: ${JSON.stringify(errorData.details, null, 2)}`;
             }
             if (errorData.suggestion) {
@@ -38,7 +39,7 @@ const handleError = async (response: Response): Promise<Response> => {
 
             // type guard для проверки
             if (isError(e)) {
-                throw new Error(`Request failed: ${e.message}`);
+                throw new Error(`Ошибка запроса: ${e.message}`);
             } else {
                 throw new Error(`Request failed: Unknown error occurred`);
             }
@@ -84,6 +85,29 @@ export const fetchObjectReport = async (
 
     await handleError(response);
     return response.json();
+};
+
+export const fetchWorkers = async (options?: RequestInit) => {
+    const response = await fetch(`${BASE_URL}/workers`, {
+        headers: defaultHeaders,
+        ...options
+    });
+    await handleError(response);
+    const data = await response.json();
+console.log("data_workers: ", data);
+    return data;
+};
+
+export const fetchObjects = async (options?: RequestInit) => {
+    const response = await fetch(`${BASE_URL}/objects`, {
+        headers: defaultHeaders,
+        ...options
+    });
+
+    await handleError(response);
+    const data = await response.json();
+    console.log("data_objects: ", data);
+    return data;
 };
 
 export const fetchReports = async (

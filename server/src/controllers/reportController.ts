@@ -116,7 +116,7 @@ export const getWorkerPeriodReports = asyncHandler<WorkerReportRequest>(
         const startDate = new Date(start);
         const endDate = new Date(end);
         validateDates(startDate, endDate);
-console.log("workerName: ", workerName);
+        console.log("workerName: ", workerName);
         const reports = await Report.find({
             'analysis.workers': workerName,
             timestamp: { $gte: startDate, $lte: endDate }

@@ -4,6 +4,8 @@
 
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
+import DynamicDropdown from '@/components/UI/Dropdown/DynamicDropdown';
+import { useWorkers, useObjects } from '@/hooks/useReports';
 
 export default function HomePage() {
     const router = useRouter();
@@ -13,6 +15,9 @@ export default function HomePage() {
     const [workerName, setWorkerName] = useState('');
     const [objectName, setObjectName] = useState('');
     const [error, setError] = useState('');
+
+    const { workers, loading: workersLoading, error: workersError } = useWorkers();
+    const { objects, loading: objectsLoading, error: objectsError } = useObjects();
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -30,10 +35,11 @@ export default function HomePage() {
         router.push(path);
     };
 
+    console.log("error_page: ", error);
+
     return (
         <div className="max-w-2xl mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
             <h2 className="text-2xl font-bold mb-6 text-gray-800">Генератор табелей</h2>
-
             <div className="flex gap-2 mb-6">
                 <button
                     type="button"
@@ -92,12 +98,14 @@ export default function HomePage() {
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                             Имя сотрудника
                         </label>
-                        <input
-                            type="text"
-                            className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                            placeholder="Введите workerName сотрудника"
-                            value={workerName}
-                            onChange={(e) => setWorkerName(e.target.value)}
+                        <DynamicDropdown
+                            type="employee"
+                            data={workers}
+                            selectedValue={workerName}
+                            onChange={setWorkerName}
+                            placeholder="Выберите сотрудника"
+                            loading={workersLoading}
+                            error={workersError || undefined}
                         />
                     </div>
                 ) : (
@@ -105,12 +113,14 @@ export default function HomePage() {
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                             Название объекта
                         </label>
-                        <input
-                            type="text"
-                            className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                            placeholder="Введите название объекта"
-                            value={objectName}
-                            onChange={(e) => setObjectName(e.target.value)}
+                        <DynamicDropdown
+                            type="object"
+                            data={objects}
+                            selectedValue={objectName}
+                            onChange={setObjectName}
+                            placeholder="Выберите объект"
+                            loading={objectsLoading}
+                            error={objectsError || undefined}
                         />
                     </div>
                 )}
@@ -120,6 +130,7 @@ export default function HomePage() {
                 <button
                     type="submit"
                     className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors"
+                    disabled={workersLoading || objectsLoading}
                 >
                     {activeTab === 'employee' ? 'Сгенерировать по сотруднику' : 'Сгенерировать по объекту'}
                 </button>

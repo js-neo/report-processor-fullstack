@@ -24,6 +24,8 @@ export default function UserReportPage() {
         endDate: end
     });
 
+    console.log("reports: ", reports);
+
     console.log("error_2:", error);
 
     if (loading) {
@@ -46,7 +48,7 @@ export default function UserReportPage() {
         );
     }
 
-    if (!reports.data || reports.data.length === 0) {
+    if (!reports || !reports.data || reports.data.length === 0) {
         return (
             <div className="p-6 text-gray-500">
                 Нет данных за выбранный период ({start} - {end}).

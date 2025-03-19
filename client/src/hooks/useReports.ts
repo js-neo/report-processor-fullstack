@@ -5,10 +5,11 @@
 import { useEffect, useState, useCallback } from 'react';
 import {
     fetchEmployeeReports,
-    fetchObjectReport
+    fetchObjectReport,
+    fetchObjects,
+    fetchWorkers
 } from '@/lib/api';
-import { EmployeeReportsResponse} from "@shared/types/api";
-import { ObjectReportResponse } from "@shared/types/api";
+import { EmployeeReportsResponse, ObjectReportResponse } from "@shared/types/api";
 
 type ReportParams =
     | {
@@ -24,15 +25,29 @@ type ReportParams =
     endDate: string;
 };
 
-export const useReports = <T extends ReportParams>(params: T) => {
+interface Worker {
+    _id: string;
+    name: string;
+    worker_id: string;
+}
+
+interface Object {
+    _id: string;
+    objectName: string;
+}
+
+type ReportState<T extends ReportParams> =
+    T extends { type: 'employee' } ? { response: EmployeeReportsResponse | null; loading: boolean; error: string | null } :
+        T extends { type: 'object' } ? { response: ObjectReportResponse | null; loading: boolean; error: string | null } :
+            never;
+
+export const useReports = <T extends ReportParams>(params: T): ReportState<T> => {
     const [state, setState] = useState<{
-        response: T extends { type: 'employee' } ? EmployeeReportsResponse :
-            T extends { type: 'object' } ? ObjectReportResponse :
-                never;
+        response: EmployeeReportsResponse | ObjectReportResponse | null;
         loading: boolean;
         error: string | null;
     }>({
-        response: null as any,
+        response: null,
         loading: true,
         error: null,
     });
@@ -41,7 +56,8 @@ export const useReports = <T extends ReportParams>(params: T) => {
         try {
             setState(prev => ({ ...prev, loading: true, error: null }));
 
-            let result;
+            let result: EmployeeReportsResponse | ObjectReportResponse;
+
             if (params.type === 'employee') {
                 result = await fetchEmployeeReports(
                     params.workerName,
@@ -49,7 +65,6 @@ export const useReports = <T extends ReportParams>(params: T) => {
                     params.endDate,
                     { signal }
                 );
-                console.log("result_useReports: ", result);
             } else if (params.type === 'object') {
                 result = await fetchObjectReport(
                     params.objectName,
@@ -62,27 +77,18 @@ export const useReports = <T extends ReportParams>(params: T) => {
             }
 
             setState({
-                response: result as any,
+                response: result,
                 loading: false,
                 error: null
             });
         } catch (err) {
-            console.log("error", err);
             if (!signal?.aborted) {
                 let errorMessage = 'Ошибка загрузки';
-
-                if (typeof err === 'object' && err !== null) {
-                    if ('message' in err && typeof err.message === 'string') {
-                        errorMessage = err.message;
-                        console.log("errorMessage:", errorMessage);
-                    }
-                } else if (typeof err === 'string') {
-                    errorMessage = err;
-                    console.log("errorMessage_err:", errorMessage);
-                }
+                if (err instanceof Error) errorMessage = err.message;
+                else if (typeof err === 'string') errorMessage = err;
 
                 setState({
-                    response: null as any,
+                    response: null,
                     loading: false,
                     error: errorMessage
                 });
@@ -102,5 +108,59 @@ export const useReports = <T extends ReportParams>(params: T) => {
         return () => abortController.abort();
     }, [loadData]);
 
-    return state;
+    return state as ReportState<T>;
+};
+
+export const useWorkers = () => {
+    const [workers, setWorkers] = useState<Worker[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        const loadData = async () => {
+            try {
+                const response = await fetchWorkers();
+                setWorkers(response.data);
+            } catch (err) {
+                if (err instanceof Error) {
+                    setError(err.message || 'Ошибка загрузки данных');
+                } else {
+                    setError('Ошибка загрузки данных');
+                }
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        loadData();
+    }, []);
+
+    return { workers, loading, error };
+};
+
+export const useObjects = () => {
+    const [objects, setObjects] = useState<Object[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        const loadData = async () => {
+            try {
+                const response = await fetchObjects();
+                setObjects(response.data);
+            } catch (err) {
+                if (err instanceof Error) {
+                    setError(err.message || 'Ошибка загрузки данных');
+                } else {
+                    setError('Ошибка загрузки данных');
+                }
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        loadData();
+    }, []);
+
+    return { objects, loading, error };
 };

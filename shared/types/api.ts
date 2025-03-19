@@ -1,5 +1,5 @@
 // shared/types/api.ts
-import {IReport, IObjectReport} from "./report.ts";
+import {IReport, IObjectReport} from "./report";
 
 export interface ApiResponse<T = any> {
     success: boolean;

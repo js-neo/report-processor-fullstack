@@ -24,7 +24,21 @@ export default function ObjectReportPage() {
     });
 
     if (loading) return <div className="p-6 text-center"><LoadingSpinner /></div>;
-    if (error) return <div className="p-6 text-red-500">{error}</div>;
+    if (error) {
+        console.log("typeof error", typeof error);
+        return (
+            <div className="p-6 bg-red-50 rounded-lg">
+                <div className="text-red-600 font-medium">
+                    Ошибка загрузки данных:
+                </div>
+                <pre className="mt-2 p-4 bg-red-100 rounded-md text-red-700 overflow-x-auto">
+                    <code className="font-mono text-sm">
+                        {error}
+                    </code>
+                </pre>
+            </div>
+        );
+    }
     if (!objectReport?.data) return <div className="p-6 text-gray-500">Нет данных по объекту</div>;
 
     const data = objectReport.data;
