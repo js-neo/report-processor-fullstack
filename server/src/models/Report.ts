@@ -1,4 +1,5 @@
 // server/src/models/Report.ts
+
 import { Document, Schema, model, Model } from 'mongoose';
 import {
     IUser,
@@ -12,6 +13,13 @@ import {
 interface IReport extends IReportBase, Document {
     _id: "string";
 }
+
+interface IPartialReport extends Pick<IReportBase,
+    'timestamp' |
+    'analysis' |
+    'media' |
+    'transcript'
+> {}
 
 const UserSchema = new Schema<IUser>({
     username: { type: String, required: true },
@@ -68,5 +76,5 @@ ReportSchema.index({ 'analysis.workers': 1, timestamp: 1 });
 ReportSchema.index({ 'analysis.objectName': 1, timestamp: 1 });
 
 const Report: Model<IReport> = model<IReport>('Report', ReportSchema);
-export {IReport};
+export {IReport, IPartialReport};
 export default Report;

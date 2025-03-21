@@ -39,7 +39,7 @@ export default function HomePage() {
 
     return (
         <div className="max-w-2xl mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
-            <h2 className="text-2xl font-bold mb-6 text-gray-800">Генератор табелей</h2>
+            <h2 className="text-2xl text-center font-bold mb-6 text-gray-800">Генератор отчётов</h2>
             <div className="flex gap-2 mb-6">
                 <button
                     type="button"
