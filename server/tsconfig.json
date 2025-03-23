@@ -1,14 +1,12 @@
-// server/tsconfig.json
-
 {
   "compilerOptions": {
     "target": "ES2020",
     "module": "NodeNext",
     "outDir": "./dist",
     "rootDir": "../",
-    "baseUrl": "../",
+    "baseUrl": "./",
     "paths": {
-      "@shared/*": ["shared/*"]
+      "@shared/*": ["../shared/*"]
     },
     "strict": true,
     "esModuleInterop": true,
@@ -21,7 +19,19 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "allowImportingTsExtensions": true,
+    "allowSyntheticDefaultImports": true
   },
-  "include": ["src/**/*", "../shared/**/*" ],
-  "exclude": ["node_modules", "**/*.spec.ts"]
+  "include": ["src/**/*", "../shared/**/*"],
+  "exclude": ["node_modules", "**/*.spec.ts"],
+  "ts-node": {
+    "esm": true,
+    "experimentalSpecifierResolution": "node"
+  }
 }
+
+   /* "rootDir": "../",
+    "baseUrl": "../",
+    "paths": {
+      "@shared*//*": ["shared*//*"]
+    },
+    "moduleResolution": "node",*/

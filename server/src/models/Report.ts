@@ -8,7 +8,7 @@ import {
     IAnalysisData,
     IReportLog,
     IReportBase
-} from "@shared/types/report.ts";
+} from "@shared/types/report.js";
 
 interface IReport extends IReportBase, Document {
     _id: "string";

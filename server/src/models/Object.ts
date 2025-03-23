@@ -1,4 +1,5 @@
 // server/src/models/Object.ts
+
 import { Document, Schema, model, Model } from 'mongoose';
 
 interface IObject extends Document {

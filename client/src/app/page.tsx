@@ -14,7 +14,7 @@ export default function HomePage() {
     const [endDate, setEndDate] = useState('');
     const [workerName, setWorkerName] = useState('');
     const [objectName, setObjectName] = useState('');
-    const [error, setError] = useState('');
+    const [formError, setFormError] = useState('');
 
     const { workers, loading: workersLoading, error: workersError } = useWorkers();
     const { objects, loading: objectsLoading, error: objectsError } = useObjects();
@@ -23,9 +23,11 @@ export default function HomePage() {
         e.preventDefault();
 
         if (!startDate || !endDate) {
-            setError('Пожалуйста, заполните обе даты');
+            setFormError('Пожалуйста, заполните обе даты');
             return;
         }
+
+        setFormError('');
 
         const baseQuery = `?start=${startDate}&end=${endDate}`;
         const path = activeTab === 'employee'
@@ -35,11 +37,10 @@ export default function HomePage() {
         router.push(path);
     };
 
-    console.log("error_page: ", error);
-
     return (
         <div className="max-w-2xl mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
             <h2 className="text-2xl text-center font-bold mb-6 text-gray-800">Генератор отчётов</h2>
+
             <div className="flex gap-2 mb-6">
                 <button
                     type="button"
@@ -125,14 +126,18 @@ export default function HomePage() {
                     </div>
                 )}
 
-                {error && <p className="text-red-500 text-sm">{error}</p>}
+                {formError && <p className="text-red-500 text-sm">{formError}</p>}
+                {workersError && <p className="text-red-500 text-sm">{workersError}</p>}
+                {objectsError && <p className="text-red-500 text-sm">{objectsError}</p>}
 
                 <button
                     type="submit"
                     className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors"
                     disabled={workersLoading || objectsLoading}
                 >
-                    {activeTab === 'employee' ? 'Сгенерировать по сотруднику' : 'Сгенерировать по объекту'}
+                    {activeTab === 'employee'
+                        ? 'Сгенерировать по сотруднику'
+                        : 'Сгенерировать по объекту'}
                 </button>
             </form>
         </div>

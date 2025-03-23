@@ -1,75 +1,55 @@
 // server/src/controllers/reportController.ts
 
-import { Request, Response, NextFunction } from 'express';
-import { ParsedQs } from 'qs';
+import { Request, Response} from 'express';
+import { ParamsDictionary } from 'express-serve-static-core';
 
 import {
     getAllReportService,
     getObjectPeriodReportsService,
     getWorkerPeriodReportsService
 } from "../services/reportService.js";
-import {BadRequestError} from "../errors/errorClasses.js";
-import mongoose from "mongoose";
+import { BadRequestError } from "../errors/errorClasses.ts";
+import { asyncHandler } from "../utils/asyncHandler.ts";
 
+interface WorkerParams extends ParamsDictionary {
+    workerName: string;
+}
 
-declare module 'express' {
-    interface Request {
-        params: {
-            [key: string]: string;
-        };
+interface ObjectParams extends ParamsDictionary {
+    objectName: string;
+}
+
+interface WorkerQuery {
+    start?: string;
+    end?: string;
+}
+
+interface ObjectQuery {
+    start?: string;
+    end?: string;
+}
+
+export const getAllReports = asyncHandler(
+    async (_req: Request, res: Response) => {
+        const reports = await getAllReportService();
+        res.json({
+            success: true,
+            data: reports.map(report => ({
+                ...report
+            }))
+        });
     }
-}
+);
 
-interface WorkerReportRequest extends Request {
-    params: {
-        workerName: string;
-    };
-    query: {
-        start: string;
-        end: string;
-    } & ParsedQs;
-}
-
-interface ObjectReportRequest extends Request {
-    params: {
-        objectName: string;
-    };
-    query: {
-        start: string;
-        end: string;
-    } & ParsedQs;
-}
-
-const asyncHandler = <T extends Request>(
-    fn: (req: T, res: Response, next: NextFunction) => Promise<void>
-) => async (req: T, res: Response, next: NextFunction) => {
-    try {
-        await fn(req, res, next);
-    } catch (err) {
-        if (err instanceof mongoose.Error.CastError) {
-            next(new BadRequestError(`Invalid ${err.path}: ${err.value}`));
-        } else if (err instanceof Error) {
-            next(err);
-        } else {
-            next(new Error('Unknown error occurred'));
-        }
-    }
-};
-
-export const getAllReports = asyncHandler<Request>(async (_req, res) => {
-    const reports = await getAllReportService();
-    res.json({
-        success: true,
-        data: reports.map(report => ({
-            ...report
-        }))
-    });
-});
-
-export const getWorkerPeriodReports = asyncHandler<WorkerReportRequest>(
+export const getWorkerPeriodReports = asyncHandler<
+    WorkerParams,
+    any,
+    any,
+    WorkerQuery
+>(
     async (req, res) => {
         const rawWorkerName = req.params.workerName;
-        const workerName = decodeURIComponent(decodeURIComponent(rawWorkerName));
+        const workerName = decodeURIComponent(rawWorkerName);
 
         if (!workerName.trim()) {
             throw new BadRequestError('Invalid worker name', {
@@ -79,7 +59,12 @@ export const getWorkerPeriodReports = asyncHandler<WorkerReportRequest>(
         }
 
         const { start, end } = req.query;
-        const reports = await getWorkerPeriodReportsService({workerName, start, end});
+
+        if (typeof start !== 'string' || typeof end !== 'string') {
+            throw new BadRequestError('Start and end dates must be valid strings');
+        }
+
+        const reports = await getWorkerPeriodReportsService({ workerName, start, end });
 
         res.json({
             success: true,
@@ -91,28 +76,37 @@ export const getWorkerPeriodReports = asyncHandler<WorkerReportRequest>(
     }
 );
 
-export const getObjectPeriodReports = asyncHandler<ObjectReportRequest>(async (req, res) => {
-    const rawObjectName  = req.params.objectName;
-    const { start, end } = req.query;
+export const getObjectPeriodReports = asyncHandler<
+    ObjectParams,
+    any,
+    any,
+    ObjectQuery
+>(
+    async (req, res) => {
+        const rawObjectName = req.params.objectName;
+        const { start, end } = req.query;
 
-    const objectName = decodeURIComponent(decodeURIComponent(rawObjectName));
+        const objectName = decodeURIComponent(rawObjectName);
 
-    if (!objectName.trim()) {
-        throw new BadRequestError('Object name is required');
-    }
-
-    const employees = await getObjectPeriodReportsService({objectName, start, end});
-
-    res.json({
-        success: true,
-        data: {
-            objectName,
-            period: { start, end },
-            employees,
-            totalHours: employees.reduce((sum, emp) =>
-                sum + emp.totalHours, 0),
-            totalCost: employees.reduce((sum, emp) =>
-                sum + emp.totalCost, 0)
+        if (!objectName.trim()) {
+            throw new BadRequestError('Object name is required');
         }
-    });
-});
+
+        if (typeof start !== 'string' || typeof end !== 'string') {
+            throw new BadRequestError('Start and end dates must be valid strings');
+        }
+
+        const employees = await getObjectPeriodReportsService({ objectName, start, end });
+
+        res.json({
+            success: true,
+            data: {
+                objectName,
+                period: { start, end },
+                employees,
+                totalHours: employees.reduce((sum, emp) => sum + emp.totalHours, 0),
+                totalCost: employees.reduce((sum, emp) => sum + emp.totalCost, 0)
+            }
+        });
+    }
+);

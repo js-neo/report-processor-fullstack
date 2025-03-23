@@ -1,23 +1,44 @@
 // client/src/lib/api.ts
 
-import _ from "lodash";
 import { EmployeeReportsResponse, ObjectReportResponse } from "@shared/types/api";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
-
-const defaultHeaders = {
-    'Content-Type': 'application/json',
-};
+export const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 interface ApiErrorResponse {
     success: boolean;
     message: string;
-    details?: Record<string, any>;
+    details?: Record<string, unknown>;
     suggestion?: string;
 }
-function isError(error: unknown): error is { message: string } {
-    return typeof error === 'object' && error !== null && 'message' in error;
+
+interface ApiListResponse<T> {
+    data: T[];
+    total: number;
 }
+
+interface Worker {
+    _id: string;
+    name: string;
+    worker_id: string;
+    position?: string;
+}
+
+interface Object {
+    _id: string;
+    objectName: string;
+    address?: string;
+}
+
+const getAuthHeaders = (): HeadersInit => {
+    const token = typeof window !== 'undefined'
+        ? localStorage.getItem('accessToken')
+        : null;
+
+    return {
+        'Content-Type': 'application/json',
+        ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+    };
+};
 
 const handleError = async (response: Response): Promise<Response> => {
     if (!response.ok) {
@@ -25,10 +46,12 @@ const handleError = async (response: Response): Promise<Response> => {
             const errorData: ApiErrorResponse = await response.json();
             console.error('API Error:', errorData);
 
-            let errorMessage = errorData.message || `HTTP error! Status: ${response.status}`;
-            if (!_.isEmpty(errorData.details)) {
+            let errorMessage = errorData.message || `HTTP Error ${response.status}`;
+
+            if (errorData.details) {
                 errorMessage += `\nDetails: ${JSON.stringify(errorData.details, null, 2)}`;
             }
+
             if (errorData.suggestion) {
                 errorMessage += `\nSuggestion: ${errorData.suggestion}`;
             }
@@ -36,29 +59,27 @@ const handleError = async (response: Response): Promise<Response> => {
             throw new Error(errorMessage);
         } catch (e) {
             console.error('Failed to parse error response:', e);
-
-            // type guard для проверки
-            if (isError(e)) {
-                throw new Error(`Ошибка запроса: ${e.message}`);
-            } else {
-                throw new Error(`Request failed: Unknown error occurred`);
-            }
+            throw new Error('Не удалось обработать ошибку сервера');
         }
     }
     return response;
 };
+
 export const fetchEmployeeReports = async (
     workerName: string,
     startDate: string,
     endDate: string,
     options?: RequestInit
 ): Promise<EmployeeReportsResponse> => {
-    const params = new URLSearchParams({ start: startDate, end: endDate });
+    const params = new URLSearchParams({
+        start: startDate,
+        end: endDate
+    });
 
     const response = await fetch(
         `${BASE_URL}/reports/workers/${encodeURIComponent(workerName)}/period?${params}`,
         {
-            headers: defaultHeaders,
+            headers: getAuthHeaders(),
             ...options
         }
     );
@@ -73,12 +94,15 @@ export const fetchObjectReport = async (
     endDate: string,
     options?: RequestInit
 ): Promise<ObjectReportResponse> => {
-    const params = new URLSearchParams({ start: startDate, end: endDate });
+    const params = new URLSearchParams({
+        start: startDate,
+        end: endDate
+    });
 
     const response = await fetch(
         `${BASE_URL}/reports/objects/${encodeURIComponent(objectName)}/period?${params}`,
         {
-            headers: defaultHeaders,
+            headers: getAuthHeaders(),
             ...options
         }
     );
@@ -87,27 +111,28 @@ export const fetchObjectReport = async (
     return response.json();
 };
 
-export const fetchWorkers = async (options?: RequestInit) => {
+export const fetchWorkers = async (
+    options?: RequestInit
+): Promise<ApiListResponse<Worker>> => {
     const response = await fetch(`${BASE_URL}/workers`, {
-        headers: defaultHeaders,
+        headers: getAuthHeaders(),
         ...options
     });
+
     await handleError(response);
-    const data = await response.json();
-console.log("data_workers: ", data);
-    return data;
+    return response.json();
 };
 
-export const fetchObjects = async (options?: RequestInit) => {
+export const fetchObjects = async (
+    options?: RequestInit
+): Promise<ApiListResponse<Object>> => {
     const response = await fetch(`${BASE_URL}/objects`, {
-        headers: defaultHeaders,
+        headers: getAuthHeaders(),
         ...options
     });
 
     await handleError(response);
-    const data = await response.json();
-    console.log("data_objects: ", data);
-    return data;
+    return response.json();
 };
 
 export const fetchReports = async (
@@ -115,14 +140,16 @@ export const fetchReports = async (
 ): Promise<EmployeeReportsResponse> => {
     try {
         const response = await fetch(`${BASE_URL}/reports`, {
-            headers: defaultHeaders,
+            headers: getAuthHeaders(),
             ...options
         });
 
         await handleError(response);
-        return await response.json();
+        return response.json();
     } catch (error) {
         console.error('Fetch reports error:', error);
         throw error;
     }
 };
+
+export type { Worker, Object, ApiListResponse };

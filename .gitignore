@@ -6,5 +6,6 @@ client/.next
 client/next-env.d.ts
 
 server/node_modules
+server/scripts
 server/.env
 
