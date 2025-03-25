@@ -1,6 +1,6 @@
 // server/src/routes/workerRoutes.ts
 import express from 'express';
-import { getAllWorkers } from '../controllers/workerController.ts';
+import { getAllWorkers } from '../controllers/workerController.js';
 
 const router = express.Router();
 

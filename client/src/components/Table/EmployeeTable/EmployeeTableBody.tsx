@@ -2,7 +2,7 @@
 
 'use client';
 
-import { IReport, IGroupedReports } from "@shared/types/report";
+import { IReport, IGroupedReports } from "@shared/index";
 import { formatDate, groupByDay, extractLocation } from '@/utils/helpers';
 
 interface BodyTableProps {

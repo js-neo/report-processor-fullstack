@@ -1,15 +1,17 @@
 // client/src/components/Table/ObjectTable/ObjectTableDataRow.tsx
 'use client';
 
-import { IObjectReportEmployee } from '@shared/types/report';
+import { IObjectReportEmployee } from '@shared/index';
+import {FC, ReactNode} from "react";
 
-interface ObjectTableDataRowProps {
+export interface ObjectTableDataRowProps {
     employee: IObjectReportEmployee;
     dates: string[];
     index: number;
+    children?: ReactNode;
 }
 
-const ObjectTableDataRow = ({ employee, dates, index }: ObjectTableDataRowProps) => (
+const ObjectTableDataRow: FC<ObjectTableDataRowProps> = ({ employee, dates, index }: ObjectTableDataRowProps) => (
     <tr className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
         <td className="px-3 py-2 text-center border border-gray-300">{index + 1}</td>
         <td className="px-3 py-2 border border-gray-300">{employee.position}</td>
@@ -33,5 +35,7 @@ const ObjectTableDataRow = ({ employee, dates, index }: ObjectTableDataRowProps)
         <td className="px-3 py-2 border border-gray-300">{employee.comment || ''}</td>
     </tr>
 );
+
+ObjectTableDataRow.displayName = 'ObjectTableDataRow';
 
 export default ObjectTableDataRow;

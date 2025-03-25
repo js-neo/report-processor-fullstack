@@ -1,10 +1,10 @@
 // server/src/server.ts
 
 import express, { Express } from 'express';
-import { cors } from './middleware/cors.ts';
-import connectDB from './config/db.ts';
-import reportRoutes from './routes/reportRoutes.ts';
-import { errorHandler, notFoundHandler } from './utils/errorHandler.ts';
+import { cors } from './middleware/cors.js';
+import connectDB from './config/db.js';
+import reportRoutes from './routes/reportRoutes.js';
+import { errorHandler, notFoundHandler } from './utils/errorHandler.js';
 import dotenv from 'dotenv';
 import workerRoutes from "./routes/workerRoutes.js";
 import objectRoutes from "./routes/objectRoutes.js";

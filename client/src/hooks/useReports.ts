@@ -9,7 +9,7 @@ import {
     fetchObjects,
     fetchWorkers
 } from '@/lib/api';
-import { EmployeeReportsResponse, ObjectReportResponse } from "@shared/types/api";
+import { EmployeeReportsResponse, ObjectReportResponse } from "@shared/index";
 
 type ReportParams =
     | {
@@ -59,21 +59,21 @@ export const useReports = <T extends ReportParams>(params: T): ReportState<T> =>
             let result: EmployeeReportsResponse | ObjectReportResponse;
 
             if (params.type === 'employee') {
+                const { workerName, startDate, endDate } = params as Extract<T, { type: 'employee' }>;
                 result = await fetchEmployeeReports(
-                    params.workerName,
-                    params.startDate,
-                    params.endDate,
-                    { signal }
-                );
-            } else if (params.type === 'object') {
-                result = await fetchObjectReport(
-                    params.objectName,
-                    params.startDate,
-                    params.endDate,
+                    workerName,
+                    startDate,
+                    endDate,
                     { signal }
                 );
             } else {
-                throw new Error('Неизвестный тип отчета');
+                const { objectName, startDate, endDate } = params as Extract<T, { type: 'object' }>;
+                result = await fetchObjectReport(
+                    objectName,
+                    startDate,
+                    endDate,
+                    { signal }
+                );
             }
 
             setState({
@@ -96,11 +96,10 @@ export const useReports = <T extends ReportParams>(params: T): ReportState<T> =>
         }
     }, [
         params.type,
-        params.type === 'employee' ? params.workerName : null,
+        params.type === 'employee' ? params.workerName : params.objectName,
         params.startDate,
-        params.endDate,
-        params.type === 'object' ? params.objectName : null
-    ].filter(Boolean));
+        params.endDate
+    ]);
 
     useEffect(() => {
         const abortController = new AbortController();

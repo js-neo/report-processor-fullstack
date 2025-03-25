@@ -2,25 +2,7 @@
 
 const nextConfig = {
     reactStrictMode: true,
-    async redirects() {
-        return [
-            {
-                source: "/old-page",
-                destination: "/new-page",
-                permanent: true,
-            },
-        ];
-    },
-    async headers() {
-        return [
-            {
-                source: "/(.*)",
-                headers: [
-                    { key: "X-Frame-Options", value: "DENY" },
-                ],
-            },
-        ];
-    },
+    output: 'standalone'
 };
 
 export default nextConfig;

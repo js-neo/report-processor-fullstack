@@ -1,16 +1,19 @@
 // client/src/components/Table/ObjectTable/ObjectTableFooterRow.tsx
+
 'use client';
 
-import { IObjectReport } from '@shared/types/report';
+import { IObjectReport } from '@shared/index';
 import { generateDateHeaders } from '@/utils/helpers';
+import {FC, ReactNode} from "react";
 
-interface ObjectTableFooterRowProps {
+export interface ObjectTableFooterRowProps {
     data: IObjectReport;
     start: string;
     end: string;
+    children?: ReactNode;
 }
 
-const ObjectTableFooterRow = ({ data, start, end }: ObjectTableFooterRowProps) => {
+const ObjectTableFooterRow: FC<ObjectTableFooterRowProps> = ({ data, start, end }) => {
     const datesCount = generateDateHeaders(start, end).length;
 
     return (
@@ -31,5 +34,7 @@ const ObjectTableFooterRow = ({ data, start, end }: ObjectTableFooterRowProps) =
         </tr>
     );
 };
+
+ObjectTableFooterRow.displayName = 'ObjectTableFooterRow';
 
 export default ObjectTableFooterRow;

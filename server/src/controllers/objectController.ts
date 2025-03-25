@@ -1,8 +1,8 @@
 // server/src/controllers/objectController.ts
 
 import { Request, Response, NextFunction } from 'express';
-import Object from '../models/Object.ts';
-import { NotFoundError } from '../errors/errorClasses.ts';
+import Object from '../models/Object.js';
+import { NotFoundError } from '../errors/errorClasses.js';
 
 export const getAllObjects = async (_req: Request, res: Response, next: NextFunction) => {
     try {

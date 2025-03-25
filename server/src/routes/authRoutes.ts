@@ -1,8 +1,8 @@
 // server/src/routes/authRoutes.ts
 
 import express from 'express';
-import { register, login, authenticate } from '../controllers/authController.ts';
-import {asyncHandler} from "../utils/asyncHandler.ts";
+import { register, login, authenticate } from '../controllers/authController.js';
+import {asyncHandler} from "../utils/asyncHandler.js";
 
 const router = express.Router();
 

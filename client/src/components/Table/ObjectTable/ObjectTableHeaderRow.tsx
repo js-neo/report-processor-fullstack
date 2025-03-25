@@ -1,13 +1,16 @@
 // client/src/components/Table/ObjectTable/ObjectTableHeaderRow.tsx
 'use client';
 
-interface ObjectTableHeaderRowProps {
+import {FC, ReactNode} from "react";
+
+export interface ObjectTableHeaderRowProps {
     columns: string[];
     objectName: string;
     period: string;
+    children?: ReactNode;
 }
 
-const ObjectTableHeaderRow = ({ columns, objectName, period}: ObjectTableHeaderRowProps) => {
+const ObjectTableHeaderRow: FC<ObjectTableHeaderRowProps> = ({ columns, objectName, period}) => {
    const len = columns.length;
     return <>
     <tr>
@@ -38,5 +41,7 @@ const ObjectTableHeaderRow = ({ columns, objectName, period}: ObjectTableHeaderR
     </tr>
     </>
 }
+
+ObjectTableHeaderRow.displayName = 'ObjectTableHeaderRow';
 
 export default ObjectTableHeaderRow;

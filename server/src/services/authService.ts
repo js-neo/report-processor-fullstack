@@ -1,11 +1,11 @@
 // server/src/services/authService.ts
 
-import Auth, { IAuth } from '../models/Auth.ts';
+import Auth, { IAuth } from '../models/Auth.js';
 import {
     BadRequestError,
     UnauthorizedError,
     NotFoundError
-} from '../errors/errorClasses.ts';
+} from '../errors/errorClasses.js';
 import jwt, { Secret } from 'jsonwebtoken';
 
 if (!process.env.JWT_SECRET) {

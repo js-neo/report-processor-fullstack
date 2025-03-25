@@ -1,6 +1,6 @@
 // server/src/errors/authErrors.ts
 
-import { ApiError, ErrorDetails } from './errorClasses.ts';
+import { ApiError, ErrorDetails } from './errorClasses.js';
 
 export class InvalidCredentialsError extends ApiError {
     constructor(details?: ErrorDetails) {

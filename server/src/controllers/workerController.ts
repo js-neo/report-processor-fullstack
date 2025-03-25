@@ -1,7 +1,7 @@
 // server/src/controllers/workerController.ts
 import { Request, Response, NextFunction } from 'express';
-import Worker from '../models/Worker.ts';
-import { NotFoundError } from '../errors/errorClasses.ts';
+import Worker from '../models/Worker.js';
+import { NotFoundError } from '../errors/errorClasses.js';
 
 export const getAllWorkers = async (_req: Request, res: Response, next: NextFunction) => {
     try {

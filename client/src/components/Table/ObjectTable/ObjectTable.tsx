@@ -1,13 +1,21 @@
 // client/src/components/Table/ObjectTable/ObjectTable.tsx
 'use client';
 
-import { ReactNode } from 'react';
-import ObjectTableDataRow from "@/components/Table/ObjectTable/ObjectTableDataRow";
-import ObjectTableHeaderRow from "@/components/Table/ObjectTable/ObjectTableHeaderRow";
-import ObjectTableFooterRow from "@/components/Table/ObjectTable/ObjectTableFooterRow";
+import {FC, ReactNode} from 'react';
+import ObjectTableDataRow, {ObjectTableDataRowProps} from "@/components/Table/ObjectTable/ObjectTableDataRow";
+import ObjectTableHeaderRow, {ObjectTableHeaderRowProps} from "@/components/Table/ObjectTable/ObjectTableHeaderRow";
+import ObjectTableFooterRow, {ObjectTableFooterRowProps} from "@/components/Table/ObjectTable/ObjectTableFooterRow";
+
+interface ObjectTableComponent extends FC<{children: ReactNode}>{
+    Head: FC<{children: ReactNode}>;
+    Body: FC<{children: ReactNode}>;
+    HeaderRow: FC<ObjectTableHeaderRowProps>;
+    DataRow: FC<ObjectTableDataRowProps>;
+    FooterRow: FC<ObjectTableFooterRowProps>;
+}
 
 
-const ObjectTable = ({ children }: { children: ReactNode }) => (
+const ObjectTable: ObjectTableComponent = ({ children }: { children: ReactNode }) => (
     <div className="overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
         <table className="min-w-full table-fixed border-collapse text-sm">
             {children}
@@ -15,13 +23,19 @@ const ObjectTable = ({ children }: { children: ReactNode }) => (
     </div>
 );
 
-ObjectTable.Head = ({ children }: { children: ReactNode }) => (
+const Head: FC<{ children: ReactNode }> = ({ children }: { children: ReactNode }) => (
     <thead className="bg-gray-50">{children}</thead>
 );
+Head.displayName = "ObjectTable.Head";
 
-ObjectTable.Body = ({ children }: { children: ReactNode }) => (
+const Body: FC<{children: ReactNode}> = ({ children }: { children: ReactNode }) => (
     <tbody className="divide-y divide-gray-200 bg-white">{children}</tbody>
 );
+
+Body.displayName = "ObjectTable.Body";
+
+ObjectTable.Head = Head;
+ObjectTable.Body = Body;
 
 ObjectTable.HeaderRow = ObjectTableHeaderRow;
 ObjectTable.DataRow = ObjectTableDataRow;

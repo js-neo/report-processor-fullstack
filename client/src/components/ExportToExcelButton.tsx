@@ -2,7 +2,7 @@
 'use client'
 import ExcelJS from 'exceljs'
 import { saveAs } from 'file-saver'
-import { IReport, IObjectReport } from "@shared/types/report"
+import { IReport, IObjectReport } from "@shared/index"
 import { groupByDay } from "@/utils/helpers"
 import { formatDate, extractLocation, generateDateHeaders, formatReportPeriod, getColumnLetter } from '@/utils/helpers'
 
@@ -23,7 +23,7 @@ interface RowData {
     totalHours: number;
     totalCost: string;
     comment: string;
-    [key: string]: any;
+    [key: string]: number | string;
 }
 
 export const ExportToExcelButton = ({

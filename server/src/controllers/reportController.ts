@@ -8,8 +8,8 @@ import {
     getObjectPeriodReportsService,
     getWorkerPeriodReportsService
 } from "../services/reportService.js";
-import { BadRequestError } from "../errors/errorClasses.ts";
-import { asyncHandler } from "../utils/asyncHandler.ts";
+import { BadRequestError } from "../errors/errorClasses.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
 
 interface WorkerParams extends ParamsDictionary {
     workerName: string;

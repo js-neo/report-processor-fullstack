@@ -2,7 +2,7 @@
 
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
-import { DatabaseError } from '../errors/errorClasses.ts';
+import { DatabaseError } from '../errors/errorClasses.js';
 
 declare global {
     interface Error {

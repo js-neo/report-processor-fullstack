@@ -1,6 +1,6 @@
 // client/src/lib/api.ts
 
-import { EmployeeReportsResponse, ObjectReportResponse } from "@shared/types/api";
+import { EmployeeReportsResponse, ObjectReportResponse } from "@shared/index";
 
 export const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 

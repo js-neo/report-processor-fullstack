@@ -1,6 +1,6 @@
 // client/src/utils/helpers.ts
 
-import { IReport, IAnalysisData, IGroupedReports} from "@shared/types/report";
+import { IReport, IAnalysisData, IGroupedReports} from "@shared/index";
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 
@@ -52,7 +52,7 @@ export const extractLocation = (analysis: IAnalysisData): string => {
 
 export const generateDateHeaders = (start: string, end: string): string[] => {
     const dates = [];
-    let current = new Date(start);
+    const current = new Date(start);
     const endDate = new Date(end);
 
     while (current <= endDate) {
@@ -77,6 +77,7 @@ export const formatReportPeriod = (startDate: string, endDate: string): string =
         return `${format(start, 'dd.MM.yyyy', { locale: ru })} - ${format(end, 'dd.MM.yyyy', { locale: ru })}`;
 
     } catch (e) {
+        console.log(e);
         return 'Некорректный период';
     }
 };

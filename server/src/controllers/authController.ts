@@ -1,13 +1,13 @@
 // server/src/controllers/authController.ts
 
 import { Request, Response, NextFunction } from 'express';
-import { asyncHandler } from "../utils/asyncHandler.ts";
+import { asyncHandler } from "../utils/asyncHandler.js";
 import {
     registerUser,
     loginUser,
     validateToken
-} from '../services/authService.ts';
-import {BadRequestError, UnauthorizedError} from '../errors/errorClasses.ts';
+} from '../services/authService.js';
+import {BadRequestError, UnauthorizedError} from '../errors/errorClasses.js';
 
 export const register = asyncHandler(async (req: Request, res: Response, _next: NextFunction) => {
     const { email, password } = req.body;

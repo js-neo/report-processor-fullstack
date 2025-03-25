@@ -1,8 +1,8 @@
 // server/src/services/reportService.ts
 
-import Report, { IReport, IPartialReport } from '../models/Report.ts';
-import {NotFoundError } from '../errors/errorClasses.ts';
-import {validateDates, parseCreationDate, generateDailyHours} from "../utils/dateUtils.ts"
+import Report, { IReport, IPartialReport } from '../models/Report.js';
+import {NotFoundError } from '../errors/errorClasses.js';
+import {validateDates, parseCreationDate, generateDailyHours} from "../utils/dateUtils.js"
 import {format} from "date-fns";
 
 type IReportParams = {

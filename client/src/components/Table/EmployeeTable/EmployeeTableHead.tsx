@@ -2,7 +2,7 @@
 
 'use client';
 
-import { IReport } from "@shared/types/report";
+import { IReport } from "@shared/index";
 import { formatReportPeriod } from "@/utils/helpers";
 
 interface HeadTableProps {

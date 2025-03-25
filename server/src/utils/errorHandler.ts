@@ -1,10 +1,10 @@
 import { ErrorRequestHandler, Request, Response, NextFunction } from 'express';
-import { ApiError, ErrorDetails, NotFoundError } from '../errors/errorClasses.ts';
+import { ApiError, ErrorDetails, NotFoundError } from '../errors/errorClasses.js';
 import {
     InvalidCredentialsError,
     UserNotFoundError,
     TokenExpiredError
-} from '../errors/authErrors.ts';
+} from '../errors/authErrors.js';
 import { MongooseError } from 'mongoose';
 
 const decodeSafe = (encodedString: string): string => {

@@ -10,7 +10,7 @@ import {
     ParamsDictionary,
 } from 'express-serve-static-core';
 import mongoose from 'mongoose';
-import { BadRequestError } from '../errors/errorClasses.ts';
+import { BadRequestError } from '../errors/errorClasses.js';
 import { ParsedQs } from 'qs';
 
 type AsyncRequestHandler<
