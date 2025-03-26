@@ -1,11 +1,18 @@
 /.idea
 
-client/node_modules
-client/.env.local
-client/.next
-client/next-env.d.ts
+packages/client/node_modules
+packages/client/.env.local
+packages/client/.next
+packages/client/next-env.d.ts
 
-server/node_modules
-server/scripts
-server/.env
+packages/server/node_modules
+packages/server/dist
+packages/server/.env
 
+packages/shared/node_modules
+packages/shared/dist
+packages/shared/tsconfig.tsbuildinfo
+
+
+node_modules
+scripts
