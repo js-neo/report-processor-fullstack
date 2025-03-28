@@ -11,7 +11,7 @@
     "start:server": "npm run start --workspace=server",
     "start:client": "npm run start --workspace=client",
     "build": "npm-run-all build:shared build:client build:server",
-    "vercel:build": "npm-run-all build:shared build:client",
+    "vercel:build": "npx npm-run-all build:shared build:client",
     "build:client": "npm run build -w client",
     "build:server": "npm run build -w server",
     "build:shared": "npm run build -w shared",
