@@ -94,12 +94,7 @@ export const useReports = <T extends ReportParams>(params: T): ReportState<T> =>
                 });
             }
         }
-    }, [
-        params.type,
-        params.type === 'employee' ? params.workerName : params.objectName,
-        params.startDate,
-        params.endDate
-    ]);
+    }, [ params ]);
 
     useEffect(() => {
         const abortController = new AbortController();

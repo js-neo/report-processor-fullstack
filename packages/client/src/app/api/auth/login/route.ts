@@ -46,8 +46,20 @@ export async function POST(req: Request) {
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'lax',
             path: '/',
-            maxAge: 60 * 60 * 24
+            maxAge: 60 * 60 * 24,
+            domain: 'report-processor-fullstack-client.vercel.app'
         });
+
+        /*nextResponse.cookies.set({
+            name: 'accessToken',
+            value: data.accessToken,
+            httpOnly: true,
+            secure: false,
+            sameSite: 'lax',
+            path: '/',
+            maxAge: 60 * 60 * 24,
+            domain: '10.0.85.2'
+        });*/
 
         return nextResponse;
 

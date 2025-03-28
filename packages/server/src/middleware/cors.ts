@@ -4,7 +4,9 @@ import { RequestHandler } from 'express';
 
 const allowedCors = [
     "http://localhost:3000",
-    "http://localhost:3001"
+    "http://localhost:3001",
+    "http://10.0.85.2:3000",
+    "https://report-processor-fullstack-client.vercel.app"
 ];
 
 export const cors: RequestHandler = (req, res, next) => {
