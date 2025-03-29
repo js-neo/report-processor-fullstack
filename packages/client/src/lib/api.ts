@@ -119,6 +119,7 @@ export const fetchWorkers = async (
 ): Promise<ApiListResponse<Worker>> => {
     const response = await fetch(`${BASE_URL}/workers`, {
         headers: getAuthHeaders(),
+        credentials: 'include',
         ...options
     });
 
@@ -131,6 +132,7 @@ export const fetchObjects = async (
 ): Promise<ApiListResponse<Object>> => {
     const response = await fetch(`${BASE_URL}/objects`, {
         headers: getAuthHeaders(),
+        credentials: 'include',
         ...options
     });
 

@@ -44,26 +44,14 @@ export async function POST(req: Request) {
             value: data.accessToken,
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
             path: '/',
             maxAge: 60 * 60 * 24,
             domain: process.env.NODE_ENV === 'production'
-                ? process.env.NEXT_PUBLIC_PROD_DOMAIN
-                : process.env.NEXT_PUBLIC_DEV_DOMAIN
+                ? 'report-processor-fullstack.onrender.com'
+                : undefined
         });
 
-        console.log()
-
-        /*nextResponse.cookies.set({
-            name: 'accessToken',
-            value: data.accessToken,
-            httpOnly: true,
-            secure: false,
-            sameSite: 'lax',
-            path: '/',
-            maxAge: 60 * 60 * 24,
-            domain: '10.0.85.2'
-        });*/
 
         return nextResponse;
 
