@@ -1,7 +1,7 @@
 // server/src/server.ts
 
 import express, { Express } from 'express';
-import { cors } from './middleware/cors.js';
+import { corsMiddleware } from './middleware/corsMiddleware.js';
 import connectDB from './config/db.js';
 import reportRoutes from './routes/reportRoutes.js';
 import { errorHandler, notFoundHandler } from './utils/errorHandler.js';
@@ -15,10 +15,14 @@ dotenv.config();
 const app: Express = express();
 const PORT: string | number = process.env.PORT || 5000;
 
-app.get("/", (req, res) => res.sendStatus(200));
-app.head("/", (req, res) => res.sendStatus(200));
+app.get("/", (_req, res) => {
+    res.sendStatus(200)
+});
+app.head("/", (_req, res) => {
+    res.sendStatus(200)
+});
 
-app.use(cors);
+app.use(corsMiddleware);
 app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/reports', reportRoutes);

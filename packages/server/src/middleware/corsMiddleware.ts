@@ -1,4 +1,4 @@
-// server/src/middleware/cors.ts
+// server/src/middleware/corsMiddleware.ts
 
 import { RequestHandler } from 'express';
 
@@ -9,7 +9,7 @@ const allowedCors = [
     "https://report-processor-fullstack-client.vercel.app"
 ];
 
-export const cors: RequestHandler = (req, res, next) => {
+export const corsMiddleware: RequestHandler = (req, res, next) => {
     const { origin } = req.headers;
 
     res.header('Vary', 'Origin');
