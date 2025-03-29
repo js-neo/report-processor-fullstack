@@ -21,6 +21,10 @@ app.get("/", (_req, res) => {
 app.head("/", (_req, res) => {
     res.sendStatus(200)
 });
+app.get("/health", (_req, res) => {
+    res.json({status: "ok", timestamp: new Date()})
+});
+
 
 app.use(corsMiddleware);
 app.use(express.json());
