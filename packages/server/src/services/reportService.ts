@@ -32,7 +32,7 @@ export const getWorkerPeriodReportsService = async ({workerName, start, end}: IR
     const endDate = new Date(end);
         validateDates(startDate, endDate);
         const reports = await Report.find({
-            'analysis.workers': workerName,
+            'analysis.workers.name': workerName,
             timestamp: { $gte: startDate, $lte: endDate }
         })
             .select('timestamp analysis media transcript')
@@ -95,7 +95,9 @@ export const getObjectPeriodReportsService = async ({objectName, start, end}: IR
     for (const report of reports) {
         if (!report.analysis?.workers?.length) continue;
 
-        const uniqueWorkers = [...new Set(report.analysis.workers)];
+        const uniqueWorkers = [...new Set(
+            report.analysis.workers.map(worker => worker.name)
+        )];
         const dateKey = format(report.timestamp, 'dd.MM');
 
         for (const worker of uniqueWorkers) {

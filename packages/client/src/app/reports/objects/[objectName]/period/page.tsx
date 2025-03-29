@@ -25,7 +25,6 @@ export default function ObjectReportPage() {
 
     if (loading) return <div className="p-6 text-center"><LoadingSpinner /></div>;
     if (error) {
-        console.log("typeof error", typeof error);
         return (
             <div className="p-6 bg-red-50 rounded-lg">
                 <div className="text-red-600 font-medium">
@@ -53,8 +52,6 @@ export default function ObjectReportPage() {
         ...generateDateHeaders(start, end),
         'Примечания'
     ];
-
-    console.log("columns.length: ", columns.length);
 
     return (
         <div className="p-6 max-w-7xl mx-auto space-y-4">

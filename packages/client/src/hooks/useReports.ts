@@ -1,8 +1,6 @@
-// client/src/hooks/useReports.ts
-
 "use client";
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import {
     fetchEmployeeReports,
     fetchObjectReport,
@@ -42,6 +40,26 @@ type ReportState<T extends ReportParams> =
             never;
 
 export const useReports = <T extends ReportParams>(params: T): ReportState<T> => {
+    const { type, startDate, endDate } = params;
+
+    const { workerName, objectName } = useMemo(() => {
+        if (type === 'employee') {
+            return {
+                workerName: (params as Extract<T, { type: 'employee' }>).workerName,
+                objectName: undefined
+            };
+        }
+        return {
+            workerName: undefined,
+            objectName: (params as Extract<T, { type: 'object' }>).objectName
+        };
+    }, [type, params]);
+
+    const primaryIdentifier = useMemo(
+        () => type === 'employee' ? workerName : objectName,
+        [type, workerName, objectName]
+    );
+
     const [state, setState] = useState<{
         response: EmployeeReportsResponse | ObjectReportResponse | null;
         loading: boolean;
@@ -54,27 +72,29 @@ export const useReports = <T extends ReportParams>(params: T): ReportState<T> =>
 
     const loadData = useCallback(async (signal?: AbortSignal) => {
         try {
-            setState(prev => ({ ...prev, loading: true, error: null }));
-
-            let result: EmployeeReportsResponse | ObjectReportResponse;
-
-            if (params.type === 'employee') {
-                const { workerName, startDate, endDate } = params as Extract<T, { type: 'employee' }>;
-                result = await fetchEmployeeReports(
-                    workerName,
-                    startDate,
-                    endDate,
-                    { signal }
-                );
-            } else {
-                const { objectName, startDate, endDate } = params as Extract<T, { type: 'object' }>;
-                result = await fetchObjectReport(
-                    objectName,
-                    startDate,
-                    endDate,
-                    { signal }
-                );
+            if (!primaryIdentifier) {
+                throw new Error('Не указан идентификатор для запроса');
             }
+
+            setState(prev => ({
+                ...prev,
+                loading: true,
+                error: null
+            }));
+
+            const result = type === 'employee'
+                ? await fetchEmployeeReports(
+                    primaryIdentifier,
+                    startDate,
+                    endDate,
+                    { signal }
+                )
+                : await fetchObjectReport(
+                    primaryIdentifier,
+                    startDate,
+                    endDate,
+                    { signal }
+                );
 
             setState({
                 response: result,
@@ -82,25 +102,47 @@ export const useReports = <T extends ReportParams>(params: T): ReportState<T> =>
                 error: null
             });
         } catch (err) {
-            if (!signal?.aborted) {
-                let errorMessage = 'Ошибка загрузки';
-                if (err instanceof Error) errorMessage = err.message;
-                else if (typeof err === 'string') errorMessage = err;
+            if (signal?.aborted) return;
 
-                setState({
-                    response: null,
-                    loading: false,
-                    error: errorMessage
-                });
-            }
+            const errorMessage = err instanceof Error
+                ? err.message
+                : 'Неизвестная ошибка при загрузке данных';
+
+            setState({
+                response: null,
+                loading: false,
+                error: errorMessage
+            });
         }
-    }, [ params ]);
+    }, [
+        type,
+        primaryIdentifier,
+        startDate,
+        endDate
+    ]);
+
+    const effectDependencies = useMemo(() => ({
+        type,
+        primaryIdentifier,
+        startDate,
+        endDate
+    }), [type, primaryIdentifier, startDate, endDate]);
 
     useEffect(() => {
         const abortController = new AbortController();
-        loadData(abortController.signal);
+
+        if (primaryIdentifier) {
+            loadData(abortController.signal);
+        } else {
+            setState({
+                response: null,
+                loading: false,
+                error: 'Отсутствуют параметры для запроса'
+            });
+        }
+
         return () => abortController.abort();
-    }, [loadData]);
+    }, [effectDependencies, loadData, primaryIdentifier]);
 
     return state as ReportState<T>;
 };

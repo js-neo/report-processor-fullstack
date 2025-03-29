@@ -21,8 +21,6 @@ export async function POST(req: Request) {
                 message: 'Unknown error occurred'
             }));
 
-            console.log("error: ", error.message);
-
             return NextResponse.json(
                 { error: error.message || 'Authentication failed' },
                 {
@@ -48,7 +46,6 @@ export async function POST(req: Request) {
             path: '/',
             maxAge: 60 * 60 * 24,
         });
-
 
         return nextResponse;
 

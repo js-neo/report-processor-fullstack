@@ -2,7 +2,14 @@
 
 export interface IUser {
     username: string;
-    telegram_id: string;
+    telegram_id: number;
+    user_id: string;
+    name: string;
+}
+
+export interface IWorker {
+    name: string;
+    worker_id: string;
 }
 
 export interface IMediaMetadata {
@@ -27,7 +34,7 @@ export interface IMediaData {
 export interface IAnalysisData {
     objectName?: string;
     task: string;
-    workers: string[];
+    workers: IWorker[];
     time: number;
 }
 

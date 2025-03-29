@@ -7,7 +7,7 @@ import {
     IMediaData,
     IAnalysisData,
     IReportLog,
-    IReportBase
+    IReportBase, IWorker
 } from "shared";
 
 interface IReport extends IReportBase, Document {
@@ -23,8 +23,15 @@ interface IPartialReport extends Pick<IReportBase,
 
 const UserSchema = new Schema<IUser>({
     username: { type: String, required: true },
-    telegram_id: { type: String, required: true }
+    telegram_id: { type: Number, required: true },
+    user_id: { type: String, required: true },
+    name: { type: String, required: true }
 }, { _id: false });
+
+const WorkerSchema = new Schema<IWorker>({
+    name: { type: String, required: true },
+    worker_id: { type: String, required: true }
+})
 
 const MediaMetadataSchema = new Schema<IMediaMetadata>({
     creation_date: { type: String },
@@ -47,7 +54,7 @@ const MediaDataSchema = new Schema<IMediaData>({
 
 const AnalysisDataSchema = new Schema<IAnalysisData>({
     task: { type: String, required: true },
-    workers: { type: [String], required: true },
+    workers: { type: [WorkerSchema], required: true },
     time: { type: Number, required: true }
 }, { _id: false });
 

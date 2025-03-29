@@ -24,10 +24,6 @@ export default function UserReportPage() {
         endDate: end
     });
 
-    console.log("reports: ", reports);
-
-    console.log("error_2:", error);
-
     if (loading) {
         return <div className="p-6 text-center"><LoadingSpinner /></div>;
     }
