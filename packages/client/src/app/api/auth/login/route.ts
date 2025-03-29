@@ -48,9 +48,11 @@ export async function POST(req: Request) {
             path: '/',
             maxAge: 60 * 60 * 24,
             domain: process.env.NODE_ENV === 'production'
-                ? '.vercel.app'
-                : undefined
+                ? process.env.NEXT_PUBLIC_PROD_DOMAIN
+                : process.env.NEXT_PUBLIC_DEV_DOMAIN
         });
+
+        console.log()
 
         /*nextResponse.cookies.set({
             name: 'accessToken',
