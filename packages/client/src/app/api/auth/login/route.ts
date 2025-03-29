@@ -47,7 +47,9 @@ export async function POST(req: Request) {
             sameSite: 'lax',
             path: '/',
             maxAge: 60 * 60 * 24,
-            domain: 'report-processor-fullstack-client.vercel.app'
+            domain: process.env.NODE_ENV === 'production'
+                ? '.vercel.app'
+                : undefined
         });
 
         /*nextResponse.cookies.set({
