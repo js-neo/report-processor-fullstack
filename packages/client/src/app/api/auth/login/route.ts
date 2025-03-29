@@ -47,9 +47,6 @@ export async function POST(req: Request) {
             sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
             path: '/',
             maxAge: 60 * 60 * 24,
-            domain: process.env.NODE_ENV === 'production'
-                ? 'report-processor-fullstack.onrender.com'
-                : undefined
         });
 
 

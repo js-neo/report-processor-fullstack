@@ -117,6 +117,7 @@ export const fetchObjectReport = async (
 export const fetchWorkers = async (
     options?: RequestInit
 ): Promise<ApiListResponse<Worker>> => {
+    console.log("url_api: ", `${BASE_URL}/workers`);
     const response = await fetch(`${BASE_URL}/workers`, {
         headers: getAuthHeaders(),
         credentials: 'include',
