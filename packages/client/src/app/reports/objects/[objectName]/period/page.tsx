@@ -23,22 +23,24 @@ export default function ObjectReportPage() {
         endDate: end
     });
 
-    if (loading) return <div className="p-6 text-center"><LoadingSpinner /></div>;
+    if (loading) return <div className="p-6 text-center dark:bg-gray-800"><LoadingSpinner /></div>;
     if (error) {
         return (
-            <div className="p-6 bg-red-50 rounded-lg">
-                <div className="text-red-600 font-medium">
-                    Ошибка загрузки данных:
+            <div className="p-6 max-w-7xl mx-auto dark:bg-gray-800 rounded-lg">
+                <div className="p-6 bg-red-50 dark:bg-red-900/20 rounded-lg">
+                    <div className="text-red-600 dark:text-red-400 font-medium">
+                        Ошибка загрузки данных:
+                    </div>
+                    <pre className="mt-2 p-4 bg-red-100 dark:bg-red-900/10 rounded-md text-red-700 dark:text-red-300 overflow-x-auto">
+                        <code className="font-mono text-sm">
+                            {error}
+                        </code>
+                    </pre>
                 </div>
-                <pre className="mt-2 p-4 bg-red-100 rounded-md text-red-700 overflow-x-auto">
-                    <code className="font-mono text-sm">
-                        {error}
-                    </code>
-                </pre>
             </div>
         );
     }
-    if (!objectReport?.data) return <div className="p-6 text-gray-500">Нет данных по объекту</div>;
+    if (!objectReport?.data) return <div className="p-6 text-gray-500 dark:text-gray-400 dark:bg-gray-800">Нет данных по объекту</div>;
 
     const data = objectReport.data;
     const period = formatReportPeriod(start, end);
@@ -54,7 +56,7 @@ export default function ObjectReportPage() {
     ];
 
     return (
-        <div className="p-6 max-w-7xl mx-auto space-y-4">
+        <div className="p-6 max-w-7xl mx-auto dark:bg-gray-800 space-y-4">
             <ExportToExcelButton
                 type="object"
                 data={data}

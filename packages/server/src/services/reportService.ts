@@ -4,6 +4,7 @@ import Report, { IReport, IPartialReport } from '../models/Report.js';
 import {NotFoundError } from '../errors/errorClasses.js';
 import {validateDates, parseCreationDate, generateDailyHours} from "../utils/dateUtils.js"
 import {format} from "date-fns";
+import {IWorker} from "@/models/Worker.js";
 
 type IReportParams = {
     start: string;
@@ -64,16 +65,63 @@ export const getWorkerPeriodReportsService = async ({workerName, start, end}: IR
     }
 
 export const getObjectPeriodReportsService = async ({objectName, start, end}: IReportParams) => {
-
-
     const startDate = new Date(start);
     const endDate = new Date(end);
     validateDates(startDate, endDate);
 
-    const reports = await Report.find({
-        'analysis.objectName': objectName,
-        timestamp: { $gte: startDate, $lte: endDate }
-    }).lean();
+    const reports = await Report.aggregate([
+        {
+            $match: {
+                'analysis.objectName': objectName,
+                timestamp: {
+                    $gte: startDate,
+                    $lte: endDate
+                }
+            }
+        },
+        {
+            $lookup: {
+                from: 'workers',
+                localField: 'analysis.workers.worker_id',
+                foreignField: 'worker_id',
+                as: 'workersData'
+            }
+        },
+        {
+            $addFields: {
+                'analysis.workers': {
+                    $map: {
+                        input: '$analysis.workers',
+                        as: 'worker',
+                        in: {
+                            $mergeObjects: [
+                                '$$worker',
+                                {
+                                    $arrayElemAt: [
+                                        {
+                                            $filter: {
+                                                input: '$workersData',
+                                                as: 'wd',
+                                                cond: {
+                                                    $eq: ['$$wd.worker_id', '$$worker.worker_id']
+                                                }
+                                            }
+                                        },
+                                        0
+                                    ]
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        {
+            $project: {
+                workersData: 0
+            }
+        }
+    ]);
 
     if (reports.length === 0) {
         throw new NotFoundError("Запрашиваемый ресурс не найден", {
@@ -95,28 +143,33 @@ export const getObjectPeriodReportsService = async ({objectName, start, end}: IR
     for (const report of reports) {
         if (!report.analysis?.workers?.length) continue;
 
-        const uniqueWorkers = [...new Set(
-            report.analysis.workers.map(worker => worker.name)
-        )];
-        const dateKey = format(report.timestamp, 'dd.MM');
+        const dateKey = format(new Date(report.timestamp), 'dd.MM');
 
-        for (const worker of uniqueWorkers) {
-            const employee = employeesMap.get(worker) || {
-                id: worker,
-                position: 'монтажник',
-                workerName: worker,
-                rate: 600,
-                dailyHours: {},
+        for (const worker of report.analysis.workers) {
+            const workerName = worker.name;
+            const workerData = worker as IWorker & {
+                position?: string;
+                salary_rate?: number
+            };
+
+            const employee = employeesMap.get(workerName) || {
+                id: worker.worker_id,
+                position: workerData.position || 'Должность не указана',
+                workerName: workerName,
+                rate: workerData.salary_rate || 0,
+                dailyHours: {} as Record<string, number>,
                 totalHours: 0
             };
 
-            employee.dailyHours[dateKey] = (employee.dailyHours[dateKey] || 0) + report.analysis.time;
+            const currentHours = employee.dailyHours[dateKey] || 0;
+            employee.dailyHours[dateKey] = currentHours + report.analysis.time;
             employee.totalHours += report.analysis.time;
-            employeesMap.set(worker, employee);
+
+            employeesMap.set(workerName, employee);
         }
     }
 
-    return  Array.from(employeesMap.values()).map(emp => ({
+    return Array.from(employeesMap.values()).map(emp => ({
         ...emp,
         totalCost: emp.totalHours * emp.rate,
         dailyHours: generateDailyHours(emp.dailyHours, start, end)

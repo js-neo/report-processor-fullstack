@@ -1,4 +1,4 @@
-// client/src/app/page.tsx
+// packages/client/src/app/page.tsx
 
 'use client';
 
@@ -38,8 +38,10 @@ export default function HomePage() {
     };
 
     return (
-        <div className="max-w-2xl mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
-            <h2 className="text-2xl text-center font-bold mb-6 text-gray-800">Генератор отчётов</h2>
+        <div className="max-w-2xl mx-auto mt-10 p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+            <h2 className="text-2xl text-center font-bold mb-6 text-gray-800 dark:text-gray-100">
+                Генератор отчётов
+            </h2>
 
             <div className="flex gap-2 mb-6">
                 <button
@@ -47,8 +49,8 @@ export default function HomePage() {
                     onClick={() => setActiveTab('employee')}
                     className={`flex-1 py-2 px-4 rounded-md transition-colors ${
                         activeTab === 'employee'
-                            ? 'bg-blue-600 text-white'
-                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                            ? 'bg-blue-600 dark:bg-blue-700 text-white'
+                            : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                     }`}
                 >
                     По сотруднику
@@ -58,8 +60,8 @@ export default function HomePage() {
                     onClick={() => setActiveTab('object')}
                     className={`flex-1 py-2 px-4 rounded-md transition-colors ${
                         activeTab === 'object'
-                            ? 'bg-blue-600 text-white'
-                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                            ? 'bg-blue-600 dark:bg-blue-700 text-white'
+                            : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                     }`}
                 >
                     По объекту
@@ -69,24 +71,34 @@ export default function HomePage() {
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                             Начальная дата
                         </label>
                         <input
                             type="date"
-                            className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            className="w-full p-2 border rounded-md transition-colors
+                                border-gray-300 dark:border-gray-600
+                                bg-white dark:bg-gray-700
+                                text-gray-900 dark:text-gray-100
+                                focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400
+                                focus:border-blue-500 dark:focus:border-blue-400"
                             value={startDate}
                             onChange={(e) => setStartDate(e.target.value)}
                             required
                         />
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                             Конечная дата
                         </label>
                         <input
                             type="date"
-                            className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            className="w-full p-2 border rounded-md transition-colors
+                                border-gray-300 dark:border-gray-600
+                                bg-white dark:bg-gray-700
+                                text-gray-900 dark:text-gray-100
+                                focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400
+                                focus:border-blue-500 dark:focus:border-blue-400"
                             value={endDate}
                             onChange={(e) => setEndDate(e.target.value)}
                             required
@@ -96,7 +108,7 @@ export default function HomePage() {
 
                 {activeTab === 'employee' ? (
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                             Имя сотрудника
                         </label>
                         <DynamicDropdown
@@ -111,7 +123,7 @@ export default function HomePage() {
                     </div>
                 ) : (
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                             Название объекта
                         </label>
                         <DynamicDropdown
@@ -126,13 +138,19 @@ export default function HomePage() {
                     </div>
                 )}
 
-                {formError && <p className="text-red-500 text-sm">{formError}</p>}
-                {workersError && <p className="text-red-500 text-sm">{workersError}</p>}
-                {objectsError && <p className="text-red-500 text-sm">{objectsError}</p>}
+                {(formError || workersError || objectsError) && (
+                    <div className="space-y-1">
+                        {formError && <p className="text-red-500 dark:text-red-400 text-sm">{formError}</p>}
+                        {workersError && <p className="text-red-500 dark:text-red-400 text-sm">{workersError}</p>}
+                        {objectsError && <p className="text-red-500 dark:text-red-400 text-sm">{objectsError}</p>}
+                    </div>
+                )}
 
                 <button
                     type="submit"
-                    className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors"
+                    className="w-full bg-blue-600 dark:bg-blue-700 text-white py-2 px-4 rounded-md
+                        hover:bg-blue-700 dark:hover:bg-blue-800 transition-colors
+                        disabled:opacity-50 disabled:cursor-not-allowed"
                     disabled={workersLoading || objectsLoading}
                 >
                     {activeTab === 'employee'

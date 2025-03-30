@@ -26,8 +26,8 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="max-w-2xl mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
-            <h2 className="text-2xl text-center font-bold mb-6 text-gray-800">Авторизация</h2>
+        <div className="max-w-2xl mx-auto mt-10 p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+            <h2 className="text-2xl text-center font-bold mb-6 text-gray-800 dark:text-gray-100">Авторизация</h2>
 
             <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="space-y-4">
@@ -37,7 +37,8 @@ export default function LoginPage() {
                         </label>
                         <input
                             type="email"
-                            className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+                 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             placeholder="Введите ваш email"
@@ -51,7 +52,8 @@ export default function LoginPage() {
                         </label>
                         <input
                             type="password"
-                            className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+                 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             placeholder="Введите пароль"

@@ -10,6 +10,8 @@ export interface IUser {
 export interface IWorker {
     name: string;
     worker_id: string;
+    position?: string;
+    salary_rate?: number;
 }
 
 export interface IMediaMetadata {
