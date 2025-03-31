@@ -80,7 +80,7 @@ export const fetchEmployeeReports = async (
     });
 
     const response = await fetch(
-        `${BASE_URL}/reports/workers/${encodeURIComponent(workerName)}/period?${params}`,
+        `${BASE_URL}/reports/workers/${decodeURIComponent(workerName)}/period?${params}`,
         {
             headers: getAuthHeaders(),
             ...options
@@ -103,7 +103,7 @@ export const fetchObjectReport = async (
     });
 
     const response = await fetch(
-        `${BASE_URL}/reports/objects/${encodeURIComponent(objectName)}/period?${params}`,
+        `${BASE_URL}/reports/objects/${decodeURIComponent(objectName)}/period?${params}`,
         {
             headers: getAuthHeaders(),
             ...options
@@ -117,7 +117,6 @@ export const fetchObjectReport = async (
 export const fetchWorkers = async (
     options?: RequestInit
 ): Promise<ApiListResponse<Worker>> => {
-    console.log("url_api: ", `${BASE_URL}/workers`);
     const response = await fetch(`${BASE_URL}/workers`, {
         headers: getAuthHeaders(),
         credentials: 'include',

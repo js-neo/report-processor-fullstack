@@ -11,8 +11,7 @@ import {ExportToExcelButton} from "@/components/ExportToExcelButton";
 export default function ObjectReportPage() {
     const params = useParams();
     const searchParams = useSearchParams();
-
-    const objectName = params.objectName as string;
+    const objectName = decodeURIComponent(params.objectName as string);
     const start = searchParams.get('start')!;
     const end = searchParams.get('end')!;
 

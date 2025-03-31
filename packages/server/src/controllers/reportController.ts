@@ -48,16 +48,15 @@ export const getWorkerPeriodReports = asyncHandler<
     WorkerQuery
 >(
     async (req, res) => {
-        const rawWorkerName = req.params.workerName;
-        const workerName = decodeURIComponent(rawWorkerName);
+        const workerName = req.params.workerName;
+        console.log(`worker name report controller: ${workerName}`);
 
         if (!workerName.trim()) {
             throw new BadRequestError('Invalid worker name', {
-                received: rawWorkerName,
-                decoded: workerName
+                received: workerName,
+                note: 'Параметр уже декодирован Express'
             });
         }
-
         const { start, end } = req.query;
 
         if (typeof start !== 'string' || typeof end !== 'string') {
@@ -83,10 +82,9 @@ export const getObjectPeriodReports = asyncHandler<
     ObjectQuery
 >(
     async (req, res) => {
-        const rawObjectName = req.params.objectName;
+        const objectName = req.params.objectName;
+        console.log(`object name report controller: ${objectName}`);
         const { start, end } = req.query;
-
-        const objectName = decodeURIComponent(rawObjectName);
 
         if (!objectName.trim()) {
             throw new BadRequestError('Object name is required');

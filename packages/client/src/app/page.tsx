@@ -18,6 +18,8 @@ export default function HomePage() {
 
     const { workers, loading: workersLoading, error: workersError } = useWorkers();
     const { objects, loading: objectsLoading, error: objectsError } = useObjects();
+    console.log('workersError: ', workersError);
+    console.log('objectsError: ', objectsError);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -26,13 +28,12 @@ export default function HomePage() {
             setFormError('Пожалуйста, заполните обе даты');
             return;
         }
-
         setFormError('');
 
         const baseQuery = `?start=${startDate}&end=${endDate}`;
         const path = activeTab === 'employee'
-            ? `/reports/workers/${encodeURIComponent(workerName)}/period${baseQuery}`
-            : `/reports/objects/${encodeURIComponent(objectName)}/period${baseQuery}`;
+            ? `/reports/workers/${workerName}/period${baseQuery}`
+            : `/reports/objects/${objectName}/period${baseQuery}`;
 
         router.push(path);
     };

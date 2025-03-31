@@ -16,8 +16,7 @@ interface IWorker extends Document {
 const WorkerSchema = new Schema<IWorker>({
     worker_id: {
         type: String,
-        required: true,
-        unique: true
+        required: true
     },
     name: {
         type: String,

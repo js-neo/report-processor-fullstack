@@ -10,8 +10,8 @@ export function middleware(request: NextRequest) {
     const token = request.cookies.get('accessToken');
     const { pathname } = request.nextUrl;
 
-    console.log('Middleware triggered for:', pathname);
-    console.log('[Middleware] Path:', request.nextUrl.pathname);
+    console.log('Middleware triggered for:', decodeURIComponent(pathname));
+    console.log('[Middleware] Path:', decodeURIComponent(request.nextUrl.pathname));
     console.log('Token:', token);
 
     if (IGNORE_PATHS.some(path => pathname.startsWith(path))) {

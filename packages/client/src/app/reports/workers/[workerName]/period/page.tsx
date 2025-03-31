@@ -13,7 +13,7 @@ export default function UserReportPage() {
     const params = useParams();
     const searchParams = useSearchParams();
 
-    const workerName = params.workerName as string;
+    const workerName = decodeURIComponent(params.workerName as string);
     const start = searchParams.get('start')!;
     const end = searchParams.get('end')!;
 
