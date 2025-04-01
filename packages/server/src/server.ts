@@ -2,6 +2,7 @@
 
 import express, { Express } from 'express';
 import http from 'http';
+import chalk from 'chalk';
 import { corsMiddleware } from './middleware/corsMiddleware.js';
 import connectDB from './config/db.js';
 import reportRoutes from './routes/reportRoutes.js';
@@ -36,6 +37,10 @@ app.get("/health", (_req, res) => {
     });
 });
 
+app.get('/render-port', (req, res) => {
+    res.send(`Port ${PORT} is active`);
+});
+
 app.use(corsMiddleware);
 app.use(express.json());
 app.use('/api/auth', authRoutes);
@@ -56,16 +61,16 @@ process.on('unhandledRejection', (reason, promise) => {
 
 const startServer = async () => {
     try {
-        await connectDB();
-
         server.listen(PORT, '0.0.0.0', () => {
-            console.log(`=== Server Configuration ===`);
-            console.log(`🚀 Server running on port ${PORT}`);
-            console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+            console.log(chalk.green.bold(`=== Server Configuration ===`));
+            console.log(`Render detected port: ${PORT}`);
+            console.log(chalk.cyan(`🚀 Server running on port ${PORT}`));
+            console.log(chalk.yellow(`Environment: ${process.env.NODE_ENV || 'development'}`));
             console.log(`KeepAlive Timeout: ${server.keepAliveTimeout}ms`);
             console.log(`Headers Timeout: ${server.headersTimeout}ms`);
-            console.log(`============================`);
+            console.log(chalk.green.bold(`============================`));
         });
+        await connectDB();
 
     } catch (error) {
         console.error('❌ Startup failed:', error instanceof Error ? error.message : error);
