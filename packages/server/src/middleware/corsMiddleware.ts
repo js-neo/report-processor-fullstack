@@ -7,7 +7,10 @@ const allowedCors = [
     "http://localhost:3001",
     "https://report-processor-fullstack-client.vercel.app",
     "https://report-processor-fullstack.onrender.com",
-    "https://*.vercel.app"
+    "https://*.vercel.app",
+    "https://*.github.dev",
+    "https://*.githubusercontent.com",
+    "https://*.cron-job.org"
 ];
 
 export const corsMiddleware: RequestHandler = (req, res, next) => {

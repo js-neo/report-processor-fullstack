@@ -1,0 +1,12 @@
+name: Server Ping (GitHub)
+on:
+  schedule:
+    - cron: '*/10 * * * *' # Каждые 10 минут
+  workflow_dispatch: # Ручной запуск
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send request to Render
+        run: curl -X GET "https://report-processor-fullstack.onrender.com/health"
