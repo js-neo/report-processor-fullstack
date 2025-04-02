@@ -16,8 +16,9 @@ dotenv.config();
 
 const app: Express = express();
 
-const PORT: number = parseInt(process.env.PORT || '5000', 10); // Всегда число
+app.set('trust proxy', true);
 
+const PORT: number = parseInt(process.env.PORT || '5000', 10);
 const server = http.createServer(app);
 
 server.keepAliveTimeout = 120 * 1000;
@@ -26,14 +27,20 @@ server.headersTimeout = 120 * 1000;
 app.get("/", (_req, res) => {
     res.sendStatus(200)
 });
+
 app.head("/", (_req, res) => {
     res.sendStatus(200)
 });
+
 app.get("/health", (req, res) => {
     const currentTime = new Date().toISOString();
-    console.log(`[${currentTime}] Health check ping received`);
-    const clientIP = req.ip;
-    console.log(`Health check from IP: ${clientIP}`);
+
+    const forwardedFor = req.headers['x-forwarded-for'];
+    const clientIP = Array.isArray(forwardedFor)
+        ? forwardedFor[0]
+        : forwardedFor || req.socket.remoteAddress;
+
+    console.log(`[${currentTime}] Health check from IP: ${clientIP}`);
 
     res.json({
         status: "ok",
@@ -42,7 +49,7 @@ app.get("/health", (req, res) => {
     });
 });
 
-app.get('/render-port', (req, res) => {
+app.get('/render-port', (_req, res) => {
     res.send(`Port ${PORT} is active`);
 });
 
