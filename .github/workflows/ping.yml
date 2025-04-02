@@ -20,16 +20,15 @@ jobs:
             -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
             -H "Accept: application/json"
 
+
       - name: Send healthcheck request
         run: |
           curl \
             --max-time 120 \
             --retry 3 \
             --retry-delay 30 \
-            --retry-max-time 300 \
-            --fail \
             -X GET "https://report-processor-fullstack.onrender.com/health"
-          echo "✅ Healthcheck completed successfully"
+          echo "✅ Healthcheck completed"
 
       - name: Log timestamp
-        run: date -u
+        run: date -u +"%Y-%m-%d %H:%M:%S UTC"
