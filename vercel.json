@@ -1,5 +1,4 @@
 {
-  "_comment": "file_path: vercel.json",
   "crons": [
     {
       "path": "/api/ping",
