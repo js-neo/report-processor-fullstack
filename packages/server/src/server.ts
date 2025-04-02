@@ -29,10 +29,15 @@ app.get("/", (_req, res) => {
 app.head("/", (_req, res) => {
     res.sendStatus(200)
 });
-app.get("/health", (_req, res) => {
+app.get("/health", (req, res) => {
+    const currentTime = new Date().toISOString();
+    console.log(`[${currentTime}] Health check ping received`);
+    const clientIP = req.ip;
+    console.log(`Health check from IP: ${clientIP}`);
+
     res.json({
         status: "ok",
-        timestamp: new Date(),
+        timestamp: currentTime,
         environment: process.env.NODE_ENV || 'development'
     });
 });
