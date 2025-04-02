@@ -13,6 +13,7 @@ jobs:
       RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
 
     steps:
+
       - name: Check secrets
         id: check-secrets
         run: |
@@ -23,6 +24,7 @@ jobs:
             echo "has_secrets=true" >> $GITHUB_OUTPUT
           fi
 
+
       - name: Wake up Render (API)
         if: ${{ steps.check-secrets.outputs.has_secrets == 'true' }}
         run: |
@@ -31,16 +33,22 @@ jobs:
             -H "Authorization: Bearer $RENDER_API_KEY" \
             -H "Accept: application/json"
 
+
       - name: Healthcheck
         run: |
           echo "Performing healthcheck..."
+          start_time=$(date +%s)
+          
           curl \
-            --max-time 120 \
-            --retry 3 \
-            --retry-delay 30 \
+            --max-time 180 \
+            --retry 5 \
+            --retry-delay 10 \
             --fail \
             -X GET "https://report-processor-fullstack.onrender.com/health"
-          echo "✅ Healthcheck successful"
+          
+          end_time=$(date +%s)
+          echo "✅ Healthcheck successful ($((end_time - start_time)) seconds)"
+
 
       - name: Log timestamp
         run: |
