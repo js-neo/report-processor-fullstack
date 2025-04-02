@@ -1,10 +1,8 @@
-
 name: Keep Server Alive
 on:
   schedule:
-    # Каждые 10 минут (с ограничением Render Free Tier)
     - cron: '*/10 * * * *'
-  workflow_dispatch: # Ручной запуск
+  workflow_dispatch:
 
 jobs:
   ping:
@@ -14,30 +12,26 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Шаг для "пробуждения" сервера через API Render (опционально)
+
       - name: Wake up Render (API)
-        if: ${{ secrets.RENDER_API_KEY != '' }}
+        if: ${{ secrets.RENDER_API_KEY != '' && secrets.RENDER_SERVICE_ID != '' }}
         run: |
           curl -X POST "https://api.render.com/v1/services/${{ secrets.RENDER_SERVICE_ID }}/restart" \
             -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
             -H "Accept: application/json"
-        env:
-          RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
-          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
 
-      # Основной пинг с повторами и увеличенным таймаутом
+
       - name: Send healthcheck request
         run: |
           curl \
-            --max-time 120 \          # Таймаут 2 минуты
-            --retry 3 \               # 3 попытки
-            --retry-delay 30 \        # Пауза 30 сек между попытками
-            --retry-max-time 300 \    # Общий таймаут 5 минут
-            --fail \                  # Возвращать ошибку при неудаче
+            --max-time 120 \
+            --retry 3 \
+            --retry-delay 30 \
+            --retry-max-time 300 \
+            --fail \
             -X GET "https://report-processor-fullstack.onrender.com/health"
           
           echo "✅ Healthcheck completed successfully"
 
-      # Логирование времени выполнения (для отладки)
       - name: Log timestamp
         run: date -u
