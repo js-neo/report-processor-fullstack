@@ -1,4 +1,4 @@
-// server/src/services/reportService.ts
+// packages/server/src/services/reportService.ts
 
 import Report, { IReport, IPartialReport } from '../models/Report.js';
 import {NotFoundError } from '../errors/errorClasses.js';

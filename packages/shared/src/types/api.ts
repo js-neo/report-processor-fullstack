@@ -1,4 +1,5 @@
-// shared/types/api.ts
+// packages/shared/src/types/api.ts
+
 import {IReport, IObjectReport} from "./report.js";
 
 export interface ApiResponse<T = any> {

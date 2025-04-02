@@ -1,4 +1,4 @@
-// client/src/app/api/auth/login/route.ts
+// packages/client/src/app/api/auth/login/route.ts
 
 import { NextResponse } from 'next/server';
 import { BASE_URL } from '@/lib/api';

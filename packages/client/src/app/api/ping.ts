@@ -1,4 +1,4 @@
-// app/api/ping.ts
+// packages/client/src/app/api/ping.ts
 
 import { NextResponse } from 'next/server';
 

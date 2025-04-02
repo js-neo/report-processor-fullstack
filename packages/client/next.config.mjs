@@ -1,4 +1,4 @@
-// next.config.mjs
+// packages/client/next.config.mjs
 
 const nextConfig = {
     reactStrictMode: true

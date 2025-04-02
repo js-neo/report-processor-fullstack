@@ -1,4 +1,5 @@
-// server/src/routes/workerRoutes.ts
+// packages/server/src/routes/workerRoutes.ts
+
 import express from 'express';
 import { getAllWorkers } from '../controllers/workerController.js';
 

@@ -1,4 +1,4 @@
-// client/src/lib/api.ts
+// packages/client/src/lib/api.ts
 
 import { EmployeeReportsResponse, ObjectReportResponse } from "shared";
 

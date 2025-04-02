@@ -1,4 +1,4 @@
-// client/src/components/Table/ObjectTable/ObjectTableHeaderRow.tsx
+// packages/client/src/components/Table/ObjectTable/ObjectTableHeaderRow.tsx
 'use client';
 
 import {FC, ReactNode} from "react";

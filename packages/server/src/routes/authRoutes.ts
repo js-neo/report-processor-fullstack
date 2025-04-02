@@ -1,4 +1,4 @@
-// server/src/routes/authRoutes.ts
+// packages/server/src/routes/authRoutes.ts
 
 import express from 'express';
 import { register, login, authenticate } from '../controllers/authController.js';

@@ -1,4 +1,4 @@
-// shared/types/report.ts
+// packages/shared/src/types/report.ts
 
 export interface IUser {
     username: string;

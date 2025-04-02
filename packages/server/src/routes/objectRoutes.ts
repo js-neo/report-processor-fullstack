@@ -1,4 +1,4 @@
-// server/src/routes/objectRoutes.ts
+// packages/server/src/routes/objectRoutes.ts
 import express from 'express';
 import { getAllObjects } from '../controllers/objectController.js';
 

@@ -1,4 +1,4 @@
-// server/src/server.ts
+// packages/server/src/server.ts
 
 import express, { Express } from 'express';
 import http from 'http';

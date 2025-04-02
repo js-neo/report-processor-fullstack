@@ -1,4 +1,4 @@
-// server/src/controllers/workerController.ts
+// packages/server/src/controllers/workerController.ts
 import { Request, Response, NextFunction } from 'express';
 import Worker from '../models/Worker.js';
 import { NotFoundError } from '../errors/errorClasses.js';

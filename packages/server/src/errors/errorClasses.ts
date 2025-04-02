@@ -1,4 +1,4 @@
-// server/src/errors/errorClasses.ts
+// packages/server/src/errors/errorClasses.ts
 
 export interface ErrorDetails {
     method?: string;

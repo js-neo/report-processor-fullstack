@@ -1,4 +1,4 @@
-// server/src/services/authService.ts
+// packages/server/src/services/authService.ts
 
 import Auth, { IAuth } from '../models/Auth.js';
 import {

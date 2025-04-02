@@ -1,4 +1,4 @@
-// server/src/models/Worker.ts
+// packages/server/src/models/Worker.ts
 import { Document, Schema, model, Model } from 'mongoose';
 
 interface IWorker extends Document {

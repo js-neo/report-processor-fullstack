@@ -1,4 +1,4 @@
-// server/src/models/Report.ts
+// packages/server/src/models/Report.ts
 
 import { Document, Schema, model, Model } from 'mongoose';
 import { IUser, IMediaMetadata, IMediaData, IAnalysisData, IReportLog, IReportBase } from "shared";

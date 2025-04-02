@@ -1,4 +1,4 @@
-// server/src/models/Object.ts
+// packages/server/src/models/Object.ts
 
 import { Document, Schema, model, Model } from 'mongoose';
 

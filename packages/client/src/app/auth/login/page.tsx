@@ -1,4 +1,4 @@
-// client/src/app/auth/login/page.tsx
+// packages/client/src/app/auth/login/page.tsx
 
 'use client';
 
@@ -33,15 +33,15 @@ export default function LoginPage() {
                 <div className="space-y-4">
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Email
+                            Логин
                         </label>
                         <input
-                            type="email"
+                            type="text"
                             className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500
                  dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            placeholder="Введите ваш email"
+                            placeholder="Введите ваш логин"
                             required
                         />
                     </div>

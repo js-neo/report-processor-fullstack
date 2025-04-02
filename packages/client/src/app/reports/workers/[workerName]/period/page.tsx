@@ -1,4 +1,4 @@
-// client/src/app/reports/workers/[workerName]/page.tsx
+// packages/client/src/app/reports/workers/[workerName]/period/page.tsx
 'use client';
 
 import { useParams, useSearchParams } from 'next/navigation';

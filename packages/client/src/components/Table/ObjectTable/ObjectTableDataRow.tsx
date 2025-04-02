@@ -1,4 +1,4 @@
-// client/src/components/Table/ObjectTable/ObjectTableDataRow.tsx
+// packages/client/src/components/Table/ObjectTable/ObjectTableDataRow.tsx
 'use client';
 
 import { IObjectReportEmployee } from 'shared';

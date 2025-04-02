@@ -1,4 +1,4 @@
-// client/src/components/Common/LoadingSpinner.tsx
+// packages/client/src/components/Common/LoadingSpinner.tsx
 'use client';
 
 interface LoadingSpinnerProps {

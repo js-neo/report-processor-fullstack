@@ -1,4 +1,6 @@
+
 {
+  "_comment": "file_paht: packages/client/package.json",
   "name": "client",
   "version": "0.1.0",
   "private": true,

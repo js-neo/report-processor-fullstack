@@ -1,4 +1,4 @@
-// client/src/components/Table/EmployeeTable/EmployeeTable.tsx
+// packages/client/src/components/Table/EmployeeTable/EmployeeTable.tsx
 
 'use client';
 import { ReactNode, FC } from 'react';

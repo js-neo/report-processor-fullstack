@@ -1,4 +1,4 @@
-// server/src/controllers/objectController.ts
+// packages/server/src/controllers/objectController.ts
 
 import { Request, Response, NextFunction } from 'express';
 import Object from '../models/Object.js';

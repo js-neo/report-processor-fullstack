@@ -1,4 +1,4 @@
-// server/src/errors/authErrors.ts
+// packages/server/src/errors/authErrors.ts
 
 import { ApiError, ErrorDetails } from './errorClasses.js';
 

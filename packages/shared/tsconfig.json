@@ -1,4 +1,4 @@
-// shared/tsconfig.json
+// packages/shared/tsconfig.json
 
 {
   "compilerOptions": {

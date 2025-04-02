@@ -1,4 +1,4 @@
-// client/src/services/authService.ts
+// packages/client/src/services/authService.ts
 
 const API_TIMEOUT = 10000;
 

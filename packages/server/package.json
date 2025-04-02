@@ -1,4 +1,5 @@
 {
+  "_comment": "file_path: packages/server/package.json",
   "name": "server",
   "version": "1.0.0",
   "description": "",

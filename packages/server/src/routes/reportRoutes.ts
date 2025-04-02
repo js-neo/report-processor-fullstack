@@ -1,4 +1,4 @@
-// server/src/routes/reportRoutes.ts
+// packages/server/src/routes/reportRoutes.ts
 
 import express from 'express';
 import {

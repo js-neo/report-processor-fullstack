@@ -1,4 +1,4 @@
-// server/src/controllers/authController.ts
+// packages/server/src/controllers/authController.ts
 
 import { Request, Response, NextFunction } from 'express';
 import { asyncHandler } from "../utils/asyncHandler.js";

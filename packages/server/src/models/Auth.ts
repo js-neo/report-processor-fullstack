@@ -1,4 +1,4 @@
-// server/src/models/Auth.ts
+// packages/server/src/models/Auth.ts
 
 import { Document, Schema, model, Model } from 'mongoose';
 import bcrypt from 'bcryptjs';

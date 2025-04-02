@@ -1,4 +1,4 @@
-// server/src/middleware/corsMiddleware.ts
+// packages/server/src/middleware/corsMiddleware.ts
 
 import { RequestHandler } from 'express';
 

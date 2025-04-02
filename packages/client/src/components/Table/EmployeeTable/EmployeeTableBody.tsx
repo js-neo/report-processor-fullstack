@@ -1,4 +1,4 @@
-// client/src/components/Table/EmployeeTable/EmployeeTableBody.tsx
+// packages/client/src/components/Table/EmployeeTable/EmployeeTableBody.tsx
 
 'use client';
 

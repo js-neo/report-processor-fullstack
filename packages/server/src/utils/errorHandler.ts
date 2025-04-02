@@ -1,3 +1,5 @@
+// packages/server/src/utils/errorHandler.ts
+
 import { ErrorRequestHandler, Request, Response, NextFunction } from 'express';
 import { ApiError, ErrorDetails, NotFoundError } from '../errors/errorClasses.js';
 import {

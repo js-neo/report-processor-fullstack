@@ -1,4 +1,4 @@
-// server/src/controllers/reportController.ts
+// packages/server/src/controllers/reportController.ts
 
 import { Request, Response} from 'express';
 import { ParamsDictionary } from 'express-serve-static-core';

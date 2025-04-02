@@ -1,4 +1,4 @@
-// src/middleware.ts
+// packages/client/src/middleware.ts
 
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';

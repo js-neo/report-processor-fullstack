@@ -1,4 +1,4 @@
-// client/src/components/Table/ObjectTable/ObjectTableFooterRow.tsx
+// packages/client/src/components/Table/ObjectTable/ObjectTableFooterRow.tsx
 
 'use client';
 
