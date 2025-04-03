@@ -37,10 +37,10 @@ app.get("/health", (req, res) => {
 
     const forwardedFor = req.headers['x-forwarded-for'];
     const clientIP = Array.isArray(forwardedFor)
-        ? forwardedFor[0]
-        : forwardedFor || req.socket.remoteAddress;
+        ? forwardedFor[0].split(',')[0].trim()
+        : (forwardedFor || req.socket.remoteAddress)?.split(',')[0].trim();
 
-    console.log(`[${currentTime}] Health check from IP: ${clientIP}`);
+    console.log(`[${currentTime}] Health check from client IP: ${clientIP}`);
 
     res.json({
         status: "ok",
