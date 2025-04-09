@@ -2,7 +2,7 @@
 
 import Report, { IReport, IPartialReport } from '../models/Report.js';
 import {NotFoundError } from '../errors/errorClasses.js';
-import {validateDates, parseCreationDate, generateDailyHours} from "../utils/dateUtils.js"
+import {validateDates, generateDailyHours} from "../utils/dateUtils.js"
 import {format} from "date-fns";
 import {IWorker} from "@/models/Worker.js";
 
@@ -29,8 +29,11 @@ return reports;
 };
 
 export const getWorkerPeriodReportsService = async ({workerName, start, end}: IReportParams): Promise<IPartialReport[]> => {
+
     const startDate = new Date(start);
     const endDate = new Date(end);
+
+    console.log({startDate, endDate});
         validateDates(startDate, endDate);
         const reports = await Report.find({
             'analysis.workers.name': workerName,
@@ -55,9 +58,7 @@ export const getWorkerPeriodReportsService = async ({workerName, start, end}: IR
                 ...report.media,
                 metadata: {
                     ...report.media.metadata,
-                    creation_date: report.media.metadata?.creation_date
-                        ? parseCreationDate(report.media.metadata.creation_date).toISOString()
-                        : undefined
+                    creation_date: report.media.metadata?.creation_date || undefined
                 }
             }
         }));

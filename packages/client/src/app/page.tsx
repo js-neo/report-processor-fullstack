@@ -29,7 +29,6 @@ export default function HomePage() {
             return;
         }
         setFormError('');
-
         const baseQuery = `?start=${startDate}&end=${endDate}`;
         const path = activeTab === 'employee'
             ? `/reports/workers/${workerName}/period${baseQuery}`

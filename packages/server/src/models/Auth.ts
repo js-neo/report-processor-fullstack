@@ -1,11 +1,16 @@
 // packages/server/src/models/Auth.ts
 
-import { Document, Schema, model, Model } from 'mongoose';
+/*
+import { Document, Schema, Types, model, Model } from 'mongoose';
 import bcrypt from 'bcryptjs';
 
-export interface IAuth extends Document {
+
+interface IAuth extends Document {
     email: string;
     password: string;
+    name: string;
+    role: 'manager' | 'admin';
+    managedObjects: Types.ObjectId[]; // Массив объектов вместо одного
     comparePassword(candidatePassword: string): Promise<boolean>;
 }
 
@@ -48,4 +53,4 @@ AuthSchema.methods.comparePassword = async function(
 };
 
 const Auth: Model<IAuth> = model<IAuth>('Auth', AuthSchema);
-export default Auth;
+export default Auth;*/

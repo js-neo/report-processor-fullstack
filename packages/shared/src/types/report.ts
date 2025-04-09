@@ -7,7 +7,7 @@ export interface IUser {
     name: string;
 }
 
-export interface IWorker {
+export interface IWorkerReport {
     name: string;
     worker_id: string;
     position?: string;
@@ -36,7 +36,7 @@ export interface IMediaData {
 export interface IAnalysisData {
     objectName?: string;
     task: string;
-    workers: IWorker[];
+    workers: IWorkerReport[];
     time: number;
 }
 

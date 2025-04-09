@@ -10,7 +10,7 @@ interface Worker {
 
 interface WorkObject {
     _id: string;
-    objectName: string;
+    name: string;
 }
 
 type DynamicDropdownProps =
@@ -45,10 +45,13 @@ const DynamicDropdown = (props: DynamicDropdownProps) => {
     } = props;
 
     const sortedData = useMemo(() => {
-        const arr = [...data];
+        if (!data || !Array.isArray(data)) return [];
+
         return type === 'employee'
-            ? (arr as Worker[]).sort((a, b) => a.name.localeCompare(b.name, "ru"))
-            : (arr as WorkObject[]).sort((a, b) => a.objectName.localeCompare(b.objectName, "ru"));
+            ? ([...data] as Worker[]).sort((a, b) =>
+                (a.name || '').localeCompare(b.name || '', "ru"))
+            : ([...data] as WorkObject[]).sort((a, b) =>
+                (a.name || '').localeCompare(b.name || '', "ru"));
     }, [data, type]);
 
     if (loading) {
@@ -83,7 +86,7 @@ const DynamicDropdown = (props: DynamicDropdownProps) => {
                     return (
                         <option
                             key={worker._id}
-                            value={worker.name}
+                            value={worker._id}
                             className="dark:bg-gray-700 dark:text-gray-100"
                         >
                             {worker.name}
@@ -95,10 +98,10 @@ const DynamicDropdown = (props: DynamicDropdownProps) => {
                 return (
                     <option
                         key={workObject._id}
-                        value={workObject.objectName}
+                        value={workObject._id}
                         className="dark:bg-gray-700 dark:text-gray-100"
                     >
-                        {workObject.objectName}
+                        {workObject.name}
                     </option>
                 );
             })}

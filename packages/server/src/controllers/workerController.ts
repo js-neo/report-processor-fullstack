@@ -17,10 +17,10 @@ export const getAllWorkers = async (_req: Request, res: Response, next: NextFunc
             data: workers.map(worker => ({
                 _id: worker._id,
                 name: worker.name,
-                worker_id: worker.worker_id,
-                username: worker.username,
+                workerId: worker.workerId,
                 position: worker.position,
                 salary_rate: worker.salary_rate,
+                objectId: worker.objectId,
             }))
         });
     } catch (err) {

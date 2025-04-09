@@ -19,13 +19,14 @@ interface ApiListResponse<T> {
 interface Worker {
     _id: string;
     name: string;
-    worker_id: string;
+    workerId: string;
+    objectId: string;
     position?: string;
 }
 
 interface Object {
     _id: string;
-    objectName: string;
+    name: string;
     address?: string;
 }
 
@@ -88,7 +89,9 @@ export const fetchEmployeeReports = async (
     );
 
     await handleError(response);
-    return response.json();
+    const data = await response.json();
+    console.log("data_Api: ", data);
+    return data
 };
 
 export const fetchObjectReport = async (

@@ -16,3 +16,6 @@ packages/shared/tsconfig.tsbuildinfo
 
 node_modules
 scripts
+project_contents.txt
+project_structure.txt
+script_debug.log

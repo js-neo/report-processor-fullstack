@@ -28,12 +28,13 @@ type ReportParams =
 interface Worker {
     _id: string;
     name: string;
-    worker_id: string;
+    workerId: string;
+    objectId: string;
 }
 
 interface Object {
     _id: string;
-    objectName: string;
+    name: string;
 }
 
 type ReportState<T extends ReportParams> =
@@ -186,6 +187,7 @@ export const useObjects = () => {
             try {
                 const response = await fetchObjects();
                 setObjects(response.data);
+                console.log("objects_hook: ", response.data);
             } catch (err) {
                 if (err instanceof Error) {
                     setError(err.message || 'Ошибка загрузки данных');

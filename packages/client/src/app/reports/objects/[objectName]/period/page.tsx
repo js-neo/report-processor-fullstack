@@ -14,12 +14,14 @@ export default function ObjectReportPage() {
     const objectName = decodeURIComponent(params.objectName as string);
     const start = searchParams.get('start')!;
     const end = searchParams.get('end')!;
+    const startUTC = new Date(`${start}T00:00:00+03:00`).toISOString();
+    const endUTC = new Date(`${end}T23:59:59+03:00`).toISOString();
 
     const { response: objectReport, loading, error } = useReports({
         type: 'object',
         objectName,
-        startDate: start,
-        endDate: end
+        startDate: startUTC,
+        endDate: endUTC
     });
 
     if (loading) return <div className="p-6 text-center dark:bg-gray-800"><LoadingSpinner /></div>;

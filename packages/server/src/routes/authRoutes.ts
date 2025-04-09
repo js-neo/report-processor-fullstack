@@ -1,18 +1,19 @@
 // packages/server/src/routes/authRoutes.ts
-
 import express from 'express';
-import { register, login, authenticate } from '../controllers/authController.js';
-import {asyncHandler} from "../utils/asyncHandler.js";
+import {
+    register,
+    login,
+    authenticate,
+    getMe
+} from '../controllers/authController.js';
 
 const router = express.Router();
 
 router.post('/register', register);
 router.post('/login', login);
-router.get('/me', authenticate, asyncHandler(async (req, res) => {
-    res.json({
-        success: true,
-        data: req.user
-    });
-}));
+router.get('/me', authenticate, getMe);
+router.get('/validate', authenticate, (req, res) => {
+    res.json({ valid: true });
+});
 
 export default router;

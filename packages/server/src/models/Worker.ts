@@ -1,60 +1,73 @@
-// packages/server/src/models/Worker.ts
-import { Document, Schema, model, Model } from 'mongoose';
+// server/src/models/Worker.ts
+import { Schema, model, Document, Types } from 'mongoose';
 
 interface IWorker extends Document {
-    worker_id: string;
+    workerId: string;
     name: string;
-    username: string;
-    telegram_id: string;
-    managers: string[];
     position: string;
     salary_rate: number;
+    objectId: Types.ObjectId;
     created_at: Date;
     updated_at: Date;
 }
 
-const WorkerSchema = new Schema<IWorker>({
-    worker_id: {
-        type: String,
-        required: true
+const WorkerSchema = new Schema<IWorker>(
+    {
+        workerId: {
+            type: String,
+            required: [true, 'Worker ID is required'],
+            validate: {
+                validator: (v: string) => /^[a-z0-9_]{3,30}$/.test(v),
+                message: 'Invalid worker ID format (3-30 lowercase letters, numbers and underscores)'
+            }
+        },
+        name: {
+            type: String,
+            required: true,
+            minlength: 2,
+            maxlength: 50
+        },
+        position: {
+            type: String,
+            required: true
+        },
+        salary_rate: {
+            type: Number,
+            required: true,
+            min: 1
+        },
+        objectId: {
+            type: Schema.Types.ObjectId,
+            ref: 'Object',
+            required: true
+        }
     },
-    name: {
-        type: String,
-        required: true
-    },
-    username: {
-        type: String,
-        required: true
-    },
-    telegram_id: {
-        type: String,
-        default: ""
-    },
-    managers: {
-        type: [String],
-        required: true
-    },
-    position: {
-        type: String,
-        required: true
-    },
-    salary_rate: {
-        type: Number,
-        required: true
-    },
-    created_at: {
-        type: Date,
-        required: true
-    },
-    updated_at: {
-        type: Date,
-        required: true
+    {
+        timestamps: {
+            createdAt: 'created_at',
+            updatedAt: 'updated_at'
+        },
+        toJSON: {
+            virtuals: true,
+            versionKey: false,
+            transform: function(_, ret) {
+                return {
+                    workerId: ret.workerId,
+                    name: ret.name,
+                    position: ret.position,
+                    salary_rate: ret.salary_rate,
+                    objectId: ret.objectId,
+                    created_at: ret.created_at,
+                    updated_at: ret.updated_at
+                };
+            }
+        }
     }
-});
+);
 
-WorkerSchema.index({ worker_id: 1 }, { unique: true });
-
-const Worker: Model<IWorker> = model<IWorker>('Worker', WorkerSchema);
+// Индексы
+WorkerSchema.index({ workerId: 1 }, { unique: true });
+WorkerSchema.index({ objectId: 1 });
 
 export { IWorker };
-export default Worker;
+export default model<IWorker>('Worker', WorkerSchema);

@@ -16,7 +16,7 @@ export const getAllObjects = async (_req: Request, res: Response, next: NextFunc
             success: true,
             data: objects.map(obj => ({
                 _id: obj._id,
-                objectName: obj.name
+                name: obj.name
             }))
         });
     } catch (err) {
