@@ -1,10 +1,10 @@
 // packages/server/src/models/Report.ts
-
-import { Document, Schema, model, Model } from 'mongoose';
+import { Document, Schema, model, Model, Types } from 'mongoose';
 import { IUser, IMediaMetadata, IMediaData, IAnalysisData, IReportLog, IReportBase } from "shared";
 
-interface IReport extends IReportBase, Document {
+interface IReport extends Omit<IReportBase, "objectRef">, Document {
     _id: string;
+    objectRef: Types.ObjectId | null;
 }
 
 interface IPartialReport extends Pick<IReportBase,
@@ -23,7 +23,7 @@ const ReportWorkerSchema = new Schema({
         type: String,
         required: true
     },
-    worker_id: {
+    workerId: {
         type: String,
         ref: 'Worker',
         required: true
@@ -50,7 +50,6 @@ const MediaDataSchema = new Schema<IMediaData>({
 }, { _id: false });
 
 const AnalysisDataSchema = new Schema<IAnalysisData>({
-    objectName: { type: String },
     task: { type: String, required: true },
     workers: { type: [ReportWorkerSchema], required: true },
     time: { type: Number, required: true }
@@ -66,6 +65,12 @@ const ReportLogSchema = new Schema<IReportLog>({
 
 const ReportSchema = new Schema<IReport>({
     _id: { type: String, required: true },
+    objectRef: {
+        type: Schema.Types.ObjectId,
+        ref: 'Object',
+        required: true,
+        default: null
+    },
     timestamp: { type: Date, required: true },
     user: { type: UserSchema, required: true },
     media: { type: MediaDataSchema, required: true },
@@ -77,14 +82,23 @@ const ReportSchema = new Schema<IReport>({
     sent_to_managers: { type: [String], default: [] }
 });
 
+ReportSchema.index({ objectRef: 1 });
 ReportSchema.index({ 'analysis.workers.worker_id': 1 });
-ReportSchema.index({ 'analysis.objectName': 1, timestamp: 1 });
+ReportSchema.index({ timestamp: 1 });
 
-ReportSchema.pre('save', async function(next) {
+ReportSchema.pre<IReport>('save', async function(next) {
+    if (this.objectRef) {
+        const objectExists = await model('Object').exists({ _id: this.objectRef });
+        if (!objectExists) {
+            throw new Error(`Object with ID ${this.objectRef} not found`);
+        }
+    }
+
+
     for (const worker of this.analysis.workers) {
-        const exists = await model('Worker').exists({ worker_id: worker.worker_id });
+        const exists = await model('Worker').exists({ workerId: worker.workerId });
         if (!exists) {
-            throw new Error(`Worker with ID ${worker.worker_id} not found`);
+            throw new Error(`Worker with ID ${worker.workerId} not found`);
         }
     }
     next();

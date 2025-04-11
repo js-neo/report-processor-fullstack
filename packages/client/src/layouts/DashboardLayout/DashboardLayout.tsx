@@ -49,10 +49,10 @@ export const DashboardLayout = ({ children }: { children: React.ReactNode }) => 
     if (!user) return null;
 
     const getObjectName = () => {
-        if (!user.objectId) return 'Не назначен';
+        if (!user.objectRef) return 'Не назначен';
 
-        if (typeof user.objectId === 'object' && 'name' in user.objectId) {
-            return user.objectId.name;
+        if (typeof user.objectRef === 'object' && 'name' in user.objectRef) {
+            return user.objectRef.name;
         }
     };
 

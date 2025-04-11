@@ -3,12 +3,12 @@ import { BASE_URL } from '@/lib/api';
 
 export async function POST(req: Request) {
     try {
-        const { fullName, telegram_username, password, objectId } = await req.json();
+        const { fullName, telegram_username, password, objectRef } = await req.json();
 
         const response = await fetch(`${BASE_URL}/auth/register`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ fullName, telegram_username, password, objectId }),
+            body: JSON.stringify({ fullName, telegram_username, password, objectRef }),
         });
 
         if (!response.ok) {

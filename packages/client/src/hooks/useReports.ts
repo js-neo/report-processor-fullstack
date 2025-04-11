@@ -9,7 +9,7 @@ import {
     fetchObjects,
     fetchWorkers
 } from '@/lib/api';
-import { EmployeeReportsResponse, ObjectReportResponse } from "shared";
+import {EmployeeReportsResponse, IObject, IWorker, ObjectReportResponse} from "shared";
 
 type ReportParams =
     | {
@@ -24,18 +24,6 @@ type ReportParams =
     startDate: string;
     endDate: string;
 };
-
-interface Worker {
-    _id: string;
-    name: string;
-    workerId: string;
-    objectId: string;
-}
-
-interface Object {
-    _id: string;
-    name: string;
-}
 
 type ReportState<T extends ReportParams> =
     T extends { type: 'employee' } ? { response: EmployeeReportsResponse | null; loading: boolean; error: string | null } :
@@ -151,7 +139,7 @@ export const useReports = <T extends ReportParams>(params: T): ReportState<T> =>
 };
 
 export const useWorkers = () => {
-    const [workers, setWorkers] = useState<Worker[]>([]);
+    const [workers, setWorkers] = useState<IWorker[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -178,7 +166,7 @@ export const useWorkers = () => {
 };
 
 export const useObjects = () => {
-    const [objects, setObjects] = useState<Object[]>([]);
+    const [objects, setObjects] = useState<IObject[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 

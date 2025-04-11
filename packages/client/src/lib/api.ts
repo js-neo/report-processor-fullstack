@@ -1,8 +1,10 @@
 // packages/client/src/lib/api.ts
 
-import { EmployeeReportsResponse, ObjectReportResponse } from "shared";
+import {EmployeeReportsResponse, IObject, IReport, IWorker, ObjectReportResponse} from "shared";
 
 export const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+
+console.log('Current BASE_URL:', BASE_URL);
 
 interface ApiErrorResponse {
     success: boolean;
@@ -14,20 +16,6 @@ interface ApiErrorResponse {
 interface ApiListResponse<T> {
     data: T[];
     total: number;
-}
-
-interface Worker {
-    _id: string;
-    name: string;
-    workerId: string;
-    objectId: string;
-    position?: string;
-}
-
-interface Object {
-    _id: string;
-    name: string;
-    address?: string;
 }
 
 const getAuthHeaders = (): HeadersInit => {
@@ -119,7 +107,7 @@ export const fetchObjectReport = async (
 
 export const fetchWorkers = async (
     options?: RequestInit
-): Promise<ApiListResponse<Worker>> => {
+): Promise<ApiListResponse<IWorker>> => {
     const response = await fetch(`${BASE_URL}/workers`, {
         headers: getAuthHeaders(),
         credentials: 'include',
@@ -132,7 +120,7 @@ export const fetchWorkers = async (
 
 export const fetchObjects = async (
     options?: RequestInit
-): Promise<ApiListResponse<Object>> => {
+): Promise<ApiListResponse<IObject>> => {
     const response = await fetch(`${BASE_URL}/objects`, {
         headers: getAuthHeaders(),
         credentials: 'include',
@@ -160,4 +148,21 @@ export const fetchReports = async (
     }
 };
 
-export type { Worker, Object, ApiListResponse };
+export const fetchUnfilledReports = async (objectId: string): Promise<IReport[]> => {
+    try {
+        const response = await fetch(
+            `${process.env.NEXT_PUBLIC_API_URL}/api/reports/unfilled?objectId=${objectId}`
+        );
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Error fetching unfilled reports:', error);
+        throw error;
+    }
+};
+
+export type { ApiListResponse };

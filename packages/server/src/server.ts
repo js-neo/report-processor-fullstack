@@ -11,6 +11,7 @@ import dotenv from 'dotenv';
 import workerRoutes from "./routes/workerRoutes.js";
 import objectRoutes from "./routes/objectRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
+import managerRoutes from "@/routes/managerRoutes.js";
 
 dotenv.config();
 
@@ -59,6 +60,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/workers', workerRoutes);
 app.use('/api/objects', objectRoutes);
+app.use('/api/managers', managerRoutes);
+console.log('Manager routes mounted at /managers');
 app.use(notFoundHandler);
 app.use(errorHandler);
 

@@ -1,3 +1,5 @@
+// packages/client/src/app/api/auth/me/route.ts
+
 import { NextRequest, NextResponse } from 'next/server';
 import { BASE_URL } from '@/lib/api';
 
@@ -49,7 +51,7 @@ export async function GET(req: NextRequest) {
             managerId: data.data.managerId,
             fullName: data.data.fullName,
             telegram_username: data.data.telegram_username,
-            objectId: data.data.objectId,
+            objectRef: data.data.objectRef,
             role: data.data.role
         });
 

@@ -1,19 +1,18 @@
 // packages/server/src/services/reportService.ts
-
 import Report, { IReport, IPartialReport } from '../models/Report.js';
-import {NotFoundError } from '../errors/errorClasses.js';
-import {validateDates, generateDailyHours} from "../utils/dateUtils.js"
-import {format} from "date-fns";
-import {IWorker} from "@/models/Worker.js";
+import { NotFoundError, BadRequestError } from '../errors/errorClasses.js';
+import { validateDates, generateDailyHours } from "../utils/dateUtils.js";
+import { format } from "date-fns";
+import { IWorker } from "../models/Worker.js";
+import { IObjectReportEmployee } from "shared";
 
 type IReportParams = {
     start: string;
     end: string;
 } & (
-    |{ workerName: string; objectName?: never }
-    |{ objectName: string; workerName?: never }
-);
-
+    | { workerName: string; objectName?: never }
+    | { objectName: string; workerName?: never }
+    );
 
 export const getAllReportService = async (): Promise<IReport[]> => {
     const reports = await Report.find()
@@ -25,47 +24,45 @@ export const getAllReportService = async (): Promise<IReport[]> => {
             details: "Отчеты отсутствуют в базе данных"
         });
     }
-return reports;
+    return reports;
 };
 
 export const getWorkerPeriodReportsService = async ({workerName, start, end}: IReportParams): Promise<IPartialReport[]> => {
-
     const startDate = new Date(start);
     const endDate = new Date(end);
 
     console.log({startDate, endDate});
-        validateDates(startDate, endDate);
-        const reports = await Report.find({
-            'analysis.workers.name': workerName,
-            timestamp: { $gte: startDate, $lte: endDate }
-        })
-            .select('timestamp analysis media transcript')
-            .sort({ timestamp: 1 })
-            .lean<IPartialReport[]>();
+    validateDates(startDate, endDate);
 
+    const reports = await Report.find({
+        'analysis.workers.name': workerName,
+        timestamp: { $gte: startDate, $lte: endDate }
+    })
+        .select('timestamp analysis media transcript')
+        .sort({ timestamp: 1 })
+        .lean<IPartialReport[]>();
 
-        if (reports.length === 0) {
-            throw new NotFoundError("Запрашиваемые данные не найдены", {
-                period: { startDate, endDate },
-                workerName,
-                suggestion: "Проверьте параметры запроса"
-            });
-        }
-
-        return reports.map(report => ({
-            ...report,
-            media: {
-                ...report.media,
-                metadata: {
-                    ...report.media.metadata,
-                    creation_date: report.media.metadata?.creation_date || undefined
-                }
-            }
-        }));
-
+    if (reports.length === 0) {
+        throw new NotFoundError("Запрашиваемые данные не найдены", {
+            period: { startDate, endDate },
+            workerName,
+            suggestion: "Проверьте параметры запроса"
+        });
     }
 
-export const getObjectPeriodReportsService = async ({objectName, start, end}: IReportParams) => {
+    return reports.map(report => ({
+        ...report,
+        media: {
+            ...report.media,
+            metadata: {
+                ...report.media.metadata,
+                creation_date: report.media.metadata?.creation_date || undefined
+            }
+        }
+    }));
+};
+
+export const getObjectPeriodReportsService = async ({objectName, start, end}: IReportParams): Promise<IObjectReportEmployee[]> => {
     const startDate = new Date(start);
     const endDate = new Date(end);
     validateDates(startDate, endDate);
@@ -83,8 +80,8 @@ export const getObjectPeriodReportsService = async ({objectName, start, end}: IR
         {
             $lookup: {
                 from: 'workers',
-                localField: 'analysis.workers.worker_id',
-                foreignField: 'worker_id',
+                localField: 'analysis.workers.workerId',
+                foreignField: 'workerId',
                 as: 'workersData'
             }
         },
@@ -104,7 +101,7 @@ export const getObjectPeriodReportsService = async ({objectName, start, end}: IR
                                                 input: '$workersData',
                                                 as: 'wd',
                                                 cond: {
-                                                    $eq: ['$$wd.worker_id', '$$worker.worker_id']
+                                                    $eq: ['$$wd.workerId', '$$worker.workerId']
                                                 }
                                             }
                                         },
@@ -154,7 +151,7 @@ export const getObjectPeriodReportsService = async ({objectName, start, end}: IR
             };
 
             const employee = employeesMap.get(workerName) || {
-                id: worker.worker_id,
+                id: worker.workerId,
                 position: workerData.position || 'Должность не указана',
                 workerName: workerName,
                 rate: workerData.salary_rate || 0,
@@ -175,4 +172,29 @@ export const getObjectPeriodReportsService = async ({objectName, start, end}: IR
         totalCost: emp.totalHours * emp.rate,
         dailyHours: generateDailyHours(emp.dailyHours, start, end)
     }));
+};
+
+export const getUnfilledReportsService = async (objectId: string): Promise<IReport[]> => {
+    if (!objectId) {
+        throw new BadRequestError('objectId is required');
+    }
+
+    const reports = await Report.find({
+        objectRef: objectId,
+        $or: [
+            { 'analysis.task': '' },
+            { 'analysis.workers': { $size: 0 } },
+            { 'analysis.time': 0 }
+        ]
+    })
+        .lean<IReport[]>();
+
+    if (reports.length === 0) {
+        throw new NotFoundError("Незаполненные отчеты не найдены", {
+            objectId,
+            suggestion: "Проверьте правильность objectId или убедитесь, что есть незаполненные отчеты"
+        });
+    }
+
+    return reports;
 };

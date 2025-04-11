@@ -2,6 +2,18 @@
 
 const API_TIMEOUT = 10000;
 
+interface SignInParams {
+    telegram_username: string;
+    password: string;
+}
+
+interface SignUpParams {
+    fullName: string;
+    telegram_username: string;
+    password: string;
+    objectRef: string;
+}
+
 export const getAuthToken = (): string | null => {
     if (typeof window === 'undefined') return null;
 
@@ -142,14 +154,3 @@ export const logout = (): void => {
     window.location.href = '/auth/login';
 };
 
-interface SignInParams {
-    telegram_username: string;
-    password: string;
-}
-
-interface SignUpParams {
-    fullName: string;
-    telegram_username: string;
-    password: string;
-    objectId: string;
-}

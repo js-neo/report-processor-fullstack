@@ -22,7 +22,7 @@ export default function RegisterPage() {
                 fullName,
                 telegram_username: telegramUsername,
                 password,
-                objectId: selectedObject
+                objectRef: selectedObject
             });
             router.push("/dashboard");
         } catch (err) {

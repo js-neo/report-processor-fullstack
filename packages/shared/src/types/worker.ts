@@ -1,11 +1,13 @@
-import {Types} from "mongoose";
 
-export interface IWorker extends Document {
+import {IObject} from "./object.js";
+
+export interface IWorker {
+    _id: string,
     workerId: string;
     name: string;
     position: string;
     salary_rate: number;
-    objectId: Types.ObjectId;
+    objectRef: IObject| null;
     created_at: Date;
     updated_at: Date;
 }

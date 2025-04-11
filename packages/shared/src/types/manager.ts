@@ -1,6 +1,7 @@
 // packages/shared/src/types/manager.ts
 
-import { Document } from 'mongoose';
+
+import {IObject} from "./object.js";
 
 interface IManagerAuth {
     telegram_username: string;
@@ -8,18 +9,10 @@ interface IManagerAuth {
     lastLogin?: Date;
 }
 
-interface IManagerObject {
-    name: string;
-    address: string;
-    coordinates: string;
-    created_at: string;
-    updated_at: string;
-}
-
 
 interface IManagerProfile {
     fullName: string;
-    objectId: IManagerObject | null;
+    objectRef: IObject| null;
     role: 'manager' | 'admin';
 }
 
@@ -32,11 +25,9 @@ export interface IManagerBase {
     comparePassword(candidatePassword: string): Promise<boolean>;
 }
 
-export interface IManager extends IManagerBase, Document {}
-
 export type ClientManager = Pick<IManagerBase, 'managerId'> & {
     fullName: string;
     telegram_username: string;
-    objectId: IManagerObject | null;
+    objectRef: IObject| null;
     role: 'manager' | 'admin';
 };

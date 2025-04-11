@@ -2,6 +2,7 @@
 import { Schema, model, Document, Types } from 'mongoose';
 
 interface IObject extends Document {
+    _id: Types.ObjectId;
     objectId: string;
     name: string;
     address: string;
@@ -10,6 +11,10 @@ interface IObject extends Document {
     workers: Types.ObjectId[];
     created_at: Date;
     updated_at: Date;
+}
+
+function convertObjectIdsToStrings(ids?: Types.ObjectId[]): string[] {
+    return ids?.map((id: Types.ObjectId) => id.toString()) || [];
 }
 
 const ObjectSchema = new Schema<IObject>(
@@ -55,21 +60,21 @@ const ObjectSchema = new Schema<IObject>(
             versionKey: false,
             transform: function(_, ret) {
                 return {
+                    _id: ret._id.toString(),
                     objectId: ret.objectId,
                     name: ret.name,
                     address: ret.address,
                     coordinates: ret.coordinates,
-                    managers: ret.managers,
-                    workers: ret.workers,
+                    managers: convertObjectIdsToStrings(ret.managers),
+                    workers: convertObjectIdsToStrings(ret.workers),
                     created_at: ret.created_at,
                     updated_at: ret.updated_at
                 };
-            }
+            },
         }
     }
 );
 
-// Индексы
 ObjectSchema.index({ objectId: 1 }, { unique: true });
 ObjectSchema.index({ name: 1 });
 

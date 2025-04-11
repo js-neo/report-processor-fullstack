@@ -10,11 +10,12 @@ interface IManagerAuth {
 
 interface IManagerProfile {
     fullName: string;
-    objectId: Types.ObjectId;
+    objectRef: Types.ObjectId;
     role: 'manager' | 'admin';
 }
 
 interface IManager extends Document {
+    _id: Types.ObjectId;
     managerId: string;
     auth: IManagerAuth;
     profile: IManagerProfile;
@@ -57,7 +58,7 @@ const ManagerSchema = new Schema<IManager>(
                 minlength: 2,
                 maxlength: 50
             },
-            objectId: {
+            objectRef: {
                 type: Schema.Types.ObjectId,
                 ref: 'Object',
                 required: true,
@@ -86,10 +87,11 @@ const ManagerSchema = new Schema<IManager>(
             versionKey: false,
             transform: function(_, ret) {
                 return {
+                    _id: ret._id.toString(),
                     managerId: ret.managerId,
                     telegram_username: ret.auth.telegram_username,
                     fullName: ret.profile.fullName,
-                    objectId: ret.profile.objectId,
+                    objectRef: ret.profile.objectRef,
                     role: ret.profile.role,
                     created_at: ret.created_at,
                     updated_at: ret.updated_at
@@ -102,12 +104,11 @@ const ManagerSchema = new Schema<IManager>(
 // Виртуальное поле для объекта
 ManagerSchema.virtual('object', {
     ref: 'Object',
-    localField: 'profile.objectId',
+    localField: 'profile.objectRef',
     foreignField: '_id',
     justOne: true
 });
 
-// Хук для хеширования пароля
 ManagerSchema.pre<IManager>('save', async function(next) {
     if (!this.isModified('auth.passwordHash')) return next();
 
@@ -120,17 +121,15 @@ ManagerSchema.pre<IManager>('save', async function(next) {
     }
 });
 
-// Метод для сравнения паролей
 ManagerSchema.methods.comparePassword = async function(
     candidatePassword: string
 ): Promise<boolean> {
     return bcrypt.compare(candidatePassword, this.auth.passwordHash);
 };
 
-// Индексы
 ManagerSchema.index({ managerId: 1 }, { unique: true });
 ManagerSchema.index({ 'auth.telegram_username': 1 }, { unique: true });
-ManagerSchema.index({ 'profile.objectId': 1 });
+ManagerSchema.index({ 'profile.objectRef': 1 });
 
 export { IManager };
 export default model<IManager>('Manager', ManagerSchema);

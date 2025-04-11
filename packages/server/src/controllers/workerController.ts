@@ -20,7 +20,7 @@ export const getAllWorkers = async (_req: Request, res: Response, next: NextFunc
                 workerId: worker.workerId,
                 position: worker.position,
                 salary_rate: worker.salary_rate,
-                objectId: worker.objectId,
+                objectRef: worker.objectRef,
             }))
         });
     } catch (err) {

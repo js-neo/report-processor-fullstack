@@ -15,8 +15,44 @@ interface UseAuthResult {
     error: string | null;
     refreshAuth: () => Promise<void>;
     isAuthenticated: boolean;
-    role?: 'manager' | 'admin';
 }
+
+export const fetchUserData = async (token: string): Promise<AuthUser> => {
+    const response = await fetch('/api/auth/me', {
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        }
+    });
+
+    if (response.status === 401) {
+        clearAuthToken();
+        throw new Error('Session expired. Please login again');
+    }
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || `Request failed with status ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    if (!data?.managerId) {
+        throw new Error('Invalid user data format');
+    }
+
+    if (!data.objectRef || typeof data.objectRef !== 'object') {
+        data.objectRef = null;
+    }
+
+    return {
+        managerId: data.managerId,
+        fullName: data.fullName,
+        telegram_username: data.telegram_username,
+        objectRef: data.objectRef ?? null,
+        role: data.role
+    };
+};
 
 export const useAuth = (): UseAuthResult => {
     const router = useRouter();
@@ -30,42 +66,6 @@ export const useAuth = (): UseAuthResult => {
         error: null,
     });
 
-    const fetchUserData = useCallback(async (token: string): Promise<AuthUser> => {
-        const response = await fetch('/api/auth/me', {
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            }
-        });
-
-        if (response.status === 401) {
-            clearAuthToken();
-            throw new Error('Session expired. Please login again');
-        }
-
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
-            throw new Error(errorData.message || `Request failed with status ${response.status}`);
-        }
-
-        const data = await response.json();
-
-        if (!data?.managerId) {
-            throw new Error('Invalid user data format');
-        }
-
-        if (!data.objectId || typeof data.objectId !== 'object') {
-            data.objectId = null;
-        }
-
-        return {
-            managerId: data.managerId,
-            fullName: data.fullName,
-            telegram_username: data.telegram_username,
-            objectId: data.objectId ?? null,
-            role: data.role
-        };
-    }, []);
 
     const checkAuth = useCallback(async (): Promise<void> => {
         try {
@@ -93,7 +93,7 @@ export const useAuth = (): UseAuthResult => {
                 error: err instanceof Error ? err.message : 'Authentication failed'
             });
         }
-    }, [fetchUserData]);
+    }, []);
 
     const refreshAuth = useCallback(async (): Promise<void> => {
         await checkAuth();
@@ -132,6 +132,5 @@ export const useAuth = (): UseAuthResult => {
         error: state.error,
         refreshAuth,
         isAuthenticated: !!state.user,
-        role: state.user?.role
     };
 };

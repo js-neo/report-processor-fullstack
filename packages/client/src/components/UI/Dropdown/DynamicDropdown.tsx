@@ -2,21 +2,12 @@
 
 import LoadingSpinner from "@/components/Common/LoadingSpinner";
 import { useMemo } from 'react';
-
-interface Worker {
-    _id: string;
-    name: string;
-}
-
-interface WorkObject {
-    _id: string;
-    name: string;
-}
+import {IObject, IWorker} from "shared";
 
 type DynamicDropdownProps =
     | {
     type: 'employee';
-    data: Worker[];
+    data: IWorker[];
     selectedValue: string;
     onChange: (value: string) => void;
     placeholder?: string;
@@ -25,7 +16,7 @@ type DynamicDropdownProps =
 }
     | {
     type: 'object';
-    data: WorkObject[];
+    data: IObject[];
     selectedValue: string;
     onChange: (value: string) => void;
     placeholder?: string;
@@ -48,9 +39,9 @@ const DynamicDropdown = (props: DynamicDropdownProps) => {
         if (!data || !Array.isArray(data)) return [];
 
         return type === 'employee'
-            ? ([...data] as Worker[]).sort((a, b) =>
+            ? ([...data] as IWorker[]).sort((a, b) =>
                 (a.name || '').localeCompare(b.name || '', "ru"))
-            : ([...data] as WorkObject[]).sort((a, b) =>
+            : ([...data] as IObject[]).sort((a, b) =>
                 (a.name || '').localeCompare(b.name || '', "ru"));
     }, [data, type]);
 
@@ -82,11 +73,11 @@ const DynamicDropdown = (props: DynamicDropdownProps) => {
             </option>
             {sortedData.map((item) => {
                 if (type === 'employee') {
-                    const worker = item as Worker;
+                    const worker = item as IWorker;
                     return (
                         <option
-                            key={worker._id}
-                            value={worker._id}
+                            key={worker.workerId}
+                            value={worker.workerId}
                             className="dark:bg-gray-700 dark:text-gray-100"
                         >
                             {worker.name}
@@ -94,7 +85,7 @@ const DynamicDropdown = (props: DynamicDropdownProps) => {
                     );
                 }
 
-                const workObject = item as WorkObject;
+                const workObject = item as IObject;
                 return (
                     <option
                         key={workObject._id}

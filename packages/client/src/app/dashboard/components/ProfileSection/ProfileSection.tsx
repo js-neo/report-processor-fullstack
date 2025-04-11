@@ -10,34 +10,52 @@ import { Select } from '@/components/UI/Select';
 export const ProfileSection = () => {
     const { user, refreshAuth } = useAuth();
     const { objects, loading: objectsLoading } = useObjects();
-    const [selectedObject, setSelectedObject] = useState(user?.objectId || '');
+    const [selectedObjectId, setSelectedObjectId] = useState(user?.objectRef?.objectId || '');
+    console.log("objects: ", objects);
+    console.log("user: ", user);
+    const [isSaved, setIsSaved] = useState(false);
 
     useEffect(() => {
-        if (user?.objectId) {
-            setSelectedObject(user.objectId);
+        if (user?.objectRef?.objectId && user.objectRef.objectId !== selectedObjectId) {
+            setSelectedObjectId(user.objectRef.objectId);
         }
-    }, [user?.objectId]);
+    }, [user?.objectRef?.objectId]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
+            console.log('Sending PATCH request to /api/profile', {
+                selectedObjectId,
+                token: localStorage.getItem('accessToken')
+            });
+
             const response = await fetch('/api/profile', {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
                 },
-                body: JSON.stringify({ objectId: selectedObject })
+                body: JSON.stringify({ _id: selectedObjectId })
             });
 
+            console.log('Response status:', response.status);
+
             if (!response.ok) {
-                const error = await response.json();
-                throw new Error(error.message || 'Ошибка обновления профиля');
+                const error = await response.text();
+                console.error('Error response:', error);
+                throw new Error(error || 'Ошибка обновления профиля');
             }
 
+            const data = await response.json();
+            console.log('Success response:', data);
             await refreshAuth();
+            setIsSaved(true);
+            setTimeout(() => setIsSaved(false), 3000);
         } catch (error) {
-            console.error('Ошибка обновления профиля:', error);
+            console.error('Full error:', error);
+            if (error instanceof Error) {
+                console.error('Error stack:', error.stack);
+            }
         }
     };
 
@@ -55,24 +73,29 @@ export const ProfileSection = () => {
                         Текущий объект
                     </label>
                     <Select
-                        value={selectedObject}
-                        onChange={(e) => setSelectedObject(e.target.value)}
+                        value={selectedObjectId}
+                        onChange={(e) => setSelectedObjectId(e.target.value)}
                         disabled={objectsLoading}
                     >
                         <option value="">Выберите объект</option>
                         {objects.map((obj) => (
-                            <option key={obj._id} value={obj._id}>
+                            <option key={obj.objectId} value={obj.objectId}>
                                 {obj.name}
                             </option>
                         ))}
                     </Select>
                 </div>
 
-                <div className="flex justify-end">
+                <div className="flex justify-end items-center gap-4">
+                    {isSaved && (
+                        <span className="text-green-600 dark:text-green-400">
+                            Изменения сохранены!
+                        </span>
+                    )}
                     <Button
                         type="submit"
                         variant="primary"
-                        disabled={!selectedObject || objectsLoading}
+                        disabled={!selectedObjectId || objectsLoading}
                     >
                         Сохранить изменения
                     </Button>

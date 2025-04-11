@@ -16,8 +16,8 @@ import {
 
 export const getMe = asyncHandler(async (req: Request, res: Response) => {
     const manager = await Manager.findOne({ managerId: req.user.managerId })
-        .populate('profile.objectId')
-        .select('managerId auth.telegram_username profile.fullName profile.objectId profile.role');
+        .populate('profile.objectRef')
+        .select('managerId auth.telegram_username profile.fullName profile.objectRef profile.role');
     if (!manager) {
         throw new NotFoundError('Manager not found');
     }
@@ -28,16 +28,16 @@ export const getMe = asyncHandler(async (req: Request, res: Response) => {
             managerId: manager.managerId,
             fullName: manager.profile.fullName,
             telegram_username: manager.auth.telegram_username,
-            objectId: manager.profile.objectId,
+            objectRef: manager.profile.objectRef,
             role: manager.profile.role
         }
     });
 });
 
 export const register = asyncHandler(async (req: Request, res: Response) => {
-    const { fullName, telegram_username, password, objectId } = req.body;
+    const { fullName, telegram_username, password, objectRef } = req.body;
 
-    if (!fullName?.trim() || !telegram_username?.trim() || !password?.trim() || !objectId?.trim()) {
+    if (!fullName?.trim() || !telegram_username?.trim() || !password?.trim() || !objectRef?.trim()) {
         throw new BadRequestError('All fields are required');
     }
 
@@ -45,7 +45,7 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
         fullName,
         telegram_username,
         password,
-        objectId
+        objectRef
     );
 
     res.status(201).json({

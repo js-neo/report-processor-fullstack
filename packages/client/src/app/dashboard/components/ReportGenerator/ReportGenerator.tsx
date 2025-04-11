@@ -14,10 +14,10 @@ export const ReportGenerator = () => {
     const [endDate, setEndDate] = useState('');
 
     const handleGenerateReport = (type: 'objects' | 'workers') => {
-        if (!user?.objectId) return;
+        if (!user?.objectRef) return;
 
         const basePath = `/reports/${type}/${encodeURIComponent(
-            user.objectId.name
+            user.objectRef.name
         )}/period`;
         const query = `?start=${startDate}&end=${endDate}`;
         router.push(basePath + query);

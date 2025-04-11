@@ -18,7 +18,7 @@ interface AuthResponse {
         managerId: string;
         fullName: string;
         telegram_username: string;
-        objectId: ObjectId;
+        objectRef: ObjectId;
         role: string;
     };
     accessToken: string;
@@ -45,7 +45,7 @@ const formatAuthResponse = (manager: IManager, accessToken: string): AuthRespons
         managerId: manager.managerId,
         fullName: manager.profile.fullName,
         telegram_username: manager.auth.telegram_username,
-        objectId: manager.profile.objectId,
+        objectRef: manager.profile.objectRef,
         role: manager.profile.role
     },
     accessToken
@@ -55,7 +55,7 @@ export const registerManager = async (
     fullName: string,
     telegram_username: string,
     password: string,
-    objectId: string
+    objectRef: string
 ): Promise<AuthResponse> => {
     if (password.length < 8) {
         throw new BadRequestError('Password must be at least 8 characters');
@@ -81,7 +81,7 @@ export const registerManager = async (
         },
         profile: {
             fullName,
-            objectId: new ObjectId(objectId),
+            objectRef: new ObjectId(objectRef),
             role: 'manager'
         }
     });

@@ -9,7 +9,7 @@ export interface IUser {
 
 export interface IWorkerReport {
     name: string;
-    worker_id: string;
+    workerId: string;
     position?: string;
     salary_rate?: number;
 }
@@ -34,7 +34,6 @@ export interface IMediaData {
 }
 
 export interface IAnalysisData {
-    objectName?: string;
     task: string;
     workers: IWorkerReport[];
     time: number;
@@ -54,6 +53,7 @@ export interface IReportBase {
     media: IMediaData;
     transcript: string;
     analysis: IAnalysisData;
+    objectRef: string | null;
     telegram_id: string;
     report_logs: IReportLog[];
     updated_at: Date;

@@ -1,15 +1,15 @@
 // packages/server/src/controllers/reportController.ts
-
-import { Request, Response} from 'express';
+import { Request, Response } from 'express';
 import { ParamsDictionary } from 'express-serve-static-core';
-
 import {
     getAllReportService,
     getObjectPeriodReportsService,
-    getWorkerPeriodReportsService
+    getWorkerPeriodReportsService,
+    getUnfilledReportsService
 } from "../services/reportService.js";
 import { BadRequestError } from "../errors/errorClasses.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
+import { IReport, IObjectReportEmployee } from "shared";
 
 interface WorkerParams extends ParamsDictionary {
     workerName: string;
@@ -27,6 +27,10 @@ interface WorkerQuery {
 interface ObjectQuery {
     start?: string;
     end?: string;
+}
+
+interface UnfilledQuery {
+    objectId?: string;
 }
 
 export const getAllReports = asyncHandler(
@@ -69,7 +73,8 @@ export const getWorkerPeriodReports = asyncHandler<
             success: true,
             count: reports.length,
             data: reports.map(report => ({
-                ...report
+                ...report,
+                timestamp: report.timestamp.toISOString()
             }))
         });
     }
@@ -105,6 +110,32 @@ export const getObjectPeriodReports = asyncHandler<
                 totalHours: employees.reduce((sum, emp) => sum + emp.totalHours, 0),
                 totalCost: employees.reduce((sum, emp) => sum + emp.totalCost, 0)
             }
+        });
+    }
+);
+
+export const getUnfilledReports = asyncHandler<
+    ParamsDictionary,
+    any,
+    any,
+    UnfilledQuery
+>(
+    async (req, res) => {
+        const { objectId } = req.query;
+
+        if (!objectId || typeof objectId !== 'string') {
+            throw new BadRequestError('objectId is required and must be a string');
+        }
+
+        const reports = await getUnfilledReportsService(objectId);
+
+        res.json({
+            success: true,
+            count: reports.length,
+            data: reports.map(report => ({
+                ...report,
+                timestamp: report.timestamp.toISOString()
+            }))
         });
     }
 );

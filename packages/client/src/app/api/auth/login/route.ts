@@ -1,9 +1,12 @@
+// packages/client/src/app/api/auth/login/route.ts
+
 import { NextResponse } from 'next/server';
 import { BASE_URL } from '@/lib/api';
 
 export async function POST(req: Request) {
     try {
         const { telegram_username, password } = await req.json();
+        console.log({ telegram_username, password });
 
         const response = await fetch(`${BASE_URL}/auth/login`, {
             method: 'POST',
@@ -30,7 +33,7 @@ export async function POST(req: Request) {
                     fullName: data.fullName,
                     telegram_username: data.telegram_username,
                     role: data.role,
-                    objectId: data.objectId
+                    objectRef: data.objectRef
                 }
             }
         });

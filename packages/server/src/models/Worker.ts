@@ -6,7 +6,7 @@ interface IWorker extends Document {
     name: string;
     position: string;
     salary_rate: number;
-    objectId: Types.ObjectId;
+    objectRef: Types.ObjectId;
     created_at: Date;
     updated_at: Date;
 }
@@ -36,7 +36,7 @@ const WorkerSchema = new Schema<IWorker>(
             required: true,
             min: 1
         },
-        objectId: {
+        objectRef: {
             type: Schema.Types.ObjectId,
             ref: 'Object',
             required: true
@@ -56,7 +56,7 @@ const WorkerSchema = new Schema<IWorker>(
                     name: ret.name,
                     position: ret.position,
                     salary_rate: ret.salary_rate,
-                    objectId: ret.objectId,
+                    objectRef: ret.objectRef,
                     created_at: ret.created_at,
                     updated_at: ret.updated_at
                 };
@@ -65,9 +65,8 @@ const WorkerSchema = new Schema<IWorker>(
     }
 );
 
-// Индексы
 WorkerSchema.index({ workerId: 1 }, { unique: true });
-WorkerSchema.index({ objectId: 1 });
+WorkerSchema.index({ objectRef: 1 });
 
 export { IWorker };
 export default model<IWorker>('Worker', WorkerSchema);

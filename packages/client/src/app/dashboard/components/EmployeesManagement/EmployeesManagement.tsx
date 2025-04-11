@@ -2,15 +2,15 @@
 'use client';
 
 import { useState } from 'react';
-import { useAuth } from '@/hooks/useAuth';
 import { useWorkers } from '@/hooks/useReports';
 import { WorkerCard } from './WorkerCard';
 import { Button } from '@/components/UI/Button';
 import { Modal } from '@/components/UI/Modal';
 import {IWorker} from "shared";
+import {useStore} from "@/stores/appStore";
 
 export const EmployeesManagement = () => {
-    const { user } = useAuth();
+    const { user } = useStore();
     const { workers, loading, error } = useWorkers();
     const [selectedWorker, setSelectedWorker] = useState<string | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -18,7 +18,7 @@ export const EmployeesManagement = () => {
     console.log("loading", loading);
 
     const currentWorkers = workers.filter(
-        (worker) => worker.objectId.toString() === user?.objectId?.toString()
+        (worker) => worker?.objectRef?.objectId === user?.objectRef?.objectId
     );
 
     const handleAssign = async (workerId: string) => {
@@ -29,7 +29,7 @@ export const EmployeesManagement = () => {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
                 },
-                body: JSON.stringify({ objectName: user?.objectId }),
+                body: JSON.stringify({ objectName: user?.objectRef }),
             });
 
             if (!response.ok) throw new Error('Assignment failed');
@@ -40,17 +40,13 @@ export const EmployeesManagement = () => {
         }
     };
 
-    function onWorkerUpdate(workerId: any, objectId: any) {
-        
-    }
-
     const handleUnassign = (worker: IWorker) => {
-        if (worker.objectId && worker.objectId.toString() !== user?.objectId?.toString()) {
-            if (!confirm(`Сотрудник работает на ${worker.objectId.name}. Сменить объект?`)) {
+        if (worker.objectRef && worker.objectRef.name !== user?.objectRef?.name) {
+            if (!confirm(`Сотрудник работает на ${worker.objectRef.name}. Сменить объект?`)) {
                 return;
             }
         }
-        onWorkerUpdate(workerId, objectId);
+        onWorkerUpdate(worker.workerId, user?.objectRef);
     };
 
 
@@ -73,7 +69,7 @@ export const EmployeesManagement = () => {
                     <WorkerCard
                         key={worker._id}
                         worker={worker}
-                        onUnassign={() => {
+                        onUnassignAction={() => {
                             setSelectedWorker(worker._id);
                             setIsModalOpen(true);
                         }}
