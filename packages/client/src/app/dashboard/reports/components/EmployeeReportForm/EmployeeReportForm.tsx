@@ -2,15 +2,15 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/hooks/useAuth';
 import { useWorkers } from '@/hooks/useReports';
 import { Button } from '@/components/UI/Button';
 import { DatePicker } from '@/components/UI/DatePicker';
 import { Select } from '@/components/UI/Select';
 import {useState} from "react";
+import {useUser} from "@/stores/appStore";
 
 export const EmployeeReportForm = () => {
-    const { user } = useAuth();
+    const user = useUser();
     const router = useRouter();
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');

@@ -1,7 +1,5 @@
 // packages/client/src/services/authService.ts
 
-import {ClientManager} from "shared";
-
 const API_TIMEOUT = 10000;
 
 interface SignInParams {
@@ -64,8 +62,7 @@ export const clearAuthToken = (): void => {
     localStorage.removeItem('accessToken');
 };
 
-export const signIn = async ({ telegram_username, password }: SignInParams,
-                             login: (user: ClientManager | null, token: string) => void) => {
+export const signIn = async ({ telegram_username, password }: SignInParams) => {
     try {
         const response = await fetchWithTimeout('/api/auth/login', {
             method: 'POST',
@@ -78,15 +75,12 @@ export const signIn = async ({ telegram_username, password }: SignInParams,
         const data = await response.json();
         console.log("data_service: ", data);
 
-
         if (!response.ok) {
             throw new Error(data.message || 'Authentication failed');
         }
         if (data?.data.accessToken) {
             setAuthToken(data?.data.accessToken);
         }
-
-        login(data?.data.user, data?.data.accessToken);
 
         return data;
     } catch (err) {

@@ -2,13 +2,13 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/UI/Button';
 import { DatePicker } from '@/components/UI/DatePicker';
 import {useState} from "react";
+import {useUser} from "@/stores/appStore";
 
 export const ObjectReportForm = () => {
-    const { user } = useAuth();
+    const user = useUser();
     const router = useRouter();
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');

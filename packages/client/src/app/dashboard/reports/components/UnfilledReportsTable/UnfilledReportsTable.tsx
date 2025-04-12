@@ -2,11 +2,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/UI/Button';
 import LoadingSpinner from '@/components/Common/LoadingSpinner';
 import { IReport} from 'shared';
 import {fetchUnfilledReports} from "@/lib/api";
+import {useUser} from "@/stores/appStore";
 
 interface ReportWorker {
     name: string;
@@ -14,7 +14,7 @@ interface ReportWorker {
 }
 
 export const UnfilledReportsTable = () => {
-    const { user } = useAuth();
+    const user = useUser();
     const [reports, setReports] = useState<IReport[]>([]);
     const [editingId, setEditingId] = useState<string | null>(null);
     const [formData, setFormData] = useState<{

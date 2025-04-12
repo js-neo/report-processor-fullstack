@@ -5,22 +5,23 @@
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 import { signIn } from '@/services/authService';
-import {useStore} from "@/stores/appStore";
+import {useAuthActions} from "@/stores/appStore";
 
 export default function LoginPage() {
     const [telegramUsername, setTelegramUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const router = useRouter();
-    const {login} = useStore();
+    const { login } = useAuthActions();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            await signIn({
+            const {data} = await signIn({
                 telegram_username: telegramUsername,
                 password
-            }, login);
+            });
+            login (data.user, data.accessToken);
             router.push("/dashboard");
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Неверные учетные данные');

@@ -2,13 +2,14 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useAuth } from '@/hooks/useAuth';
 import { useObjects } from '@/hooks/useReports';
 import { Button } from '@/components/UI/Button';
 import { Select } from '@/components/UI/Select';
+import {useUser, useAuthActions} from "@/stores/appStore";
 
 export const ProfileSection = () => {
-    const { user, refreshAuth } = useAuth();
+    const user = useUser();
+    const {refreshUser} = useAuthActions();
     const { objects, loading: objectsLoading } = useObjects();
     const [selectedObjectId, setSelectedObjectId] = useState(user?.objectRef?.objectId || '');
     console.log("objects: ", objects);
@@ -48,7 +49,7 @@ export const ProfileSection = () => {
 
             const data = await response.json();
             console.log('Success response:', data);
-            await refreshAuth();
+            await refreshUser();
             setIsSaved(true);
             setTimeout(() => setIsSaved(false), 3000);
         } catch (error) {

@@ -7,10 +7,10 @@ import { WorkerCard } from './WorkerCard';
 import { Button } from '@/components/UI/Button';
 import { Modal } from '@/components/UI/Modal';
 import {IObject, IWorker} from "shared";
-import {useStore} from "@/stores/appStore";
+import {useUser} from "@/stores/appStore";
 
 export const EmployeesManagement = () => {
-    const { user } = useStore();
+    const user  = useUser();
     const { workers, loading, error } = useWorkers();
     const [selectedWorker, setSelectedWorker] = useState<string | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(true);
@@ -23,7 +23,7 @@ export const EmployeesManagement = () => {
     const currentWorkers = workers.filter(
         (worker) => {
             console.log("worker?.objectRef?.objectId:", worker?.objectRef)
-            return worker?.objectRef?.objectId === user?.objectRef?.objectId
+            return worker?.objectRef?.objectId === undefined // user?.objectRef?.objectId
         }
     );
 
@@ -62,7 +62,7 @@ export const EmployeesManagement = () => {
 
             if (!response.ok) throw new Error('Update failed');
 
-            const updatedWorkers = workers.map(worker =>
+            const updatedWorkers = ( workers: IWorker[], workerId: string) => workers.map(worker =>
                 worker.workerId === workerId
                     ? {...worker, objectRef: newObjectRef}
                     : worker

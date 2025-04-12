@@ -68,6 +68,7 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
     }
 
     const { manager, accessToken } = await loginManager(telegram_username, password);
+    console.log("login_manager: ", manager);
 
     res.json({
         success: true,

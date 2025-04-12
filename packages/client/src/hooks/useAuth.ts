@@ -1,3 +1,4 @@
+/*
 // packages/client/src/hooks/useAuth.ts
 
 "use client";
@@ -133,4 +134,4 @@ export const useAuth = (): UseAuthResult => {
         refreshAuth,
         isAuthenticated: !!state.user,
     };
-};
+};*/

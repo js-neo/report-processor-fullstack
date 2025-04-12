@@ -2,10 +2,10 @@
 'use client';
 
 import {ProfileSection} from "@/app/dashboard/components/ProfileSection/ProfileSection";
-import {useStore} from "@/stores/appStore";
+import {useUser} from "@/stores/appStore";
 
 export default function ProfilePage() {
-    const { user } = useStore();
+    const user = useUser();
     console.log("user_ProfilePage: ", user);
 
     return (

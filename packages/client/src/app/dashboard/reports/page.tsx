@@ -2,14 +2,14 @@
 'use client';
 
 import { useState } from 'react';
-import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/UI/Button';
 import {EmployeeReportForm} from "@/app/dashboard/reports/components/EmployeeReportForm/EmployeeReportForm";
 import {ObjectReportForm} from "@/app/dashboard/reports/components/ObjectReportForm/ObjectReportForm";
 import {UnfilledReportsTable} from "@/app/dashboard/reports/components/UnfilledReportsTable/UnfilledReportsTable";
+import {useUser} from "@/stores/appStore";
 
 export default function ReportsPage() {
-    const { user } = useAuth();
+    const user = useUser();
     const [activeReportType, setActiveReportType] = useState<'employee' | 'object' | 'unfilled'>('employee');
 
     if (!user?.objectRef) return null;

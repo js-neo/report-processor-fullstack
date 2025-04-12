@@ -2,12 +2,12 @@
 
 'use client';
 
-import { useAuth } from '@/hooks/useAuth';
 import { usePathname, useRouter } from 'next/navigation';
 import LoadingSpinner from '@/components/Common/LoadingSpinner';
 import { cn } from '@/utils/utils';
 import Link from 'next/link';
 import React, { useEffect } from "react";
+import {useAuthState, useIsAuthenticated} from "@/stores/appStore";
 
 const tabs = [
     { id: 'profile', label: 'Профиль', path: '/dashboard/profile' },
@@ -18,7 +18,8 @@ const tabs = [
 export const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
     const router = useRouter();
     const pathname = usePathname();
-    const { user, loading: authLoading, error, isAuthenticated } = useAuth();
+    const { user, isLoading: authLoading, error } = useAuthState();
+    const isAuthenticated = useIsAuthenticated();
 
     useEffect(() => {
         if (!authLoading && !isAuthenticated) {

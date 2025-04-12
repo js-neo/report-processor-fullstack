@@ -101,7 +101,7 @@ export const loginManager = async (
 ): Promise<AuthResponse> => {
     const manager = await Manager.findOne({
         'auth.telegram_username': telegram_username
-    }).select('+auth.passwordHash');
+    }).populate('profile.objectRef').select('+auth.passwordHash');
 
     if (!manager) {
         throw new NotFoundError('Manager not found');
