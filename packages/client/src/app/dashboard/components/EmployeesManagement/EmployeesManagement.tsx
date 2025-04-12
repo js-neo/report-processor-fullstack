@@ -6,23 +6,30 @@ import { useWorkers } from '@/hooks/useReports';
 import { WorkerCard } from './WorkerCard';
 import { Button } from '@/components/UI/Button';
 import { Modal } from '@/components/UI/Modal';
-import {IWorker} from "shared";
+import {IObject, IWorker} from "shared";
 import {useStore} from "@/stores/appStore";
 
 export const EmployeesManagement = () => {
     const { user } = useStore();
     const { workers, loading, error } = useWorkers();
     const [selectedWorker, setSelectedWorker] = useState<string | null>(null);
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(true);
 
     console.log("loading", loading);
+    console.log("user_Employees: ", user);
+
+    console.log("user?.objectRef:", user?.objectRef)
 
     const currentWorkers = workers.filter(
-        (worker) => worker?.objectRef?.objectId === user?.objectRef?.objectId
+        (worker) => {
+            console.log("worker?.objectRef?.objectId:", worker?.objectRef)
+            return worker?.objectRef?.objectId === user?.objectRef?.objectId
+        }
     );
 
     const handleAssign = async (workerId: string) => {
         try {
+            console.log("handleAssign: ", workerId);
             const response = await fetch(`/api/workers/${workerId}`, {
                 method: 'PATCH',
                 headers: {
@@ -40,13 +47,42 @@ export const EmployeesManagement = () => {
         }
     };
 
+    const onWorkerUpdate = async (workerId: string, newObjectRef?: IObject) => {
+        try {
+            const response = await fetch(`/api/workers/${workerId}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+                },
+                body: JSON.stringify({
+                    objectRef: newObjectRef || null
+                }),
+            });
+
+            if (!response.ok) throw new Error('Update failed');
+
+            const updatedWorkers = workers.map(worker =>
+                worker.workerId === workerId
+                    ? {...worker, objectRef: newObjectRef}
+                    : worker
+            );
+
+        } catch (error) {
+            console.error('Error updating worker:', error);
+        }
+    };
+
     const handleUnassign = (worker: IWorker) => {
         if (worker.objectRef && worker.objectRef.name !== user?.objectRef?.name) {
             if (!confirm(`Сотрудник работает на ${worker.objectRef.name}. Сменить объект?`)) {
                 return;
             }
         }
-        onWorkerUpdate(worker.workerId, user?.objectRef);
+        if (user?.objectRef) {
+            onWorkerUpdate(worker.workerId, user?.objectRef);
+        }
+
     };
 
 

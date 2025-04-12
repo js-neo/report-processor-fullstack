@@ -1,3 +1,5 @@
+// packages/client/src/stores/appStore.ts
+
 import {create} from "zustand"
 import {setAuthToken, clearAuthToken, getAuthToken} from "@/services/authService";
 import {fetchUserData} from "@/hooks/useAuth";

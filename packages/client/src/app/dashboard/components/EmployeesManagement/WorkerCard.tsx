@@ -57,7 +57,7 @@ export const WorkerCard = ({ worker, onUnassignAction }: WorkerCardProps) => {
                     onClick={onUnassignAction}
                     disabled={!worker.objectName}
                 >
-                    Открепить
+                    Удалить
                 </Button>
             </div>
         </div>

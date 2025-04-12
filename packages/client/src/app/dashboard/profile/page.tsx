@@ -1,11 +1,12 @@
 // packages/client/src/app/dashboard/profile/page.tsx
 'use client';
 
-import {useAuth} from "@/hooks/useAuth";
 import {ProfileSection} from "@/app/dashboard/components/ProfileSection/ProfileSection";
+import {useStore} from "@/stores/appStore";
 
 export default function ProfilePage() {
-    const { user } = useAuth();
+    const { user } = useStore();
+    console.log("user_ProfilePage: ", user);
 
     return (
         <div>
