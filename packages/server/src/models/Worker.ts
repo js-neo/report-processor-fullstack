@@ -1,5 +1,6 @@
 // server/src/models/Worker.ts
 import { Schema, model, Document, Types } from 'mongoose';
+import {IObject} from "shared";
 
 interface IWorker extends Document {
     workerId: string;
@@ -9,6 +10,11 @@ interface IWorker extends Document {
     objectRef: Types.ObjectId;
     created_at: Date;
     updated_at: Date;
+}
+
+// интерфейс для популяции
+interface PopulatedWorker extends Omit<IWorker, 'objectRef'> {
+    objectRef: IObject | null;
 }
 
 const WorkerSchema = new Schema<IWorker>(
@@ -39,7 +45,14 @@ const WorkerSchema = new Schema<IWorker>(
         objectRef: {
             type: Schema.Types.ObjectId,
             ref: 'Object',
-            required: true
+            required: true,
+            validate: {
+                validator: async function(v: Types.ObjectId) {
+                    const doc = await model('Object').findById(v);
+                    return !!doc;
+                },
+                message: 'Object does not exist'
+            }
         }
     },
     {
@@ -65,8 +78,15 @@ const WorkerSchema = new Schema<IWorker>(
     }
 );
 
+WorkerSchema.virtual('object', {
+    ref: 'Object',
+    localField: 'objectRef',
+    foreignField: '_id',
+    justOne: true
+});
+
 WorkerSchema.index({ workerId: 1 }, { unique: true });
 WorkerSchema.index({ objectRef: 1 });
 
-export { IWorker };
+export { IWorker, PopulatedWorker };
 export default model<IWorker>('Worker', WorkerSchema);

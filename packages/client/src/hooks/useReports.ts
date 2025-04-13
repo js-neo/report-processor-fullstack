@@ -138,31 +138,35 @@ export const useReports = <T extends ReportParams>(params: T): ReportState<T> =>
     return state as ReportState<T>;
 };
 
+// packages/client/src/hooks/useReports.ts
 export const useWorkers = () => {
     const [workers, setWorkers] = useState<IWorker[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    useEffect(() => {
-        const loadData = async () => {
-            try {
-                const response = await fetchWorkers();
-                setWorkers(response.data);
-            } catch (err) {
-                if (err instanceof Error) {
-                    setError(err.message || 'Ошибка загрузки данных');
-                } else {
-                    setError('Ошибка загрузки данных');
-                }
-            } finally {
-                setLoading(false);
-            }
-        };
+    const loadData = async () => {
+        try {
+            const response = await fetchWorkers();
+            setWorkers(response.data);
+            setError(null);
+        } catch (err) {
+            const message = err instanceof Error ? err.message : 'Ошибка загрузки';
+            setError(message);
+        } finally {
+            setLoading(false);
+        }
+    };
 
+    useEffect(() => {
         loadData();
     }, []);
 
-    return { workers, loading, error };
+    const refresh = () => {
+        setLoading(true);
+        loadData();
+    };
+
+    return { workers, loading, error, refresh };
 };
 
 export const useObjects = () => {

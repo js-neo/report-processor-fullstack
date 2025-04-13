@@ -16,8 +16,6 @@ export default function UserReportPage() {
     const workerName = decodeURIComponent(params.workerName as string);
     const start = searchParams.get('start')!;
     const end = searchParams.get('end')!;
-console.log("start: ", start);
-console.log("start: ", start);
 
     const startUTC = new Date(`${start}T00:00:00+03:00`).toISOString();
     const endUTC = new Date(`${end}T23:59:59+03:00`).toISOString();

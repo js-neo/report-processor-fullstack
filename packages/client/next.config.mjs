@@ -2,7 +2,7 @@
 
 const nextConfig = {
     reactStrictMode: true,
-    transpilePackages: ['immer', 'zustand'],
+    transpilePackages: ['zustand'],
 };
 
 export default nextConfig;

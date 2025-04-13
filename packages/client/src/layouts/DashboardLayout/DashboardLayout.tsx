@@ -58,13 +58,13 @@ export const DashboardLayout = ({ children }: { children: React.ReactNode }) => 
     };
 
     return (
-        <div className="min-h-screen bg-gray-50">
-            <header className="bg-white shadow-sm">
+        <div className="min-h-screen bg-gray-100 dark:bg-gray-800">
+            <header className="bg-gray-50 dark:bg-gray-900 shadow-sm">
                 <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-                    <h1 className="text-2xl font-bold">Личный кабинет</h1>
+                    <h1 className="text-2xl font-bold dark:text-white">Личный кабинет</h1>
                     <div className="text-right">
-                        <p className="text-lg font-medium">{user.fullName}</p>
-                        <p className="text-sm text-gray-500">
+                        <p className="text-lg font-medium dark:text-gray-100">{user.fullName}</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
                             Объект: {getObjectName()}
                         </p>
                     </div>
@@ -83,7 +83,7 @@ export const DashboardLayout = ({ children }: { children: React.ReactNode }) => 
                                         'block w-full px-4 py-2 rounded-lg',
                                         activeTab === tab.id
                                             ? 'bg-blue-600 text-white'
-                                            : 'text-gray-700 hover:bg-gray-100'
+                                            : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800'
                                     )}
                                 >
                                     {tab.label}
@@ -92,7 +92,7 @@ export const DashboardLayout = ({ children }: { children: React.ReactNode }) => 
                         </div>
                     </nav>
 
-                    <main className="flex-1 bg-white rounded-lg shadow-sm p-6">
+                    <main className="flex-1 bg-white dark:bg-gray-900 rounded-lg shadow-sm p-6">
                         {children}
                     </main>
                 </div>

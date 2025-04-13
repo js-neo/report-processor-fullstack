@@ -18,15 +18,21 @@ export class ApiError extends Error {
     }
 }
 
+export class BadRequestError extends ApiError {
+    constructor(message: string = 'Bad Request', details?: ErrorDetails) {
+        super(message, 400, details);
+    }
+}
+
 export class UnauthorizedError extends ApiError {
     constructor(message: string = 'Unauthorized', details?: ErrorDetails) {
         super(message, 401, details);
     }
 }
 
-export class BadRequestError extends ApiError {
-    constructor(message: string = 'Bad Request', details?: ErrorDetails) {
-        super(message, 400, details);
+export class ForbiddenError extends ApiError {
+    constructor(message: string = 'Forbidden', details?: ErrorDetails) {
+        super(message, 403, details);
     }
 }
 

@@ -1,4 +1,5 @@
 // packages/client/src/app/dashboard/components/EmployeesManagement/EmployeesManagement.tsx
+
 'use client';
 
 import { useState } from 'react';
@@ -6,85 +7,71 @@ import { useWorkers } from '@/hooks/useReports';
 import { WorkerCard } from './WorkerCard';
 import { Button } from '@/components/UI/Button';
 import { Modal } from '@/components/UI/Modal';
-import {IObject, IWorker} from "shared";
-import {useUser} from "@/stores/appStore";
+import { useUser } from "@/stores/appStore";
+import {BASE_URL} from "@/lib/api";
 
 export const EmployeesManagement = () => {
-    const user  = useUser();
-    const { workers, loading, error } = useWorkers();
+    const user = useUser();
+    const { workers, error, refresh } = useWorkers();
     const [selectedWorker, setSelectedWorker] = useState<string | null>(null);
-    const [isModalOpen, setIsModalOpen] = useState(true);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
-    console.log("loading", loading);
-    console.log("user_Employees: ", user);
+    const userObjectId = user?.objectRef?._id;
 
-    console.log("user?.objectRef:", user?.objectRef)
+    const assignedToThisObject = workers.filter(worker =>
+        worker.objectRef?._id === userObjectId
+    );
 
-    const currentWorkers = workers.filter(
-        (worker) => {
-            console.log("worker?.objectRef?.objectId:", worker?.objectRef)
-            return worker?.objectRef?.objectId === undefined // user?.objectRef?.objectId
-        }
+    const assignedToOtherObjects = workers.filter(worker =>
+        worker.objectRef?._id && worker.objectRef._id !== userObjectId
+    );
+
+    const unassignedWorkers = workers.filter(worker =>
+        !worker.objectRef?._id
     );
 
     const handleAssign = async (workerId: string) => {
         try {
-            console.log("handleAssign: ", workerId);
-            const response = await fetch(`/api/workers/${workerId}`, {
+            const response = await fetch(`${BASE_URL}/workers/${workerId}/object`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
                 },
-                body: JSON.stringify({ objectName: user?.objectRef }),
+                body: JSON.stringify({ action: 'assign', userObjectId }),
             });
 
-            if (!response.ok) throw new Error('Assignment failed');
-            setSelectedWorker(null);
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Ошибка сервера');
+            }
+
+            refresh();
+        } catch (error) {
+            console.error('Ошибка:', error instanceof Error ? error.message : 'Неизвестная ошибка');
+        }
+    };
+
+    const handleUnassign = async (workerId: string) => {
+        try {
+            const response = await fetch(`/api/workers/${workerId}/object`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+                },
+                body: JSON.stringify({ action: 'unassign' }),
+            });
+
+            if (!response.ok) throw new Error('Ошибка открепления');
+
+            refresh();
             setIsModalOpen(false);
         } catch (error) {
-            console.error('Error assigning worker:', error);
+            console.error('Ошибка:', error instanceof Error ? error.message : 'Неизвестная ошибка');
         }
     };
-
-    const onWorkerUpdate = async (workerId: string, newObjectRef?: IObject) => {
-        try {
-            const response = await fetch(`/api/workers/${workerId}`, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-                },
-                body: JSON.stringify({
-                    objectRef: newObjectRef || null
-                }),
-            });
-
-            if (!response.ok) throw new Error('Update failed');
-
-            const updatedWorkers = ( workers: IWorker[], workerId: string) => workers.map(worker =>
-                worker.workerId === workerId
-                    ? {...worker, objectRef: newObjectRef}
-                    : worker
-            );
-
-        } catch (error) {
-            console.error('Error updating worker:', error);
-        }
-    };
-
-    const handleUnassign = (worker: IWorker) => {
-        if (worker.objectRef && worker.objectRef.name !== user?.objectRef?.name) {
-            if (!confirm(`Сотрудник работает на ${worker.objectRef.name}. Сменить объект?`)) {
-                return;
-            }
-        }
-        if (user?.objectRef) {
-            onWorkerUpdate(worker.workerId, user?.objectRef);
-        }
-
-    };
-
 
     return (
         <div className="space-y-6">
@@ -100,18 +87,76 @@ export const EmployeesManagement = () => {
                 </div>
             )}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {currentWorkers.map((worker) => (
-                    <WorkerCard
-                        key={worker._id}
-                        worker={worker}
-                        onUnassignAction={() => {
-                            setSelectedWorker(worker._id);
-                            setIsModalOpen(true);
-                        }}
-                    />
-                ))}
-            </div>
+            {assignedToThisObject.length > 0 && (
+                <>
+                    <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300">
+                        Работники на этом объекте
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {assignedToThisObject.map((worker) => (
+                            <WorkerCard
+                                key={worker._id}
+                                worker={worker}
+                                showUnassign={true}
+                                cardType="current-object"
+                                onUnassignAction={() => {
+                                    setSelectedWorker(worker._id);
+                                    setIsModalOpen(true);
+                                }}
+                                onAssignAction={() => {}}
+                            />
+                        ))}
+                    </div>
+                </>
+            )}
+
+            {(assignedToThisObject.length > 0 && (assignedToOtherObjects.length > 0 || unassignedWorkers.length > 0)) && (
+                <hr className="my-8 border-t-2 border-gray-200 dark:border-gray-700" />
+            )}
+
+            {assignedToOtherObjects.length > 0 && (
+                <>
+                    <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300">
+                        Работники на других объектах
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {assignedToOtherObjects.map((worker) => (
+                            <WorkerCard
+                                key={worker._id}
+                                worker={worker}
+                                showUnassign={false}
+                                cardType="other-object"
+                                onUnassignAction={() => {}}
+                                onAssignAction={() => {}}
+                            />
+                        ))}
+                    </div>
+                </>
+            )}
+
+            {(assignedToOtherObjects.length > 0 && unassignedWorkers.length > 0) && (
+                <hr className="my-8 border-t-2 border-gray-200 dark:border-gray-700" />
+            )}
+
+            {unassignedWorkers.length > 0 && (
+                <>
+                    <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300">
+                        Свободные работники
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {unassignedWorkers.map((worker) => (
+                            <WorkerCard
+                                key={worker._id}
+                                worker={worker}
+                                showUnassign={false}
+                                cardType="unassigned"
+                                onUnassignAction={() => {}}
+                                onAssignAction={() => handleAssign(worker._id)}
+                            />
+                        ))}
+                    </div>
+                </>
+            )}
 
             <Modal
                 isOpen={isModalOpen}
@@ -119,7 +164,7 @@ export const EmployeesManagement = () => {
                 title="Подтверждение действия"
             >
                 <p className="text-gray-700 dark:text-gray-300 mb-4">
-                    Вы уверены, что хотите открепить этого сотрудника от объекта?
+                    Вы уверены, что хотите открепить сотрудника от объекта?
                 </p>
                 <div className="flex justify-end space-x-3">
                     <Button
@@ -130,7 +175,9 @@ export const EmployeesManagement = () => {
                     </Button>
                     <Button
                         variant="danger"
-                        onClick={() => selectedWorker && handleAssign(selectedWorker)}
+                        onClick={() => {
+                            if (selectedWorker) handleUnassign(selectedWorker);
+                        }}
                     >
                         Подтвердить
                     </Button>
