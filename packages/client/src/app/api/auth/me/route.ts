@@ -1,7 +1,7 @@
 // packages/client/src/app/api/auth/me/route.ts
 
 import { NextRequest, NextResponse } from 'next/server';
-import { BASE_URL } from '@/lib/api';
+import {BASE_URL} from "@/config";
 
 export async function GET(req: NextRequest) {
     try {

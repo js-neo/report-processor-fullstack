@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { Button } from '@/components/UI/Button';
 import LoadingSpinner from '@/components/Common/LoadingSpinner';
 import { IReport} from 'shared';
-import {fetchUnfilledReports} from "@/lib/api";
+import {fetchUnfilledReports} from "@/lib/api/api";
 import {useUser} from "@/stores/appStore";
 
 interface ReportWorker {

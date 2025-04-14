@@ -37,6 +37,7 @@ export const getAllWorkers = async (_req: Request, res: Response, next: NextFunc
 };
 
 export const updateWorkerObject = async (req: Request, res: Response, next: NextFunction) => {
+    console.log('updateWorkerObject', req.body);
     try {
         const { workerId } = req.params;
         console.log("workerId_controller: ", workerId);

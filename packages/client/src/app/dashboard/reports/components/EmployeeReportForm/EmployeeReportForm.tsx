@@ -2,7 +2,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useWorkers } from '@/hooks/useReports';
+import { useWorkers } from '@/hooks/useWorkers';
 import { Button } from '@/components/UI/Button';
 import { DatePicker } from '@/components/UI/DatePicker';
 import { Select } from '@/components/UI/Select';
@@ -15,9 +15,9 @@ export const EmployeeReportForm = () => {
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
     const [selectedWorker, setSelectedWorker] = useState('');
-    const { workers } = useWorkers();
+    const { workers: {allWorkers} } = useWorkers();
 
-    const filteredWorkers = workers.filter(
+    const filteredWorkers = allWorkers.filter(
         worker => worker.objectRef?.toString() === user?.objectRef?.toString()
     );
 

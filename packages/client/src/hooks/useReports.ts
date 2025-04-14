@@ -6,10 +6,9 @@ import { useEffect, useState, useCallback, useMemo } from 'react';
 import {
     fetchEmployeeReports,
     fetchObjectReport,
-    fetchObjects,
-    fetchWorkers
+    fetchObjects
 } from '@/lib/api';
-import {EmployeeReportsResponse, IObject, IWorker, ObjectReportResponse} from "shared";
+import {EmployeeReportsResponse, IObject, ObjectReportResponse} from "shared";
 
 type ReportParams =
     | {
@@ -138,36 +137,6 @@ export const useReports = <T extends ReportParams>(params: T): ReportState<T> =>
     return state as ReportState<T>;
 };
 
-// packages/client/src/hooks/useReports.ts
-export const useWorkers = () => {
-    const [workers, setWorkers] = useState<IWorker[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-
-    const loadData = async () => {
-        try {
-            const response = await fetchWorkers();
-            setWorkers(response.data);
-            setError(null);
-        } catch (err) {
-            const message = err instanceof Error ? err.message : 'Ошибка загрузки';
-            setError(message);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        loadData();
-    }, []);
-
-    const refresh = () => {
-        setLoading(true);
-        loadData();
-    };
-
-    return { workers, loading, error, refresh };
-};
 
 export const useObjects = () => {
     const [objects, setObjects] = useState<IObject[]>([]);

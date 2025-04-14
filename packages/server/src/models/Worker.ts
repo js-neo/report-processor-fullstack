@@ -12,7 +12,6 @@ interface IWorker extends Document {
     updated_at: Date;
 }
 
-// интерфейс для популяции
 interface PopulatedWorker extends Omit<IWorker, 'objectRef'> {
     objectRef: IObject | null;
 }
@@ -45,9 +44,10 @@ const WorkerSchema = new Schema<IWorker>(
         objectRef: {
             type: Schema.Types.ObjectId,
             ref: 'Object',
-            required: true,
+            required: false,
             validate: {
-                validator: async function(v: Types.ObjectId) {
+                validator: async function(v: Types.ObjectId | null) {
+                    if (!v) return true;
                     const doc = await model('Object').findById(v);
                     return !!doc;
                 },

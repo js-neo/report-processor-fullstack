@@ -1,77 +1,63 @@
-// packages/client/src/app/dashboard/components/EmployeesManagement/EmployeesManagement.tsx
-
 'use client';
 
-import { useState } from 'react';
-import { useWorkers } from '@/hooks/useReports';
+import { useWorkers } from '@/hooks/useWorkers';
 import { WorkerCard } from './WorkerCard';
 import { Button } from '@/components/UI/Button';
 import { Modal } from '@/components/UI/Modal';
 import { useUser } from "@/stores/appStore";
-import {BASE_URL} from "@/lib/api";
+import {useState} from "react";
+import LoadingSpinner from "@/components/Common/LoadingSpinner";
 
 export const EmployeesManagement = () => {
     const user = useUser();
-    const { workers, error, refresh } = useWorkers();
-    const [selectedWorker, setSelectedWorker] = useState<string | null>(null);
-    const [isModalOpen, setIsModalOpen] = useState(false);
-
     const userObjectId = user?.objectRef?._id;
+    const {
+        workers: { assignedToOtherObjects, assignedToThisObject, unassigned },
+        error,
+        assignWorker,
+        unassignWorker
+    } = useWorkers(userObjectId);
 
-    const assignedToThisObject = workers.filter(worker =>
-        worker.objectRef?._id === userObjectId
-    );
+    const [selectedWorker, setSelectedWorker] = useState<{
+        id: string;
+        name?: string;
+        objectName?: string;
+        action: 'assign' | 'unassign';
+    } | null>(null);
 
-    const assignedToOtherObjects = workers.filter(worker =>
-        worker.objectRef?._id && worker.objectRef._id !== userObjectId
-    );
+    const [isUnassignModalOpen, setIsUnassignModalOpen] = useState(false);
+    const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
+    const [isProcessing, setIsProcessing] = useState(false);
 
-    const unassignedWorkers = workers.filter(worker =>
-        !worker.objectRef?._id
-    );
-
-    const handleAssign = async (workerId: string) => {
-        try {
-            const response = await fetch(`${BASE_URL}/workers/${workerId}/object`, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-                },
-                body: JSON.stringify({ action: 'assign', userObjectId }),
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.message || 'Ошибка сервера');
+    const handleAssign = async () => {
+        if (selectedWorker && userObjectId) {
+            setIsProcessing(true);
+            try {
+                await assignWorker(selectedWorker.id, userObjectId);
+                setIsAssignModalOpen(false);
+            } catch (err) {
+                console.error('Failed to assign worker:', err);
+            } finally {
+                setIsProcessing(false);
             }
-
-            refresh();
-        } catch (error) {
-            console.error('Ошибка:', error instanceof Error ? error.message : 'Неизвестная ошибка');
         }
     };
 
-    const handleUnassign = async (workerId: string) => {
-        try {
-            const response = await fetch(`/api/workers/${workerId}/object`, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-                },
-                body: JSON.stringify({ action: 'unassign' }),
-            });
-
-            if (!response.ok) throw new Error('Ошибка открепления');
-
-            refresh();
-            setIsModalOpen(false);
-        } catch (error) {
-            console.error('Ошибка:', error instanceof Error ? error.message : 'Неизвестная ошибка');
+    const handleUnassign = async () => {
+        if (selectedWorker) {
+            setIsProcessing(true);
+            try {
+                await unassignWorker(selectedWorker.id);
+                setIsUnassignModalOpen(false);
+            } catch (err) {
+                console.error('Failed to unassign worker:', err);
+            } finally {
+                setIsProcessing(false);
+            }
         }
     };
+
+    if (error) return <div className="text-red-500">{error}</div>;
 
     return (
         <div className="space-y-6">
@@ -100,8 +86,13 @@ export const EmployeesManagement = () => {
                                 showUnassign={true}
                                 cardType="current-object"
                                 onUnassignAction={() => {
-                                    setSelectedWorker(worker._id);
-                                    setIsModalOpen(true);
+                                    setSelectedWorker({
+                                        id: worker._id,
+                                        name: worker.name,
+                                        objectName: worker.objectRef?.name,
+                                        action: 'unassign'
+                                    });
+                                    setIsUnassignModalOpen(true);
                                 }}
                                 onAssignAction={() => {}}
                             />
@@ -110,11 +101,11 @@ export const EmployeesManagement = () => {
                 </>
             )}
 
-            {(assignedToThisObject.length > 0 && (assignedToOtherObjects.length > 0 || unassignedWorkers.length > 0)) && (
+            {(assignedToThisObject.length > 0 && (assignedToOtherObjects.length > 0 || unassigned.length > 0)) && (
                 <hr className="my-8 border-t-2 border-gray-200 dark:border-gray-700" />
             )}
 
-            {assignedToOtherObjects.length > 0 && (
+            {(assignedToOtherObjects.length > 0 && userObjectId) && (
                 <>
                     <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300">
                         Работники на других объектах
@@ -127,31 +118,46 @@ export const EmployeesManagement = () => {
                                 showUnassign={false}
                                 cardType="other-object"
                                 onUnassignAction={() => {}}
-                                onAssignAction={() => {}}
+                                onAssignAction={() => {
+                                    setSelectedWorker({
+                                        id: worker._id,
+                                        name: worker.name,
+                                        objectName: worker.objectRef?.name,
+                                        action: 'assign'
+                                    });
+                                    setIsAssignModalOpen(true);
+                                }}
                             />
                         ))}
                     </div>
                 </>
             )}
 
-            {(assignedToOtherObjects.length > 0 && unassignedWorkers.length > 0) && (
+            {(assignedToOtherObjects.length > 0 && unassigned.length > 0) && (
                 <hr className="my-8 border-t-2 border-gray-200 dark:border-gray-700" />
             )}
 
-            {unassignedWorkers.length > 0 && (
+            {(unassigned.length > 0 && userObjectId) && (
                 <>
                     <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300">
                         Свободные работники
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {unassignedWorkers.map((worker) => (
+                        {unassigned.map((worker) => (
                             <WorkerCard
                                 key={worker._id}
                                 worker={worker}
                                 showUnassign={false}
                                 cardType="unassigned"
                                 onUnassignAction={() => {}}
-                                onAssignAction={() => handleAssign(worker._id)}
+                                onAssignAction={() => {
+                                    setSelectedWorker({
+                                        id: worker._id,
+                                        name: worker.name,
+                                        action: 'assign'
+                                    });
+                                    setIsAssignModalOpen(true);
+                                }}
                             />
                         ))}
                     </div>
@@ -159,28 +165,84 @@ export const EmployeesManagement = () => {
             )}
 
             <Modal
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-                title="Подтверждение действия"
+                isOpen={isUnassignModalOpen}
+                onClose={() => !isProcessing && setIsUnassignModalOpen(false)}
+                title="Подтверждение открепления"
             >
+                <div className="relative">
+                    {isProcessing && (
+                        <div className="absolute inset-0 bg-white/50 dark:bg-gray-800/50 flex items-center justify-center z-10">
+                            <LoadingSpinner />
+                        </div>
+                    )}
                 <p className="text-gray-700 dark:text-gray-300 mb-4">
-                    Вы уверены, что хотите открепить сотрудника от объекта?
+                    Вы уверены, что хотите открепить сотрудника {selectedWorker?.name} от объекта?
                 </p>
                 <div className="flex justify-end space-x-3">
                     <Button
                         variant="secondary"
-                        onClick={() => setIsModalOpen(false)}
+                        onClick={() => setIsUnassignModalOpen(false)}
+                        disabled={isProcessing}
                     >
                         Отмена
                     </Button>
                     <Button
                         variant="danger"
-                        onClick={() => {
-                            if (selectedWorker) handleUnassign(selectedWorker);
-                        }}
+                        onClick={handleUnassign}
+                        disabled={isProcessing}
                     >
-                        Подтвердить
+                        {isProcessing ? (
+                            <span className="flex items-center gap-2">
+                                    <LoadingSpinner small />
+                                    Обработка...
+                                </span>
+                        ) : (
+                            "Подтвердить"
+                        )}
                     </Button>
+                </div>
+                </div>
+            </Modal>
+
+            <Modal
+                isOpen={isAssignModalOpen}
+                onClose={() => setIsAssignModalOpen(false)}
+                title="Подтверждение добавления"
+            >
+                <div className="relative">
+                    {isProcessing && (
+                        <div className="absolute inset-0 bg-white/50 dark:bg-gray-800/50 flex items-center justify-center z-10">
+                            <LoadingSpinner />
+                        </div>
+                    )}
+                <p className="text-gray-700 dark:text-gray-300 mb-4">
+                    {selectedWorker?.objectName
+                        ? `Вы действительно хотите добавить работника ${selectedWorker.name}, который работает на объекте "${selectedWorker.objectName}"?`
+                        : `Вы действительно хотите добавить работника ${selectedWorker?.name}?`}
+                </p>
+                <div className="flex justify-end space-x-3">
+                    <Button
+                        variant="secondary"
+                        onClick={() => setIsAssignModalOpen(false)}
+                        disabled={isProcessing}
+                    >
+                        Отмена
+                    </Button>
+                    <Button
+                        variant="primary"
+                        onClick={handleAssign}
+                        disabled={isProcessing}
+                    >
+                        {isProcessing ? (
+                            <span className="flex items-center gap-2">
+                                    <LoadingSpinner small />
+                                    Обработка...
+                                </span>
+                        ) : (
+                            "Подтвердить"
+                        )}
+                    </Button>
+                </div>
                 </div>
             </Modal>
         </div>

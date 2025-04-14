@@ -5,7 +5,8 @@
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 import DynamicDropdown from '@/components/UI/Dropdown/DynamicDropdown';
-import { useWorkers, useObjects } from '@/hooks/useReports';
+import {useObjects } from '@/hooks/useReports';
+import {useWorkers} from "@/hooks/useWorkers";
 
 export default function HomePage() {
     const router = useRouter();
@@ -113,7 +114,7 @@ export default function HomePage() {
                         </label>
                         <DynamicDropdown
                             type="employee"
-                            data={workers}
+                            data={workers.allWorkers}
                             selectedValue={workerName}
                             onChange={setWorkerName}
                             placeholder="Выберите сотрудника"

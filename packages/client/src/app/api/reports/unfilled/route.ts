@@ -1,6 +1,6 @@
 // packages/client/src/app/api/reports/unfilled/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { fetchUnfilledReports } from '@/lib/api';
+import { fetchUnfilledReports } from '@/lib/api/api';
 
 export async function GET(req: NextRequest) {
     try {

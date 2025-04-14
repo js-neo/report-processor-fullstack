@@ -3,13 +3,14 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/hooks/useAuth';
+
 import { Button } from '@/components/UI/Button';
 import { DatePicker } from '@/components/UI/DatePicker';
+import {useUser} from "@/stores/appStore";
 
 export const ReportGenerator = () => {
     const router = useRouter();
-    const { user } = useAuth();
+    const { user } = useUser();
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
 

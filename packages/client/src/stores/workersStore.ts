@@ -2,7 +2,8 @@
 
 import { create } from 'zustand';
 import { IWorker } from 'shared';
-import {fetchWorkers} from "@/lib/api";
+import {workerAPI} from "@/lib/api";
+
 
 interface WorkersState {
     workers: IWorker[];
@@ -18,7 +19,7 @@ export const useWorkersStore = create<WorkersState>((set) => ({
     loadWorkers: async () => {
         set({ loading: true, error: null });
         try {
-            const response = await fetchWorkers();
+            const response = await workerAPI.getAllWorkers();
             set({ workers: response.data, loading: false });
         } catch (err) {
             set({

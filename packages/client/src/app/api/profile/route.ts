@@ -1,7 +1,7 @@
 // packages/client/src/app/api/profile/route.ts
 
 import { NextResponse } from 'next/server';
-import { BASE_URL } from '@/lib/api';
+import {BASE_URL} from "@/config";
 
 export async function PATCH(req: Request) {
     try {
