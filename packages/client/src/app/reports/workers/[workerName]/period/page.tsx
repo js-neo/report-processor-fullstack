@@ -1,17 +1,21 @@
 // packages/client/src/app/reports/workers/[workerName]/period/page.tsx
 'use client';
 
-import { useParams, useSearchParams } from 'next/navigation';
+import { useParams, useSearchParams, useRouter } from 'next/navigation';
 import EmployeeTable from "@/components/Table/EmployeeTable/EmployeeTable";
 import EmployeeTableHead from '@/components/Table/EmployeeTable/EmployeeTableHead';
 import EmployeeTableBody from '@/components/Table/EmployeeTable/EmployeeTableBody';
 import { useReports } from '@/hooks/useReports';
 import LoadingSpinner from '@/components/Common/LoadingSpinner';
 import {ExportToExcelButton} from "@/components/ExportToExcelButton";
+import toast from 'react-hot-toast';
+import { useEffect, useState } from 'react';
 
 export default function UserReportPage() {
     const params = useParams();
     const searchParams = useSearchParams();
+    const router = useRouter();
+    const [showEmptyMessage, setShowEmptyMessage] = useState(true);
 
     const workerName = decodeURIComponent(params.workerName as string);
     const start = searchParams.get('start')!;
@@ -26,31 +30,38 @@ export default function UserReportPage() {
         endDate: endUTC
     });
 
+    useEffect(() => {
+        if (error) {
+            toast.error(`Ошибка загрузки отчёта: ${error}`, {duration: 3000});
+            const timer = setTimeout(() => router.back(), 3000);
+            return () => clearTimeout(timer);
+        }
+    }, [error, router]);
+
+    useEffect(() => {
+        if (!reports || !reports.data || reports.data.length === 0) {
+            const timer = setTimeout(() => {
+                setShowEmptyMessage(false);
+                router.back()
+            }, 3000);
+            return () => clearTimeout(timer);
+        }
+    }, [loading, reports, router]);
+
     if (loading) {
         return <div className="p-6 text-center dark:bg-gray-800"><LoadingSpinner /></div>;
     }
 
     if (error) {
-        return (
-            <div className="p-6 max-w-7xl mx-auto dark:bg-gray-800 rounded-lg">
-                <div className="p-6 bg-red-50 dark:bg-red-900/20 rounded-lg">
-                    <div className="text-red-600 dark:text-red-400 font-medium">
-                        Ошибка загрузки данных:
-                    </div>
-                    <pre className="mt-2 p-4 bg-red-100 dark:bg-red-900/10 rounded-md text-red-700 dark:text-red-300 overflow-x-auto">
-                        <code className="font-mono text-sm">
-                            {error.toString()}
-                        </code>
-                    </pre>
-                </div>
-            </div>
-        );
+        return null;
     }
 
     if (!reports || !reports.data || reports.data.length === 0) {
+        if (!showEmptyMessage) return null;
         return (
-            <div className="p-6 text-gray-500 dark:text-gray-400 dark:bg-gray-800">
+            <div className="p-6 font-mono text-gray-500 dark:text-gray-400 dark:bg-gray-800">
                 Нет данных за выбранный период ({start} - {end}).
+                Автоматический возврат через 3 секунды...
             </div>
         );
     }

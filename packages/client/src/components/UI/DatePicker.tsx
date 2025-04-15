@@ -5,27 +5,36 @@ type DatePickerProps = {
     label: string;
     selected: string;
     onChange: (value: string) => void;
+    onBlur?: () => void;
     className?: string;
+    hasError?: boolean;
 };
 
 export const DatePicker = ({
                                label,
                                selected,
                                onChange,
-                               className
+                               onBlur,
+                               className = '',
+                               hasError = false
                            }: DatePickerProps) => {
     return (
         <div className={className}>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label className={`block text-sm font-medium mb-1 ${
+                hasError ? 'text-red-600 dark:text-red-400' : 'text-gray-700 dark:text-gray-300'
+            }`}>
                 {label}
             </label>
             <input
                 type="date"
                 value={selected}
                 onChange={(e) => onChange(e.target.value)}
-                className="w-full p-2 border rounded-md bg-white dark:bg-gray-700
-          dark:border-gray-600 dark:text-gray-100 focus:ring-2
-          focus:ring-blue-500 focus:border-blue-500"
+                onBlur={onBlur}
+                className={`w-full p-2 border rounded-md ${
+                    hasError
+                        ? 'border-red-500 focus:ring-red-500 focus:border-red-500'
+                        : 'border-gray-300 dark:border-gray-600 focus:ring-blue-500 focus:border-blue-500'
+                } bg-white dark:bg-gray-700 dark:text-gray-100 focus:ring-2`}
             />
         </div>
     );

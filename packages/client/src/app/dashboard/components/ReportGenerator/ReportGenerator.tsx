@@ -1,7 +1,7 @@
 // packages/client/src/app/dashboard/components/ReportGenerator/ReportGenerator.tsx
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { Button } from '@/components/UI/Button';
@@ -10,7 +10,7 @@ import {useUser} from "@/stores/appStore";
 
 export const ReportGenerator = () => {
     const router = useRouter();
-    const { user } = useUser();
+    const user  = useUser();
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
 

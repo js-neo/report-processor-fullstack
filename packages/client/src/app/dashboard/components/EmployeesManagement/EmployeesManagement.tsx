@@ -1,5 +1,6 @@
 'use client';
 
+import toast from 'react-hot-toast';
 import { useWorkers } from '@/hooks/useWorkers';
 import { WorkerCard } from './WorkerCard';
 import { Button } from '@/components/UI/Button';
@@ -35,8 +36,19 @@ export const EmployeesManagement = () => {
             try {
                 await assignWorker(selectedWorker.id, userObjectId);
                 setIsAssignModalOpen(false);
+                toast.success('Сотрудник успешно добавлен на объект!');
             } catch (err) {
                 console.error('Failed to assign worker:', err);
+                let errorMessage = 'Не удалось добавить сотрудника';
+
+                if (err instanceof Error) {
+                    if (err.message.includes('409')) {
+                        errorMessage = 'Сотрудник уже прикреплён к этому объекту';
+                    } else if (err.message.includes('404')) {
+                        errorMessage = 'Сотрудник не найден';
+                    }
+                }
+                toast.error(errorMessage);
             } finally {
                 setIsProcessing(false);
             }
@@ -49,14 +61,16 @@ export const EmployeesManagement = () => {
             try {
                 await unassignWorker(selectedWorker.id);
                 setIsUnassignModalOpen(false);
+                toast.success('Сотрудник успешно откреплён от объекта!');
             } catch (err) {
                 console.error('Failed to unassign worker:', err);
+                const errorMessage = err instanceof Error ? err.message : 'Не удалось открепить сотрудника';
+                toast.error(errorMessage);
             } finally {
                 setIsProcessing(false);
             }
         }
     };
-
     if (error) return <div className="text-red-500">{error}</div>;
 
     return (

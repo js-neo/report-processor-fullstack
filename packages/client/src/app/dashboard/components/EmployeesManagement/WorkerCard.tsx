@@ -34,7 +34,7 @@ export const WorkerCard = ({ worker, onUnassignAction, onAssignAction, showUnass
                         {worker.position || "Без специальности"}
                     </p>
                 </div>
-                {worker?.objectRef?.objectId ?
+                {worker?.objectRef?._id ?
                     <span className="bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-400 px-2 py-1 rounded-full text-xs">
                     Назначен
                 </span> :
@@ -67,7 +67,7 @@ export const WorkerCard = ({ worker, onUnassignAction, onAssignAction, showUnass
                         variant="danger"
                         size="sm"
                         onClick={onUnassignAction}
-                        disabled={!worker?.objectRef?.objectId}
+                        disabled={!worker?.objectRef?._id}
                     >
                         Удалить
                     </Button>

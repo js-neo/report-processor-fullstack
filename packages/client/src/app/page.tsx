@@ -7,6 +7,7 @@ import React, { useState } from 'react';
 import DynamicDropdown from '@/components/UI/Dropdown/DynamicDropdown';
 import {useObjects } from '@/hooks/useReports';
 import {useWorkers} from "@/hooks/useWorkers";
+import toast from 'react-hot-toast';
 
 export default function HomePage() {
     const router = useRouter();
@@ -15,26 +16,51 @@ export default function HomePage() {
     const [endDate, setEndDate] = useState('');
     const [workerName, setWorkerName] = useState('');
     const [objectName, setObjectName] = useState('');
-    const [formError, setFormError] = useState('');
 
     const { workers, loading: workersLoading, error: workersError } = useWorkers();
     const { objects, loading: objectsLoading, error: objectsError } = useObjects();
     console.log('workersError: ', workersError);
     console.log('objectsError: ', objectsError);
 
-    const handleSubmit = (e: React.FormEvent) => {
+    React.useEffect(() => {
+        if (workersError) {
+            toast.error(`Ошибка загрузки сотрудников: ${workersError}`);
+        }
+        if (objectsError) {
+            toast.error(`Ошибка загрузки объектов: ${objectsError}`);
+        }
+    }, [workersError, objectsError]);
+
+    const resetForm = () => {
+        setStartDate('');
+        setEndDate('');
+        setWorkerName('');
+        setObjectName('');
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
         if (!startDate || !endDate) {
-            setFormError('Пожалуйста, заполните обе даты');
+            toast.error('Пожалуйста, заполните обе даты', { duration: 3000 });
             return;
         }
-        setFormError('');
+
+        if (activeTab === 'employee' && !workerName) {
+            toast.error('Пожалуйста, выберите сотрудника', { duration: 3000 });
+            return;
+        }
+
+        if (activeTab === 'object' && !objectName) {
+            toast.error('Пожалуйста, выберите объект', { duration: 3000 });
+            return;
+        }
+
         const baseQuery = `?start=${startDate}&end=${endDate}`;
         const path = activeTab === 'employee'
             ? `/reports/workers/${workerName}/period${baseQuery}`
             : `/reports/objects/${objectName}/period${baseQuery}`;
-
+        resetForm();
         router.push(path);
     };
 
@@ -139,9 +165,8 @@ export default function HomePage() {
                     </div>
                 )}
 
-                {(formError || workersError || objectsError) && (
+                {( workersError || objectsError) && (
                     <div className="space-y-1">
-                        {formError && <p className="text-red-500 dark:text-red-400 text-sm">{formError}</p>}
                         {workersError && <p className="text-red-500 dark:text-red-400 text-sm">{workersError}</p>}
                         {objectsError && <p className="text-red-500 dark:text-red-400 text-sm">{objectsError}</p>}
                     </div>

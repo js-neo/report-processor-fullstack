@@ -3,12 +3,17 @@
 
 import { cn } from "@/utils"
 import React from "react";
+import LoadingSpinner from "@/components/Common/LoadingSpinner";
+
+type ButtonVariant = 'primary' | 'secondary' | 'danger';
+type ButtonSize = 'sm' | 'md' | 'lg';
 
 type ButtonProps = {
-    variant?: 'primary' | 'secondary' | 'danger';
-    size?: 'sm' | 'md' | 'lg';
+    variant?: ButtonVariant;
+    size?: ButtonSize;
     className?: string;
     children: React.ReactNode;
+    isLoading?: boolean;
 } & React.ButtonHTMLAttributes<HTMLButtonElement>;
 
 export const Button = ({
@@ -16,9 +21,11 @@ export const Button = ({
                            size = 'md',
                            className,
                            children,
+                           disabled,
+                           isLoading,
                            ...props
                        }: ButtonProps) => {
-    const baseStyles = 'rounded-md transition-colors font-medium';
+    const baseStyles = 'rounded-md font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all';
 
     const sizeStyles = {
         sm: 'px-3 py-1.5 text-sm',
@@ -32,12 +39,33 @@ export const Button = ({
         danger: 'bg-red-600 text-white hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800',
     };
 
+    const disabledStyles = {
+        primary: 'bg-gray-200 text-gray-500 dark:bg-gray-700 dark:text-gray-400',
+        secondary: 'bg-gray-100 text-gray-400 dark:bg-gray-800 dark:text-gray-500',
+        danger: 'bg-red-200 text-red-400 dark:bg-red-900/20 dark:text-red-400',
+    };
+
     return (
         <button
-            className={cn(baseStyles, sizeStyles[size], variantStyles[variant], className)}
+            className={cn(
+                baseStyles,
+                sizeStyles[size],
+                disabled || isLoading ? disabledStyles[variant] : variantStyles[variant],
+                (disabled || isLoading) && 'cursor-not-allowed opacity-80',
+                className
+            )}
+            disabled={disabled || isLoading}
+            aria-disabled={disabled || isLoading}
             {...props}
         >
-            {children}
+            {isLoading ? (
+                <span className="flex items-center justify-center gap-2">
+                    <LoadingSpinner small />
+                    {children}
+                </span>
+            ) : (
+                children
+            )}
         </button>
     );
 };

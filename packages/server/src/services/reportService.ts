@@ -5,6 +5,7 @@ import { validateDates, generateDailyHours } from "../utils/dateUtils.js";
 import { format } from "date-fns";
 import { IWorker } from "../models/Worker.js";
 import { IObjectReportEmployee } from "shared";
+import {Types} from "mongoose";
 
 type IReportParams = {
     start: string;
@@ -27,15 +28,19 @@ export const getAllReportService = async (): Promise<IReport[]> => {
     return reports;
 };
 
-export const getWorkerPeriodReportsService = async ({workerName, start, end}: IReportParams): Promise<IPartialReport[]> => {
+export const getWorkerPeriodReportsService = async ({workerName = "", start, end}: IReportParams): Promise<IPartialReport[]> => {
     const startDate = new Date(start);
     const endDate = new Date(end);
 
     console.log({startDate, endDate});
     validateDates(startDate, endDate);
 
+    if (!workerName) {
+        throw new Error('Отсутствующий идентификатор работника');
+    }
+
     const reports = await Report.find({
-        'analysis.workers.name': workerName,
+        'analysis.workers.workerId': new Types.ObjectId(workerName), // Ищем по кастомному id
         timestamp: { $gte: startDate, $lte: endDate }
     })
         .select('timestamp analysis media transcript')

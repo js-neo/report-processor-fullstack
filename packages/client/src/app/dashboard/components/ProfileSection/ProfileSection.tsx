@@ -11,16 +11,16 @@ export const ProfileSection = () => {
     const user = useUser();
     const {refreshUser} = useAuthActions();
     const { objects, loading: objectsLoading } = useObjects();
-    const [selectedObjectId, setSelectedObjectId] = useState(user?.objectRef?.objectId || '');
+    const [selectedObjectId, setSelectedObjectId] = useState(user?.objectRef?._id || '');
     console.log("objects: ", objects);
     console.log("user: ", user);
     const [isSaved, setIsSaved] = useState(false);
 
     useEffect(() => {
-        if (user?.objectRef?.objectId && user.objectRef.objectId !== selectedObjectId) {
-            setSelectedObjectId(user.objectRef.objectId);
+        if (user?.objectRef?._id && user.objectRef._id !== selectedObjectId) {
+            setSelectedObjectId(user.objectRef._id);
         }
-    }, [user?.objectRef?.objectId]);
+    }, [user?.objectRef?._id]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -80,7 +80,7 @@ export const ProfileSection = () => {
                     >
                         <option value="">Выберите объект</option>
                         {objects.map((obj) => (
-                            <option key={obj.objectId} value={obj.objectId}>
+                            <option key={obj._id} value={obj._id}>
                                 {obj.name}
                             </option>
                         ))}

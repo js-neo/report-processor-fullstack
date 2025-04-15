@@ -76,8 +76,8 @@ const DynamicDropdown = (props: DynamicDropdownProps) => {
                     const worker = item as IWorker;
                     return (
                         <option
-                            key={worker.workerId}
-                            value={worker.workerId}
+                            key={worker._id}
+                            value={worker._id}
                             className="dark:bg-gray-700 dark:text-gray-100"
                         >
                             {worker.name}
