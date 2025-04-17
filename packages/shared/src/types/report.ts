@@ -34,9 +34,9 @@ export interface IMediaData {
 }
 
 export interface IAnalysisData {
-    task: string;
-    workers: IWorkerReport[];
-    time: number;
+    task: string | null;
+    workers: IWorkerReport[] | null;
+    time: number | null;
 }
 
 export interface IReportLog {
@@ -89,4 +89,14 @@ export interface IObjectReport {
 
 export interface IGroupedReports {
     [key: string]: IReport[];
+}
+
+export interface IReportWithObjectName extends IReport {
+    objectName: string;
+}
+
+export interface UnfilledReportsResponse {
+    success: boolean;
+    count: number;
+    data: IReportWithObjectName[];
 }

@@ -4,6 +4,7 @@ import { NotFoundError, BadRequestError } from '../errors/errorClasses.js';
 import { validateDates, generateDailyHours } from "../utils/dateUtils.js";
 import { format } from "date-fns";
 import { IWorker } from "../models/Worker.js";
+import Object from "../models/Object.js";
 import { IObjectReportEmployee } from "shared";
 import {Types} from "mongoose";
 
@@ -75,7 +76,7 @@ export const getObjectPeriodReportsService = async ({objectName, start, end}: IR
     const reports = await Report.aggregate([
         {
             $match: {
-                'analysis.objectName': objectName,
+                'objectId': objectName,
                 timestamp: {
                     $gte: startDate,
                     $lte: endDate
@@ -179,27 +180,133 @@ export const getObjectPeriodReportsService = async ({objectName, start, end}: IR
     }));
 };
 
-export const getUnfilledReportsService = async (objectId: string): Promise<IReport[]> => {
+interface DateRange {
+    start?: string;
+    end?: string;
+}
+
+interface QueryOptions {
+    page?: number;
+    limit?: number;
+    sort?: 'asc' | 'desc';
+    status?: 'task' | 'workers' | 'time' | 'all';
+}
+
+export const getUnfilledReportsService = async (
+    objectId: string,
+    dateRange?: DateRange,
+    options?: QueryOptions
+): Promise<{ reports: IReport[]; total: number }> => {
     if (!objectId) {
-        throw new BadRequestError('objectId is required');
+        throw new BadRequestError('objectName is required');
     }
 
-    const reports = await Report.find({
-        objectRef: objectId,
-        $or: [
+    const object = await Object.findOne({ objectId }).lean();
+    if (!object) {
+        throw new NotFoundError("Объект не найден", { objectId });
+    }
+
+    const page = options?.page ?? 1;
+    const limit = options?.limit ?? 10;
+    const sort = options?.sort ?? 'desc';
+    const status = options?.status ?? 'all';
+
+    const dateFilter: Record<string, any> = {};
+    if (dateRange?.start && dateRange?.end) {
+        dateFilter.timestamp = {
+            $gte: new Date(dateRange.start),
+            $lte: new Date(dateRange.end)
+        };
+    } else if (dateRange?.start) {
+        dateFilter.timestamp = { $gte: new Date(dateRange.start) };
+    } else if (dateRange?.end) {
+        dateFilter.timestamp = { $lte: new Date(dateRange.end) };
+    }
+
+    const statusFilter = [];
+    if (status === 'all' || status === 'task') {
+        statusFilter.push(
             { 'analysis.task': '' },
+            { 'analysis.task': { $exists: false } },
+            { 'analysis.task': null }
+        );
+    }
+    if (status === 'all' || status === 'workers') {
+        statusFilter.push(
             { 'analysis.workers': { $size: 0 } },
-            { 'analysis.time': 0 }
-        ]
-    })
-        .lean<IReport[]>();
-
-    if (reports.length === 0) {
-        throw new NotFoundError("Незаполненные отчеты не найдены", {
-            objectId,
-            suggestion: "Проверьте правильность objectId или убедитесь, что есть незаполненные отчеты"
-        });
+            { 'analysis.workers': { $exists: false } },
+            { 'analysis.workers': null }
+        );
+    }
+    if (status === 'all' || status === 'time') {
+        statusFilter.push(
+            { 'analysis.time': 0 },
+            { 'analysis.time': { $exists: false } },
+            { 'analysis.time': null }
+        );
     }
 
-    return reports;
+    const query = {
+        objectRef: object._id,
+        $or: statusFilter.length ? statusFilter : [
+            { 'analysis.task': '' },
+            { 'analysis.task': { $exists: false } },
+            { 'analysis.task': null },
+            { 'analysis.workers': { $size: 0 } },
+            { 'analysis.workers': { $exists: false } },
+            { 'analysis.workers': null },
+            { 'analysis.time': 0 },
+            { 'analysis.time': { $exists: false } },
+            { 'analysis.time': null }
+        ],
+        ...dateFilter
+    };
+
+    const [reports, total] = await Promise.all([
+        Report.find(query)
+            .sort({ timestamp: sort === 'asc' ? 1 : -1 })
+            .skip((page - 1) * limit)
+            .limit(limit)
+            .lean<IReport[]>(),
+
+        Report.countDocuments(query)
+    ]);
+
+    return { reports, total };
 };
+
+export const updateReportService = async (
+    reportId: string,
+    updateData: {
+        task?: string | null;
+        workers?: Array<{ workerId: string; name: string }> | null;
+        time?: number | null;
+    }
+): Promise<IReport> => {
+    const updateFields: Record<string, any> = {
+        updated_at: new Date()
+    };
+
+    if (updateData.task !== undefined) {
+        updateFields['analysis.task'] = updateData.task;
+    }
+    if (updateData.workers !== undefined) {
+        updateFields['analysis.workers'] = updateData.workers;
+    }
+    if (updateData.time !== undefined) {
+        updateFields['analysis.time'] = updateData.time;
+    }
+
+    const updatedReport = await Report.findOneAndUpdate(
+        { _id: reportId },
+        { $set: updateFields },
+        { new: true, runValidators: false }
+    ).lean();
+
+    if (!updatedReport) {
+        throw new NotFoundError('Отчет не найден');
+    }
+
+    return updatedReport;
+};
+

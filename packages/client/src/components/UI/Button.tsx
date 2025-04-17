@@ -5,7 +5,7 @@ import { cn } from "@/utils"
 import React from "react";
 import LoadingSpinner from "@/components/Common/LoadingSpinner";
 
-type ButtonVariant = 'primary' | 'secondary' | 'danger';
+type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'outline';
 type ButtonSize = 'sm' | 'md' | 'lg';
 
 type ButtonProps = {
@@ -37,12 +37,14 @@ export const Button = ({
         primary: 'bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800',
         secondary: 'bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600',
         danger: 'bg-red-600 text-white hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800',
+        outline: 'border border-gray-300 bg-transparent text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700',
     };
 
     const disabledStyles = {
         primary: 'bg-gray-200 text-gray-500 dark:bg-gray-700 dark:text-gray-400',
         secondary: 'bg-gray-100 text-gray-400 dark:bg-gray-800 dark:text-gray-500',
         danger: 'bg-red-200 text-red-400 dark:bg-red-900/20 dark:text-red-400',
+        outline: 'border-gray-200 text-gray-400 dark:border-gray-700 dark:text-gray-500',
     };
 
     return (

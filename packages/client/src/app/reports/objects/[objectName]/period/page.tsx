@@ -1,4 +1,4 @@
-// packages/client/src/app/reports/objects/[objectName]/period/page.tsx
+// packages/client/src/app/reports/objects/[objectId]/period/page.tsx
 'use client';
 
 import { useParams, useSearchParams } from 'next/navigation';

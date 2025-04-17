@@ -127,7 +127,7 @@ export const EmployeeReportForm = ({ gridLayout = false }: { gridLayout?: boolea
                         onChange={setStartDate}
                         onBlur={() => handleFieldBlur('startDate')}
                         hasError={shouldShowError('startDate')}
-                        className={shouldShowError('startDate') ? 'animate-pulse' : ''} // опциональная анимация
+                        className={shouldShowError('startDate') ? 'animate-pulse' : ''}
                     />
                     {shouldShowError('startDate') && (
                         <p className="mt-1 text-sm text-red-500">{ERROR_MESSAGES.DATES_REQUIRED}</p>

@@ -2,11 +2,11 @@
 'use client';
 
 import { useState } from 'react';
+import { useUser } from "@/stores/appStore";
 import { Button } from '@/components/UI/Button';
 import { EmployeeReportForm } from "@/app/dashboard/reports/components/EmployeeReportForm/EmployeeReportForm";
 import { ObjectReportForm } from "@/app/dashboard/reports/components/ObjectReportForm/ObjectReportForm";
-import { UnfilledReportsTable } from "@/app/dashboard/reports/components/UnfilledReportsTable/UnfilledReportsTable";
-import { useUser } from "@/stores/appStore";
+import {UnfilledReportsForm} from "@/app/dashboard/reports/components/UnfilledReportsForm/UnfilledReportsForm";
 
 export default function ReportsPage() {
     const user = useUser();
@@ -59,7 +59,7 @@ export default function ReportsPage() {
                     <div className="space-y-8">
                         {activeReportType === 'employee' && <EmployeeReportForm gridLayout />}
                         {activeReportType === 'object' && <ObjectReportForm gridLayout />}
-                        {activeReportType === 'unfilled' && <UnfilledReportsTable />}
+                        {activeReportType === 'unfilled' && <UnfilledReportsForm gridLayout />}
                     </div>
                 </div>
             </div>

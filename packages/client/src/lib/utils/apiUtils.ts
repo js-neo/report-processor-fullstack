@@ -6,10 +6,12 @@ export interface ApiErrorResponse {
     suggestion?: string;
 }
 
-
 export interface ApiListResponse<T> {
     data: T[];
     total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
 }
 
 export const getAuthHeaders = (): HeadersInit => {
@@ -48,5 +50,5 @@ export const handleApiError = async <T>(response: Response): Promise<T> => {
             throw new Error('Не удалось обработать ошибку сервера');
         }
     }
-    return await response.json(); // Добавлен await
+    return await response.json();
 };
