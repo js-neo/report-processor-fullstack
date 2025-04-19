@@ -6,14 +6,14 @@ import { Button } from './Button';
 interface PaginationProps {
     currentPage: number;
     totalPages: number;
-    onPageChange: (page: number) => void;
+    onPageChangeAction: (page: number) => void;
     className?: string;
 }
 
 export const Pagination = ({
                                currentPage,
                                totalPages,
-                               onPageChange,
+                               onPageChangeAction,
                                className = ''
                            }: PaginationProps) => {
     if (totalPages <= 1) return null;
@@ -23,7 +23,7 @@ export const Pagination = ({
             <Button
                 variant="secondary"
                 size="sm"
-                onClick={() => onPageChange(currentPage - 1)}
+                onClick={() => onPageChangeAction(currentPage - 1)}
                 disabled={currentPage === 1}
             >
                 Назад
@@ -36,7 +36,7 @@ export const Pagination = ({
             <Button
                 variant="secondary"
                 size="sm"
-                onClick={() => onPageChange(currentPage + 1)}
+                onClick={() => onPageChangeAction(currentPage + 1)}
                 disabled={currentPage === totalPages}
             >
                 Вперед

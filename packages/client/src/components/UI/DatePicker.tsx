@@ -4,7 +4,7 @@
 type DatePickerProps = {
     label: string;
     selected: string;
-    onChange: (value: string) => void;
+    onChangeAction: (value: string) => void;
     onBlur?: () => void;
     className?: string;
     hasError?: boolean;
@@ -13,7 +13,7 @@ type DatePickerProps = {
 export const DatePicker = ({
                                label,
                                selected,
-                               onChange,
+                               onChangeAction,
                                onBlur,
                                className = '',
                                hasError = false
@@ -28,7 +28,7 @@ export const DatePicker = ({
             <input
                 type="date"
                 value={selected}
-                onChange={(e) => onChange(e.target.value)}
+                onChange={(e) => onChangeAction(e.target.value)}
                 onBlur={onBlur}
                 className={`w-full p-2 border rounded-md ${
                     hasError

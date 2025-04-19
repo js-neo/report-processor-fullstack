@@ -37,7 +37,6 @@ export const useAuthStore = create<AuthState & AuthActions>()(
                     try {
                         const currentState = get();
 
-                        // Защита от частых запросов
                         if (Date.now() - currentState.lastCheck < 2000) {
                             return currentState.user;
                         }

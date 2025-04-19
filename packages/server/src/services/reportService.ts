@@ -202,6 +202,8 @@ export const getUnfilledReportsService = async (
     }
 
     const object = await Object.findOne({ objectId }).lean();
+
+    console.log("objectId_server_service:", objectId);
     if (!object) {
         throw new NotFoundError("Объект не найден", { objectId });
     }
@@ -296,6 +298,8 @@ export const updateReportService = async (
     if (updateData.time !== undefined) {
         updateFields['analysis.time'] = updateData.time;
     }
+
+    console.log("updateData: ", updateData);
 
     const updatedReport = await Report.findOneAndUpdate(
         { _id: reportId },

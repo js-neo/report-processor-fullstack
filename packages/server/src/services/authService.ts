@@ -1,6 +1,7 @@
 // packages/server/src/services/authService.ts
 
 import Manager, {IManager} from '../models/Manager.js';
+import {IObject} from "shared"
 import {
     BadRequestError,
     UnauthorizedError,
@@ -18,7 +19,7 @@ interface AuthResponse {
         managerId: string;
         fullName: string;
         telegram_username: string;
-        objectRef: ObjectId;
+        objectRef: IObject | ObjectId;
         role: string;
     };
     accessToken: string;
@@ -70,7 +71,6 @@ export const registerManager = async (
     }
 
     const baseId = generateBaseId_2(fullName);
-
     const managerId = await getUniqueId(baseId, Manager, "managerId");
 
     const manager = new Manager({
@@ -87,11 +87,18 @@ export const registerManager = async (
     });
 
     await manager.save();
+    const populateManager = await Manager.findOne({_id: manager._id})
+        .populate("profile.objectRef")
+        .exec();
 
-    const payload = createTokenPayload(manager);
+    if (!populateManager) {
+        throw new BadRequestError('Failed to populate manager after registration');
+    }
+
+    const payload = createTokenPayload(populateManager);
     const accessToken = jwt.sign(payload, JWT_SECRET, getJwtOptions());
 
-    return formatAuthResponse(manager, accessToken);
+    return formatAuthResponse(populateManager, accessToken);
 };
 
 

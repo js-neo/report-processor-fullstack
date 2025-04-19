@@ -37,6 +37,7 @@ const fetchWithTimeout = async (url: string, options: RequestInit = {}) => {
         clearTimeout(timeoutId);
         return response;
     } catch (err) {
+        console.log("Error while fetching auth token_service:", err);
         clearTimeout(timeoutId);
         throw err;
     }
@@ -110,8 +111,11 @@ export const signUp = async ({ fullName, telegram_username, password, objectRef 
         });
 
         const data = await response.json();
+        console.log("data_service: ", data);
 
         if (!response.ok) {
+            console.log("data.message: ", data.message);
+            console.log("data: ", data);
             throw new Error(data.message || 'Registration failed');
         }
 
@@ -123,6 +127,7 @@ export const signUp = async ({ fullName, telegram_username, password, objectRef 
     } catch (err) {
         let errorMessage = 'Connection error';
         if (err instanceof Error) {
+            console.log("Connection error_service: ", err.message);
             errorMessage = err.name === 'AbortError'
                 ? 'Server response timeout'
                 : err.message;

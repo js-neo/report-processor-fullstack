@@ -127,7 +127,8 @@ export const getUnfilledReportsForPeriod = asyncHandler<
     const { objectId } = req.params;
     const { start, end, page = '1', limit = '10', sort = 'desc', status = 'all' } = req.query;
 
-    // Валидация параметров
+    console.log(`object name report controller: ${objectId}`);
+
     if (start && end && new Date(start) > new Date(end)) {
         throw new BadRequestError('Конечная дата должна быть позже начальной');
     }

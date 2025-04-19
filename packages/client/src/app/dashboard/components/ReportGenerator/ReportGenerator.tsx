@@ -37,12 +37,12 @@ export const ReportGenerator = () => {
                     <DatePicker
                         label="Начальная дата"
                         selected={startDate}
-                        onChange={setStartDate}
+                        onChangeAction={setStartDate}
                     />
                     <DatePicker
                         label="Конечная дата"
                         selected={endDate}
-                        onChange={setEndDate}
+                        onChangeAction={setEndDate}
                     />
                 </div>
 

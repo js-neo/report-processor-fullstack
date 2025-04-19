@@ -37,20 +37,18 @@ export const useWorkers = (userObjectId?: string) => {
         refresh()
     },[refresh]);
 
-    // Назначение работника
     const assignWorker = async (workerId: string, userObjectId: string) => {
         console.log('assignWorker', userObjectId);
         console.log('assigned_workerId', workerId);
         if (!userObjectId) return;
         try {
             await workerService.assign(workerId, userObjectId);
-            await refresh(); // Обновляем данные
+            await refresh();
         } catch (err) {
             throw err instanceof Error ? err : new Error('Ошибка назначения');
         }
     };
 
-    // Открепление работника
     const unassignWorker = async (workerId: string) => {
         try {
             await workerService.unassign(workerId);

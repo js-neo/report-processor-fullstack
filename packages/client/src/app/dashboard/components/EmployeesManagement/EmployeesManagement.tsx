@@ -180,7 +180,7 @@ export const EmployeesManagement = () => {
 
             <Modal
                 isOpen={isUnassignModalOpen}
-                onClose={() => !isProcessing && setIsUnassignModalOpen(false)}
+                onCloseAction={() => !isProcessing && setIsUnassignModalOpen(false)}
                 title="Подтверждение открепления"
             >
                 <div className="relative">
@@ -220,7 +220,7 @@ export const EmployeesManagement = () => {
 
             <Modal
                 isOpen={isAssignModalOpen}
-                onClose={() => setIsAssignModalOpen(false)}
+                onCloseAction={() => setIsAssignModalOpen(false)}
                 title="Подтверждение добавления"
             >
                 <div className="relative">

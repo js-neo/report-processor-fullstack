@@ -93,7 +93,7 @@ export const UnfilledReportsTable = () => {
             <Pagination
                 currentPage={pagination.page}
                 totalPages={pagination.totalPages}
-                onPageChange={handlePageChange}
+                onPageChangeAction={handlePageChange}
             />
 
             {selectedReport && (

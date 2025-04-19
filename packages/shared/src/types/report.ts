@@ -1,5 +1,7 @@
 // packages/shared/src/types/report.ts
 
+import {IObject} from "./object.js";
+
 export interface IUser {
     username: string;
     telegram_id: number;
@@ -53,7 +55,7 @@ export interface IReportBase {
     media: IMediaData;
     transcript: string;
     analysis: IAnalysisData;
-    objectRef: string | null;
+    objectRef: IObject | null;
     telegram_id: string;
     report_logs: IReportLog[];
     updated_at: Date;

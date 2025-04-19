@@ -23,15 +23,17 @@ interface FormData {
     time?: number | null;
 }
 
+interface ReportCardModalProps {
+    report: IReport;
+    onCloseAction: () => void;
+    onSaveAction: (report: IReport) => void;
+}
+
 export const ReportCardModal = ({
                                     report,
                                     onCloseAction,
                                     onSaveAction,
-                                }: {
-    report: IReport;
-    onCloseAction: () => void;
-    onSaveAction: (report: IReport) => void;
-}) => {
+                                }: ReportCardModalProps) => {
     const [formData, setFormData] = useState<FormData>({
         task: report.analysis?.task || '',
         workers: report.analysis?.workers || [],
@@ -98,7 +100,7 @@ export const ReportCardModal = ({
     };
 
     return (
-        <Modal isOpen={true} onClose={onCloseAction} title="Заполнение отчёта">
+        <Modal isOpen={true} onCloseAction={onCloseAction} title="Заполнение отчёта">
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">

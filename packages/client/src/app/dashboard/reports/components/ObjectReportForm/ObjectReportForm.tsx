@@ -114,7 +114,7 @@ export const ObjectReportForm = ({ gridLayout = false }: { gridLayout?: boolean 
                     <DatePicker
                         label="Начальная дата"
                         selected={startDate}
-                        onChange={setStartDate}
+                        onChangeAction={setStartDate}
                         onBlur={() => handleFieldBlur('startDate')}
                         hasError={shouldShowError('startDate')}
                         className={shouldShowError('startDate') ? 'animate-pulse' : ''}
@@ -127,7 +127,7 @@ export const ObjectReportForm = ({ gridLayout = false }: { gridLayout?: boolean 
                     <DatePicker
                         label="Конечная дата"
                         selected={endDate}
-                        onChange={setEndDate}
+                        onChangeAction={setEndDate}
                         onBlur={() => handleFieldBlur('endDate')}
                         hasError={shouldShowError('endDate')}
                         className={shouldShowError('endDate') ? 'animate-pulse' : ''}

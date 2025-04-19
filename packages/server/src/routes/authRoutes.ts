@@ -13,6 +13,8 @@ router.post('/register', register);
 router.post('/login', login);
 router.get('/me', authenticate, getMe);
 router.get('/validate', authenticate, (req, res) => {
+    console.log('Validate request cookies:', req.cookies);
+    console.log('Validate request headers:', req.headers);
     res.json({ valid: true });
 });
 

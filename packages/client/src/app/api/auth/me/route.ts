@@ -5,6 +5,8 @@ import {BASE_URL} from "@/config";
 
 export async function GET(req: NextRequest) {
     try {
+
+        console.log("Route_ME");
         const token = req.cookies.get('accessToken')?.value ||
             req.headers.get('Authorization')?.replace('Bearer ', '');
 

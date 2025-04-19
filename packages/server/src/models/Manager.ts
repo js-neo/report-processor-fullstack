@@ -101,7 +101,6 @@ const ManagerSchema = new Schema<IManager>(
     }
 );
 
-// Виртуальное поле для объекта
 ManagerSchema.virtual('object', {
     ref: 'Object',
     localField: 'profile.objectRef',

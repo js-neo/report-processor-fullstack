@@ -1,3 +1,5 @@
+// packages/client/src/app/auth/register/page.tsx
+
 'use client';
 
 import { useRouter } from 'next/navigation';
@@ -5,6 +7,7 @@ import React, { useState } from 'react';
 import { signUp } from '@/services/authService';
 import { useObjects } from '@/hooks/useReports';
 import DynamicDropdown from "@/components/UI/Dropdown/DynamicDropdown";
+import {useAuthActions} from "@/stores/appStore";
 
 export default function RegisterPage() {
     const [fullName, setFullName] = useState('');
@@ -14,16 +17,19 @@ export default function RegisterPage() {
     const [error, setError] = useState('');
     const router = useRouter();
     const { objects, loading: objectsLoading, error: objectsError } = useObjects();
+    const { login } = useAuthActions();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            await signUp({
+            const {data} = await signUp({
                 fullName,
                 telegram_username: telegramUsername,
                 password,
                 objectRef: selectedObject
             });
+            console.log('data_register_page:', data);
+            login(data.user, data.accessToken);
             router.push("/dashboard");
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Ошибка регистрации');

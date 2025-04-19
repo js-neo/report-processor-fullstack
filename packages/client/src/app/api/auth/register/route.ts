@@ -1,3 +1,5 @@
+// packages/client/src/app/api/auth/register/route.ts
+
 import { NextResponse } from 'next/server';
 import {BASE_URL} from "@/config";
 
@@ -12,6 +14,7 @@ export async function POST(req: Request) {
         });
 
         if (!response.ok) {
+            console.log("Failed to register user_route: ", response);
             const error = await response.json();
             return NextResponse.json(
                 { error: error.message || 'Registration failed' },
@@ -20,9 +23,21 @@ export async function POST(req: Request) {
         }
 
         const { data } = await response.json();
+        console.log("Register response_route: ", data);
 
-        const redirectUrl = new URL('/dashboard', req.url);
-        const responseWithCookie = NextResponse.redirect(redirectUrl);
+        const responseWithCookie = NextResponse.json({
+            success: true,
+            data: {
+                accessToken: data.accessToken,
+                user: {
+                    managerId: data.managerId,
+                    fullName: data.fullName,
+                    telegram_username: data.telegram_username,
+                    role: data.role,
+                    objectRef: data.objectRef
+                }
+            }
+        });
 
         responseWithCookie.cookies.set({
             name: 'accessToken',
@@ -33,11 +48,14 @@ export async function POST(req: Request) {
             path: '/',
             maxAge: 86400,
         });
-
+        console.log("Response response_route: ", responseWithCookie);
         return responseWithCookie;
 
     } catch (error) {
-        console.error(error);
+        if (error instanceof Error) {
+            console.log("Error register_response_route: ", error.message);
+        }
+
         return NextResponse.json(
             { error: 'Internal Server Error' },
             { status: 500 }
