@@ -117,7 +117,6 @@ async function fetchUserData(token: string): Promise<ClientManager> {
     }
 
     const data = await response.json();
-    console.log('User data received:', data);
 
     if (!data?.managerId) {
         throw new Error('Invalid user data structure');
@@ -127,6 +126,8 @@ async function fetchUserData(token: string): Promise<ClientManager> {
         managerId: data.managerId,
         fullName: data.fullName,
         telegram_username: data.telegram_username,
+        position: data.position,
+        phone: data.phone,
         objectRef: data.objectRef ? data.objectRef  : null,
         role: data.role || 'manager'
     };

@@ -5,12 +5,12 @@ import {BASE_URL} from "@/config";
 
 export async function POST(req: Request) {
     try {
-        const { fullName, telegram_username, password, objectRef } = await req.json();
+        const { fullName, telegram_username, position, phone, password, objectRef } = await req.json();
 
         const response = await fetch(`${BASE_URL}/auth/register`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ fullName, telegram_username, password, objectRef }),
+            body: JSON.stringify({ fullName, telegram_username, position, phone, password, objectRef }),
         });
 
         if (!response.ok) {
@@ -33,6 +33,8 @@ export async function POST(req: Request) {
                     managerId: data.managerId,
                     fullName: data.fullName,
                     telegram_username: data.telegram_username,
+                    position: data.position,
+                    phone: data.phone,
                     role: data.role,
                     objectRef: data.objectRef
                 }

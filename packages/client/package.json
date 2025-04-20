@@ -29,6 +29,7 @@
     "next-transpile-modules": "^10.0.1",
     "@headlessui/react": "^2.2.1",
     "react-hot-toast": "^2.5.2",
+    "@heroicons/react": "^2.2.0",
     "shared": "file:../shared"
   },
   "devDependencies": {

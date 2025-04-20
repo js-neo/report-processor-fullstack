@@ -6,7 +6,6 @@ import type { IWorker } from 'shared';
 export const workerService = {
 
     async getWorkers(userObjectId?: string) {
-        console.log('getWorkers', userObjectId);
         const { data } = await workerAPI.getAllWorkers();
         return {
             allWorkers: data,

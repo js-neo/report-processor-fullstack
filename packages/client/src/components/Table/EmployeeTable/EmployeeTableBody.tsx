@@ -10,7 +10,6 @@ interface BodyTableProps {
 }
 
 const EmployeeTableBody = ({ reports }: BodyTableProps) => {
-    console.log("reports: ", reports);
     const groupedReports: IGroupedReports = groupByDay(reports);
     const totalHours = reports.reduce((sum, report) => sum + (report.analysis?.time || 0), 0);
 

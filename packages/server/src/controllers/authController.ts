@@ -15,9 +15,10 @@ import {
 } from '../errors/errorClasses.js';
 
 export const getMe = asyncHandler(async (req: Request, res: Response) => {
+    console.log("GET_ME")
     const manager = await Manager.findOne({ managerId: req.user.managerId })
         .populate('profile.objectRef')
-        .select('managerId auth.telegram_username profile.fullName profile.objectRef profile.role');
+        .select('managerId auth.telegram_username profile.fullName profile.position profile.phone profile.objectRef profile.role');
     if (!manager) {
         throw new NotFoundError('Manager not found');
     }
@@ -28,6 +29,8 @@ export const getMe = asyncHandler(async (req: Request, res: Response) => {
             managerId: manager.managerId,
             fullName: manager.profile.fullName,
             telegram_username: manager.auth.telegram_username,
+            position: manager.profile.position,
+            phone: manager.profile.phone,
             objectRef: manager.profile.objectRef,
             role: manager.profile.role
         }
@@ -35,18 +38,22 @@ export const getMe = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const register = asyncHandler(async (req: Request, res: Response) => {
-    const { fullName, telegram_username, password, objectRef } = req.body;
+    const { fullName, telegram_username, position, phone, password, objectRef } = req.body;
 
-    if (!fullName?.trim() || !telegram_username?.trim() || !password?.trim() || !objectRef?.trim()) {
+    if (!fullName?.trim() || !telegram_username?.trim() || !position.trim() || !phone.trim() || !password?.trim() || !objectRef?.trim()) {
         throw new BadRequestError('All fields are required');
     }
 
     const { manager, accessToken } = await registerManager(
         fullName,
         telegram_username,
+        position,
+        phone,
         password,
         objectRef
     );
+
+    console.log("manager_controller: ", manager);
 
     res.status(201).json({
         success: true,

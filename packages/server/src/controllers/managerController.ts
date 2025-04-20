@@ -21,7 +21,7 @@ export const updateManagerObject = asyncHandler(async (req: Request, res: Respon
 
     const object = await Object.findOne({ _id: new ObjectId(String(objectId)) });
 
-    console.log("object: ", object);
+    console.log("object_updateManagerObject: ", object);
     if (!object) {
         throw new NotFoundError('Object not found');
     }

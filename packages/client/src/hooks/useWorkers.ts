@@ -7,7 +7,6 @@ import {IWorker} from "shared";
 import {workerService} from "@/services/workerService";
 
 export const useWorkers = (userObjectId?: string) => {
-    console.log('useWorkers', userObjectId);
     const [workers, setWorkers] = useState<{
         allWorkers: IWorker[];
         assignedToThisObject: IWorker[];
@@ -18,12 +17,9 @@ export const useWorkers = (userObjectId?: string) => {
     const [error, setError] = useState<string | null>(null);
 
     const refresh = useCallback(async () => {
-        console.log('refresh');
         try {
-            console.log('refresh_2');
             setLoading(true);
             const data = await workerService.getWorkers(userObjectId);
-            console.log("data_useWorkers: ", data);
             setWorkers(data);
             setError(null);
         } catch (err) {
@@ -38,8 +34,6 @@ export const useWorkers = (userObjectId?: string) => {
     },[refresh]);
 
     const assignWorker = async (workerId: string, userObjectId: string) => {
-        console.log('assignWorker', userObjectId);
-        console.log('assigned_workerId', workerId);
         if (!userObjectId) return;
         try {
             await workerService.assign(workerId, userObjectId);

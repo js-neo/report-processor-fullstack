@@ -10,6 +10,8 @@ interface SignInParams {
 interface SignUpParams {
     fullName: string;
     telegram_username: string;
+    position: string;
+    phone: string;
     password: string;
     objectRef: string;
 }
@@ -74,7 +76,6 @@ export const signIn = async ({ telegram_username, password }: SignInParams) => {
         });
 
         const data = await response.json();
-        console.log("data_service: ", data);
 
         if (!response.ok) {
             throw new Error(data.message || 'Authentication failed');
@@ -95,7 +96,7 @@ export const signIn = async ({ telegram_username, password }: SignInParams) => {
     }
 };
 
-export const signUp = async ({ fullName, telegram_username, password, objectRef }: SignUpParams) => {
+export const signUp = async ({ fullName, telegram_username, position, phone, password, objectRef }: SignUpParams) => {
     try {
         const response = await fetchWithTimeout('/api/auth/register', {
             method: 'POST',
@@ -105,17 +106,16 @@ export const signUp = async ({ fullName, telegram_username, password, objectRef 
             body: JSON.stringify({
                 fullName,
                 telegram_username,
+                position,
+                phone,
                 password,
                 objectRef
             })
         });
 
         const data = await response.json();
-        console.log("data_service: ", data);
 
         if (!response.ok) {
-            console.log("data.message: ", data.message);
-            console.log("data: ", data);
             throw new Error(data.message || 'Registration failed');
         }
 
@@ -127,7 +127,6 @@ export const signUp = async ({ fullName, telegram_username, password, objectRef 
     } catch (err) {
         let errorMessage = 'Connection error';
         if (err instanceof Error) {
-            console.log("Connection error_service: ", err.message);
             errorMessage = err.name === 'AbortError'
                 ? 'Server response timeout'
                 : err.message;

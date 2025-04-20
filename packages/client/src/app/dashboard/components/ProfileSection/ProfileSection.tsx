@@ -12,8 +12,6 @@ export const ProfileSection = () => {
     const {refreshUser} = useAuthActions();
     const { objects, loading: objectsLoading } = useObjects();
     const [selectedObjectId, setSelectedObjectId] = useState(user?.objectRef?._id || '');
-    console.log("objects: ", objects);
-    console.log("user: ", user);
     const [isSaved, setIsSaved] = useState(false);
 
     useEffect(() => {

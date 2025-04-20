@@ -148,7 +148,7 @@ export const useObjects = () => {
             try {
                 const response = await fetchObjects();
                 setObjects(response.data);
-                console.log("objects_hook: ", response.data);
+
             } catch (err) {
                 if (err instanceof Error) {
                     setError(err.message || 'Ошибка загрузки данных');

@@ -12,6 +12,8 @@ import {useAuthActions} from "@/stores/appStore";
 export default function RegisterPage() {
     const [fullName, setFullName] = useState('');
     const [telegramUsername, setTelegramUsername] = useState('');
+    const [position, setPosition] = useState('');
+    const [phone, setPhone] = useState('');
     const [password, setPassword] = useState('');
     const [selectedObject, setSelectedObject] = useState('');
     const [error, setError] = useState('');
@@ -25,6 +27,8 @@ export default function RegisterPage() {
             const {data} = await signUp({
                 fullName,
                 telegram_username: telegramUsername,
+                position,
+                phone,
                 password,
                 objectRef: selectedObject
             });
@@ -70,6 +74,34 @@ export default function RegisterPage() {
                             value={telegramUsername}
                             onChange={(e) => setTelegramUsername(e.target.value)}
                             placeholder="@username"
+                            required
+                        />
+                    </div>
+<div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            Должность
+                        </label>
+                        <input
+                            type="text"
+                            className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+                                dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                            value={position}
+                            onChange={(e) => setPosition(e.target.value)}
+                            placeholder="Прораб"
+                            required
+                        />
+                    </div>
+<div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            Номер телефона
+                        </label>
+                        <input
+                            type="text"
+                            className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+                                dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                            value={phone}
+                            onChange={(e) => setPhone(e.target.value)}
+                            placeholder="89991234567"
                             required
                         />
                     </div>

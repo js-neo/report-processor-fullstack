@@ -53,6 +53,8 @@ export async function GET(req: NextRequest) {
             managerId: data.data.managerId,
             fullName: data.data.fullName,
             telegram_username: data.data.telegram_username,
+            position: data.data.position,
+            phone: data.data.phone,
             objectRef: data.data.objectRef,
             role: data.data.role
         });

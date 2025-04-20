@@ -6,7 +6,6 @@ import {useUser} from "@/stores/appStore";
 
 export default function ProfilePage() {
     const user = useUser();
-    console.log("user_ProfilePage: ", user);
 
     return (
         <div>
@@ -15,6 +14,8 @@ export default function ProfilePage() {
             <div className="space-y-4">
                 <p><strong>ФИО:</strong> {user?.fullName}</p>
                 <p><strong>Telegram:</strong> {user?.telegram_username}</p>
+                <p><strong>Номер телефона:</strong> {user?.phone}</p>
+                <p><strong>Должность:</strong> {user?.position}</p>
                 <p><strong>Роль:</strong> {user?.role === 'admin' ? 'Администратор' : 'Менеджер'}</p>
                 {user?.objectRef && (
                     <div>

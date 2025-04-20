@@ -5,6 +5,7 @@ import {IObject} from "./object.js";
 
 interface IManagerAuth {
     telegram_username: string;
+    telegram_id: string;
     passwordHash: string;
     lastLogin?: Date;
 }
@@ -12,6 +13,8 @@ interface IManagerAuth {
 
 interface IManagerProfile {
     fullName: string;
+    position: string;
+    phone: string;
     objectRef: IObject| null;
     role: 'manager' | 'admin';
 }
@@ -28,6 +31,8 @@ export interface IManagerBase {
 export type ClientManager = Pick<IManagerBase, 'managerId'> & {
     fullName: string;
     telegram_username: string;
+    position: string;
+    phone: string;
     objectRef: IObject| null;
     role: 'manager' | 'admin';
 };

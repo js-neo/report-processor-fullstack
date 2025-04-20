@@ -19,12 +19,9 @@ export const formatDate = (
 ): string => {
     if (!date) return '-';
 
-    console.log("date_format: ", date);
-
     const parsedDate = typeof date === 'string'
         ? new Date(date + (date.endsWith('Z') ? '' : 'Z'))
         : date;
-    console.log("parseDate_format: ", parsedDate);
 
     if (isNaN(parsedDate.getTime())) {
         console.warn('Invalid date:', date);

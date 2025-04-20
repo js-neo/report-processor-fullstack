@@ -89,7 +89,6 @@ export const fetchUnfilledReports = async (
     fetchOptions?: RequestInit
 ): Promise<ApiListResponse<IReport>> => {
     try {
-        console.log("objectId_fetchUnfilledReports:", objectId);
         const params = new URLSearchParams();
 
         if (options?.startDate) params.append('start', options.startDate);

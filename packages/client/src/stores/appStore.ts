@@ -143,6 +143,8 @@ const fetchUserData = async (token: string): Promise<ClientManager> => {
             managerId: data.managerId,
             fullName: data.fullName,
             telegram_username: data.telegram_username,
+            position: data.position,
+            phone: data.phone,
             objectRef: data.objectRef ?? null,
             role: data.role
         };

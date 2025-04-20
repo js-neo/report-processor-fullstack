@@ -19,6 +19,8 @@ interface AuthResponse {
         managerId: string;
         fullName: string;
         telegram_username: string;
+        position: string;
+        phone: string;
         objectRef: IObject | ObjectId;
         role: string;
     };
@@ -28,6 +30,8 @@ interface AuthResponse {
 interface TokenPayload {
     managerId: string;
     telegram_username: string;
+    position: string;
+    phone: string;
     role: string;
 }
 
@@ -38,6 +42,8 @@ const getJwtOptions = (): jwt.SignOptions => ({
 const createTokenPayload = (manager: IManager): TokenPayload => ({
     managerId: manager.managerId,
     telegram_username: manager.auth.telegram_username,
+    position: manager.profile.position,
+    phone: manager.profile.phone,
     role: manager.profile.role
 });
 
@@ -46,6 +52,8 @@ const formatAuthResponse = (manager: IManager, accessToken: string): AuthRespons
         managerId: manager.managerId,
         fullName: manager.profile.fullName,
         telegram_username: manager.auth.telegram_username,
+        position: manager.profile.position,
+        phone: manager.profile.phone,
         objectRef: manager.profile.objectRef,
         role: manager.profile.role
     },
@@ -55,6 +63,8 @@ const formatAuthResponse = (manager: IManager, accessToken: string): AuthRespons
 export const registerManager = async (
     fullName: string,
     telegram_username: string,
+    position: string,
+    phone: string,
     password: string,
     objectRef: string
 ): Promise<AuthResponse> => {
@@ -77,19 +87,26 @@ export const registerManager = async (
         managerId,
         auth: {
             telegram_username,
-            passwordHash: password
+            passwordHash: password,
+            telegram_id: ""
         },
         profile: {
             fullName,
+            position,
+            phone,
             objectRef: new ObjectId(objectRef),
             role: 'manager'
         }
     });
 
+    console.log("manager_service: ", manager);
+
     await manager.save();
     const populateManager = await Manager.findOne({_id: manager._id})
         .populate("profile.objectRef")
         .exec();
+
+    console.log("populateManager_service: ", populateManager);
 
     if (!populateManager) {
         throw new BadRequestError('Failed to populate manager after registration');
@@ -122,7 +139,9 @@ export const loginManager = async (
     const payload = createTokenPayload(manager);
     const accessToken = jwt.sign(payload, JWT_SECRET, getJwtOptions());
 
-    return formatAuthResponse(manager, accessToken);
+    const formatResponse = formatAuthResponse(manager, accessToken)
+    console.log(formatResponse);
+    return formatResponse;
 };
 
 export const validateToken = (token: string): TokenPayload => {

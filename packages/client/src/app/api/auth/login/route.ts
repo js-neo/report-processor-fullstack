@@ -32,6 +32,8 @@ export async function POST(req: Request) {
                     managerId: data.managerId,
                     fullName: data.fullName,
                     telegram_username: data.telegram_username,
+                    position: data.position,
+                    phone: data.phone,
                     role: data.role,
                     objectRef: data.objectRef
                 }

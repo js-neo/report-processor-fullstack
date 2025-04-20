@@ -4,12 +4,15 @@ import bcrypt from 'bcryptjs';
 
 interface IManagerAuth {
     telegram_username: string;
+    telegram_id: string;
     passwordHash: string;
     lastLogin?: Date;
 }
 
 interface IManagerProfile {
     fullName: string;
+    phone: string;
+    position: string;
     objectRef: Types.ObjectId;
     role: 'manager' | 'admin';
 }
@@ -17,6 +20,7 @@ interface IManagerProfile {
 interface IManager extends Document {
     _id: Types.ObjectId;
     managerId: string;
+    language: string;
     auth: IManagerAuth;
     profile: IManagerProfile;
     created_at: Date;
@@ -34,11 +38,19 @@ const ManagerSchema = new Schema<IManager>(
                 message: 'Invalid manager ID format (3-30 lowercase letters, numbers and underscores)'
             }
         },
+        language: {
+            type: String,
+            default: 'ru'
+        },
         auth: {
             telegram_username: {
                 type: String,
                 required: true,
                 match: [/^@[a-zA-Z0-9_]{5,32}$/, 'Invalid Telegram username format']
+            },
+            telegram_id: {
+                type: String,
+                default: ''
             },
             passwordHash: {
                 type: String,
@@ -52,6 +64,23 @@ const ManagerSchema = new Schema<IManager>(
         },
         profile: {
             fullName: {
+                type: String,
+                required: true,
+                trim: true,
+                minlength: 2,
+                maxlength: 50
+            },
+            phone: {
+                type: String,
+                required: true,
+                validate: {
+                    validator: function(v: string) {
+                        return /^[\d\+]{10,15}$/.test(v);
+                    },
+                    message: 'Invalid phone number format'
+                }
+            },
+            position: {
                 type: String,
                 required: true,
                 trim: true,
@@ -89,8 +118,12 @@ const ManagerSchema = new Schema<IManager>(
                 return {
                     _id: ret._id.toString(),
                     managerId: ret.managerId,
+                    language: ret.language,
                     telegram_username: ret.auth.telegram_username,
+                    telegram_id: ret.auth.telegram_id,
                     fullName: ret.profile.fullName,
+                    phone: ret.profile.phone,
+                    position: ret.profile.position,
                     objectRef: ret.profile.objectRef,
                     role: ret.profile.role,
                     created_at: ret.created_at,
@@ -128,6 +161,7 @@ ManagerSchema.methods.comparePassword = async function(
 
 ManagerSchema.index({ managerId: 1 }, { unique: true });
 ManagerSchema.index({ 'auth.telegram_username': 1 }, { unique: true });
+ManagerSchema.index({ 'auth.telegram_id': 1 }, { unique: true, sparse: true });
 ManagerSchema.index({ 'profile.objectRef': 1 });
 
 export { IManager };
