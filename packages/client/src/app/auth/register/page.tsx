@@ -32,7 +32,7 @@ export default function RegisterPage() {
                 password,
                 objectRef: selectedObject
             });
-            console.log('data_register_page:', data);
+
             login(data.user, data.accessToken);
             router.push("/dashboard");
         } catch (err) {

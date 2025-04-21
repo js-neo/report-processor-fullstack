@@ -90,7 +90,10 @@ export const EmployeeReportForm = ({ gridLayout = false }: { gridLayout?: boolea
     const handleGenerate = () => {
         if (!validateForm()) return;
 
-        const worker = data.find(w => w.workerId === selectedWorker);
+        const worker = data.find(w => {
+            return w.workerId === selectedWorker
+        });
+
         if (!worker) {
             toast.error(ERROR_MESSAGES.WORKER_NOT_FOUND, { duration: 3000 });
             return;

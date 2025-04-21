@@ -2,14 +2,14 @@
 import { Request, Response, NextFunction } from 'express';
 import Worker from '../models/Worker.js';
 import { NotFoundError } from '../errors/errorClasses.js';
-import {WorkerService} from "@/services/workerService.js";
+import {WorkerService} from "../services/workerService.js";
 import {IObject} from "shared";
 
 export const getAllWorkers = async (_req: Request, res: Response, next: NextFunction) => {
     try {
         const workers = await Worker.find()
             .populate('objectRef')
-            .select('name worker_id username position salary_rate objectRef')
+            .select('name workerId username position salary_rate objectRef')
             .lean();
 
         if (workers.length === 0) {

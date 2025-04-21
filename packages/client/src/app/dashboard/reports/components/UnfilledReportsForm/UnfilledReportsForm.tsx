@@ -36,7 +36,7 @@ export const UnfilledReportsForm = ({ gridLayout = false }: { gridLayout?: boole
         if (error) {
             toast.error(`${ERROR_MESSAGES.LOAD_ERROR} ${error}`, { duration: 3000 });
         }
-    }, [error]);
+    }, [error, ERROR_MESSAGES.LOAD_ERROR]);
 
     const handleGenerate = () => {
         if (!objectId) {

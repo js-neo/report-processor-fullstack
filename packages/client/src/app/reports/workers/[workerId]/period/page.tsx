@@ -1,4 +1,4 @@
-// packages/client/src/app/reports/workers/[workerName]/period/page.tsx
+// packages/client/src/app/reports/workers/[workerId]/period/page.tsx
 'use client';
 
 import { useParams, useSearchParams, useRouter } from 'next/navigation';
@@ -17,18 +17,21 @@ export default function UserReportPage() {
     const router = useRouter();
     const [showEmptyMessage, setShowEmptyMessage] = useState(true);
 
-    const workerName = decodeURIComponent(params.workerName as string);
+    const workerId = decodeURIComponent(params.workerId as string);
     const start = searchParams.get('start')!;
     const end = searchParams.get('end')!;
 
     const startUTC = new Date(`${start}T00:00:00+03:00`).toISOString();
     const endUTC = new Date(`${end}T23:59:59+03:00`).toISOString();
-    const { response: reports, loading, error } = useReports({
+    const { response: reportsWorkerData, loading, error } = useReports({
         type: 'employee',
-        workerName,
+        workerId,
         startDate: startUTC,
         endDate: endUTC
     });
+
+    const { data: workerData } = reportsWorkerData || {};
+    const { workerName, reports } = workerData || {};
 
     useEffect(() => {
         if (error) {
@@ -39,7 +42,7 @@ export default function UserReportPage() {
     }, [error, router]);
 
     useEffect(() => {
-        if (!reports || !reports.data || reports.data.length === 0) {
+        if (!reports || reports.length === 0) {
             const timer = setTimeout(() => {
                 setShowEmptyMessage(false);
                 router.back()
@@ -56,7 +59,7 @@ export default function UserReportPage() {
         return null;
     }
 
-    if (!reports || !reports.data || reports.data.length === 0) {
+    if (!reports || reports.length === 0) {
         if (!showEmptyMessage) return null;
         return (
             <div className="p-6 font-mono text-gray-500 dark:text-gray-400 dark:bg-gray-800">
@@ -70,21 +73,21 @@ export default function UserReportPage() {
         <div className="p-6 max-w-7xl mx-auto dark:bg-gray-800 rounded-lg space-y-4">
             <ExportToExcelButton
                 type="employee"
-                data={reports.data}
+                data={reports}
                 fileName={`отчет_${workerName}_${start}-${end}`}
                 startDate={start}
                 endDate={end}
-                name={workerName}
+                name={workerName || ""}
             />
             <div className="overflow-x-auto rounded-lg shadow ring-1 ring-black ring-opacity-5 dark:ring-gray-700">
                 <EmployeeTable>
                     <EmployeeTableHead
-                        reports={reports.data}
+                        reports={reports}
                         startDate={start}
                         endDate={end}
-                        workerName={workerName}
+                        workerName={workerName || ""}
                     />
-                    <EmployeeTableBody reports={reports.data} />
+                    <EmployeeTableBody reports={reports} />
                 </EmployeeTable>
             </div>
         </div>

@@ -5,7 +5,7 @@ import {getAuthHeaders, handleApiError, ApiListResponse} from "@/lib/utils/apiUt
 import {BASE_URL} from "@/config";
 
 export const fetchEmployeeReports = async (
-    workerName: string,
+    workerId: string,
     startDate: string,
     endDate: string,
     options?: RequestInit
@@ -16,7 +16,7 @@ export const fetchEmployeeReports = async (
     });
 
     const response = await fetch(
-        `${BASE_URL}/reports/workers/${decodeURIComponent(workerName)}/period?${params}`,
+        `${BASE_URL}/reports/workers/${decodeURIComponent(workerId)}/period?${params}`,
         {
             headers: getAuthHeaders(),
             ...options
@@ -26,7 +26,7 @@ export const fetchEmployeeReports = async (
 };
 
 export const fetchObjectReport = async (
-    objectName: string,
+    objectId: string,
     startDate: string,
     endDate: string,
     options?: RequestInit
@@ -37,7 +37,7 @@ export const fetchObjectReport = async (
     });
 
     const response = await fetch(
-        `${BASE_URL}/reports/objects/${decodeURIComponent(objectName)}/period?${params}`,
+        `${BASE_URL}/reports/objects/${decodeURIComponent(objectId)}/period?${params}`,
         {
             headers: getAuthHeaders(),
             ...options
@@ -135,6 +135,7 @@ export const updateReport = async (
     },
     options?: RequestInit
 ): Promise<IReport> => {
+
     try {
         const response = await fetch(`${BASE_URL}/reports/${reportId}`, {
             method: 'PATCH',

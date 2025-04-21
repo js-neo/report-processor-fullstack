@@ -51,7 +51,7 @@ export const ObjectReportForm = ({ gridLayout = false }: { gridLayout?: boolean 
         if (error) {
             toast.error(`${ERROR_MESSAGES.LOAD_ERROR} ${error}`, { duration: 3000 });
         }
-    }, [error]);
+    }, [error, ERROR_MESSAGES.LOAD_ERROR]);
 
     const validateForm = () => {
         setTouchedFields({
@@ -77,7 +77,7 @@ export const ObjectReportForm = ({ gridLayout = false }: { gridLayout?: boolean 
 
         return true;
     };
-    console.log("user?.objectRef?.objectId: ", user?.objectRef?.objectId);
+
     const handleGenerate = () => {
          if (!validateForm()) return;
 

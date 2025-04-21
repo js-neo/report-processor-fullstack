@@ -10,8 +10,8 @@ import {
 const router = express.Router();
 
 router.get('/', getAllReports);
-router.get('/workers/:workerName/period', getWorkerPeriodReports);
-router.get('/objects/:objectName/period', getObjectPeriodReports);
+router.get('/workers/:workerId/period', getWorkerPeriodReports);
+router.get('/objects/:objectId/period', getObjectPeriodReports);
 router.get('/unfilled/:objectId/period', getUnfilledReportsForPeriod);
 router.patch('/:reportId', updateReport);
 

@@ -43,10 +43,10 @@ export const ReportCardModal = ({
     const [selectedWorkerId, setSelectedWorkerId] = useState('');
     const [isAddingWorker, setIsAddingWorker] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const { workers, loading: workersLoading } = useWorkers(report.objectRef?.toString());
+    const { workers, loading: workersLoading } = useWorkers(report.objectRef?.objectId);
 
     const availableWorkers = workers.allWorkers.filter(worker =>
-        !formData.workers?.some(w => w.workerId === worker._id)
+        !formData.workers?.some(w => w.workerId === worker.workerId)
     );
 
     const workerOptions: WorkerOption[] = availableWorkers.map(worker => ({
@@ -63,7 +63,7 @@ export const ReportCardModal = ({
         setFormData(prev => ({
             ...prev,
             workers: [...(prev.workers || []), {
-                workerId: workerToAdd._id,
+                workerId: workerToAdd.workerId,
                 name: workerToAdd.name
             }]
         }));

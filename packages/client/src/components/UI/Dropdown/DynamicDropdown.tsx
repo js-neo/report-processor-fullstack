@@ -89,7 +89,7 @@ const DynamicDropdown = (props: DynamicDropdownProps) => {
                 return (
                     <option
                         key={workObject._id}
-                        value={workObject._id}
+                        value={workObject.objectId}
                         className="dark:bg-gray-700 dark:text-gray-100"
                     >
                         {workObject.name}

@@ -1,19 +1,19 @@
 // packages/server/src/services/reportService.ts
 import Report, { IReport, IPartialReport } from '../models/Report.js';
+import Worker from "../models/Worker.js";
 import { NotFoundError, BadRequestError } from '../errors/errorClasses.js';
 import { validateDates, generateDailyHours } from "../utils/dateUtils.js";
 import { format } from "date-fns";
 import { IWorker } from "../models/Worker.js";
 import Object from "../models/Object.js";
 import { IObjectReportEmployee } from "shared";
-import {Types} from "mongoose";
 
 type IReportParams = {
     start: string;
     end: string;
 } & (
-    | { workerName: string; objectName?: never }
-    | { objectName: string; workerName?: never }
+    | { workerId: string; objectId?: never }
+    | { objectId: string; workerId?: never }
     );
 
 export const getAllReportService = async (): Promise<IReport[]> => {
@@ -29,54 +29,98 @@ export const getAllReportService = async (): Promise<IReport[]> => {
     return reports;
 };
 
-export const getWorkerPeriodReportsService = async ({workerName = "", start, end}: IReportParams): Promise<IPartialReport[]> => {
+export const getWorkerPeriodReportsService = async ({
+                                                        workerId = "",
+                                                        start,
+                                                        end
+                                                    }: IReportParams): Promise<{
+    reports: IPartialReport[];
+    workerName: string;
+}> => {
     const startDate = new Date(start);
     const endDate = new Date(end);
-
-    console.log({startDate, endDate});
     validateDates(startDate, endDate);
 
-    if (!workerName) {
+    if (!workerId) {
         throw new Error('Отсутствующий идентификатор работника');
     }
 
+    const worker = await Worker.findOne({ workerId })
+        .select('name objectRef')
+        .populate('objectRef', 'name')
+        .lean()
+        .exec();
+
+    if (!worker) {
+        throw new NotFoundError("Работник не найден", {
+            workerId,
+            suggestion: "Проверьте идентификатор работника"
+        });
+    }
+
     const reports = await Report.find({
-        'analysis.workers.workerId': new Types.ObjectId(workerName), // Ищем по кастомному id
+        'analysis.workers.workerId': workerId,
         timestamp: { $gte: startDate, $lte: endDate }
     })
-        .select('timestamp analysis media transcript')
+        .select('timestamp analysis media transcript objectRef')
+        .populate('objectRef', 'name')
         .sort({ timestamp: 1 })
         .lean<IPartialReport[]>();
 
     if (reports.length === 0) {
         throw new NotFoundError("Запрашиваемые данные не найдены", {
-            period: { startDate, endDate },
-            workerName,
+            period: { start, end },
+            workerName: worker.name,
             suggestion: "Проверьте параметры запроса"
         });
     }
 
-    return reports.map(report => ({
-        ...report,
-        media: {
-            ...report.media,
-            metadata: {
-                ...report.media.metadata,
-                creation_date: report.media.metadata?.creation_date || undefined
-            }
-        }
-    }));
+    return {
+        workerName: worker.name,
+        reports: reports.map(report => ({
+            ...report,
+            media: {
+                ...report.media,
+                metadata: {
+                    ...report.media.metadata,
+                    creation_date: report.media.metadata?.creation_date || undefined
+                }
+            },
+            objectName: report.objectRef?.name || 'Не указан'
+        }))
+    };
 };
 
-export const getObjectPeriodReportsService = async ({objectName, start, end}: IReportParams): Promise<IObjectReportEmployee[]> => {
+export const getObjectPeriodReportsService = async ({
+                                                        objectId,
+                                                        start,
+                                                        end
+                                                    }: IReportParams): Promise<{
+    employees: IObjectReportEmployee[];
+    objectName: string;
+}> => {
     const startDate = new Date(start);
     const endDate = new Date(end);
     validateDates(startDate, endDate);
 
+    const object = await Object.findOne({ objectId })
+        .select('name')
+        .lean()
+        .exec();
+
+    if (!object) {
+        throw new NotFoundError("Объект не найден", {
+            objectId,
+            suggestion: "Проверьте правильность ID объекта"
+        });
+    }
+
+    const objectName = object.name;
+
     const reports = await Report.aggregate([
         {
             $match: {
-                'objectId': objectName,
+                objectRef: object._id,
                 timestamp: {
                     $gte: startDate,
                     $lte: endDate
@@ -128,10 +172,10 @@ export const getObjectPeriodReportsService = async ({objectName, start, end}: IR
     ]);
 
     if (reports.length === 0) {
-        throw new NotFoundError("Запрашиваемый ресурс не найден", {
+        throw new NotFoundError("Отчеты за указанный период не найдены", {
             objectName,
             period: { start, end },
-            suggestion: "Убедитесь в правильности имени объекта"
+            suggestion: "Проверьте правильность периода"
         });
     }
 
@@ -173,11 +217,14 @@ export const getObjectPeriodReportsService = async ({objectName, start, end}: IR
         }
     }
 
-    return Array.from(employeesMap.values()).map(emp => ({
-        ...emp,
-        totalCost: emp.totalHours * emp.rate,
-        dailyHours: generateDailyHours(emp.dailyHours, start, end)
-    }));
+    return {
+        objectName,
+        employees: Array.from(employeesMap.values()).map(emp => ({
+            ...emp,
+            totalCost: emp.totalHours * emp.rate,
+            dailyHours: generateDailyHours(emp.dailyHours, start, end)
+        }))
+    };
 };
 
 interface DateRange {

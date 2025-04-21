@@ -11,11 +11,11 @@ import { BadRequestError } from "../errors/errorClasses.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
 interface WorkerParams extends ParamsDictionary {
-    workerName: string;
+    workerId: string;
 }
 
 interface ObjectParams extends ParamsDictionary {
-    objectName: string;
+    objectId: string;
 }
 
 interface WorkerQuery {
@@ -47,12 +47,12 @@ export const getWorkerPeriodReports = asyncHandler<
     WorkerQuery
 >(
     async (req, res) => {
-        const workerName = req.params.workerName;
-        console.log(`worker name report controller: ${workerName}`);
+        const workerId = req.params.workerId;
+        console.log(`worker name report controller: ${workerId}`);
 
-        if (!workerName.trim()) {
+        if (!workerId.trim()) {
             throw new BadRequestError('Invalid worker name', {
-                received: workerName,
+                received: workerId,
                 note: 'Параметр уже декодирован Express'
             });
         }
@@ -62,15 +62,18 @@ export const getWorkerPeriodReports = asyncHandler<
             throw new BadRequestError('Start and end dates must be valid strings');
         }
 
-        const reports = await getWorkerPeriodReportsService({ workerName, start, end });
+        const {workerName, reports} = await getWorkerPeriodReportsService({ workerId, start, end });
+        console.log("reports_controller: ", reports);
 
         res.json({
             success: true,
             count: reports.length,
-            data: reports.map(report => ({
+            data: {
+                workerName,
+                reports: reports.map(report => ({
                 ...report,
                 timestamp: report.timestamp.toISOString()
-            }))
+            }))}
         });
     }
 );
@@ -82,11 +85,11 @@ export const getObjectPeriodReports = asyncHandler<
     ObjectQuery
 >(
     async (req, res) => {
-        const objectName = req.params.objectName;
-        console.log(`object name report controller: ${objectName}`);
+        const objectId = req.params.objectId;
+        console.log(`object name report controller: ${objectId}`);
         const { start, end } = req.query;
 
-        if (!objectName.trim()) {
+        if (!objectId.trim()) {
             throw new BadRequestError('Object name is required');
         }
 
@@ -94,12 +97,12 @@ export const getObjectPeriodReports = asyncHandler<
             throw new BadRequestError('Start and end dates must be valid strings');
         }
 
-        const employees = await getObjectPeriodReportsService({ objectName, start, end });
+        const {objectName: name, employees} = await getObjectPeriodReportsService({ objectId, start, end });
 
         res.json({
             success: true,
             data: {
-                objectName,
+                objectName: name,
                 period: { start, end },
                 employees,
                 totalHours: employees.reduce((sum, emp) => sum + emp.totalHours, 0),
@@ -180,6 +183,7 @@ export const updateReport = asyncHandler(
     async (req: Request<{ reportId: string }>, res: Response) => {
         const { reportId } = req.params;
         const { analysis } = req.body;
+        console.log("analysis_updateReport: ", analysis);
 
         if (!analysis) {
             throw new BadRequestError('Не переданы данные для обновления');

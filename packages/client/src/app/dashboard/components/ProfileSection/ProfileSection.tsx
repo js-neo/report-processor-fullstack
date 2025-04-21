@@ -23,10 +23,6 @@ export const ProfileSection = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            console.log('Sending PATCH request to /api/profile', {
-                selectedObjectId,
-                token: localStorage.getItem('accessToken')
-            });
 
             const response = await fetch('/api/profile', {
                 method: 'PATCH',

@@ -8,6 +8,7 @@ import DynamicDropdown from '@/components/UI/Dropdown/DynamicDropdown';
 import {useObjects } from '@/hooks/useReports';
 import {useWorkers} from "@/hooks/useWorkers";
 import toast from 'react-hot-toast';
+import {useAuthToken} from "@/stores/appStore";
 
 export default function HomePage() {
     const router = useRouter();
@@ -15,12 +16,15 @@ export default function HomePage() {
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
     const [workerName, setWorkerName] = useState('');
-    const [objectName, setObjectName] = useState('');
+    const [objectId, setObjectId] = useState('');
+    const token = useAuthToken();
+
+    if (!token) {
+        router.push('/dashboard');
+    }
 
     const { workers, loading: workersLoading, error: workersError } = useWorkers();
     const { objects, loading: objectsLoading, error: objectsError } = useObjects();
-    console.log('workersError: ', workersError);
-    console.log('objectsError: ', objectsError);
 
     React.useEffect(() => {
         if (workersError) {
@@ -35,7 +39,7 @@ export default function HomePage() {
         setStartDate('');
         setEndDate('');
         setWorkerName('');
-        setObjectName('');
+        setObjectId('');
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -51,7 +55,7 @@ export default function HomePage() {
             return;
         }
 
-        if (activeTab === 'object' && !objectName) {
+        if (activeTab === 'object' && !objectId) {
             toast.error('Пожалуйста, выберите объект', { duration: 3000 });
             return;
         }
@@ -59,7 +63,7 @@ export default function HomePage() {
         const baseQuery = `?start=${startDate}&end=${endDate}`;
         const path = activeTab === 'employee'
             ? `/reports/workers/${workerName}/period${baseQuery}`
-            : `/reports/objects/${objectName}/period${baseQuery}`;
+            : `/reports/objects/${objectId}/period${baseQuery}`;
         resetForm();
         router.push(path);
     };
@@ -156,8 +160,8 @@ export default function HomePage() {
                         <DynamicDropdown
                             type="object"
                             data={objects}
-                            selectedValue={objectName}
-                            onChange={setObjectName}
+                            selectedValue={objectId}
+                            onChange={setObjectId}
                             placeholder="Выберите объект"
                             loading={objectsLoading}
                             error={objectsError || undefined}

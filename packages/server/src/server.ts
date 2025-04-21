@@ -11,7 +11,7 @@ import dotenv from 'dotenv';
 import workerRoutes from "./routes/workerRoutes.js";
 import objectRoutes from "./routes/objectRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
-import managerRoutes from "@/routes/managerRoutes.js";
+import managerRoutes from "./routes/managerRoutes.js";
 
 dotenv.config();
 

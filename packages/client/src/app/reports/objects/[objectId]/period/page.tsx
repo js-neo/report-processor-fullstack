@@ -11,7 +11,7 @@ import {ExportToExcelButton} from "@/components/ExportToExcelButton";
 export default function ObjectReportPage() {
     const params = useParams();
     const searchParams = useSearchParams();
-    const objectName = decodeURIComponent(params.objectName as string);
+    const objectId = decodeURIComponent(params.objectId as string);
     const start = searchParams.get('start')!;
     const end = searchParams.get('end')!;
     const startUTC = new Date(`${start}T00:00:00+03:00`).toISOString();
@@ -19,7 +19,7 @@ export default function ObjectReportPage() {
 
     const { response: objectReport, loading, error } = useReports({
         type: 'object',
-        objectName,
+        objectId,
         startDate: startUTC,
         endDate: endUTC
     });
@@ -61,10 +61,10 @@ export default function ObjectReportPage() {
             <ExportToExcelButton
                 type="object"
                 data={data}
-                fileName={`отчет_${objectName}_${start}-${end}`}
+                fileName={`отчет_${data.objectName}_${start}-${end}`}
                 startDate={start}
                 endDate={end}
-                name={objectName}
+                name={data.objectName}
             />
 
             <ObjectTable>

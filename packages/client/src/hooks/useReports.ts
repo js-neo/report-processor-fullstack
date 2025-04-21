@@ -13,41 +13,43 @@ import {EmployeeReportsResponse, IObject, ObjectReportResponse} from "shared";
 type ReportParams =
     | {
     type: 'employee';
-    workerName: string;
+    workerId: string;
     startDate: string;
     endDate: string;
 }
     | {
     type: 'object';
-    objectName: string;
+    objectId: string;
     startDate: string;
     endDate: string;
 };
 
 type ReportState<T extends ReportParams> =
-    T extends { type: 'employee' } ? { response: EmployeeReportsResponse | null; loading: boolean; error: string | null } :
-        T extends { type: 'object' } ? { response: ObjectReportResponse | null; loading: boolean; error: string | null } :
+    T extends { type: 'employee' } ?
+        { response: EmployeeReportsResponse | null; loading: boolean; error: string | null } :
+        T extends { type: 'object' } ?
+            { response: ObjectReportResponse | null; loading: boolean; error: string | null } :
             never;
 
 export const useReports = <T extends ReportParams>(params: T): ReportState<T> => {
     const { type, startDate, endDate } = params;
 
-    const { workerName, objectName } = useMemo(() => {
+    const { workerId, objectId } = useMemo(() => {
         if (type === 'employee') {
             return {
-                workerName: (params as Extract<T, { type: 'employee' }>).workerName,
-                objectName: undefined
+                workerId: (params as Extract<T, { type: 'employee' }>).workerId,
+                objectId: undefined
             };
         }
         return {
-            workerName: undefined,
-            objectName: (params as Extract<T, { type: 'object' }>).objectName
+            workerId: undefined,
+            objectId: (params as Extract<T, { type: 'object' }>).objectId
         };
     }, [type, params]);
 
     const primaryIdentifier = useMemo(
-        () => type === 'employee' ? workerName : objectName,
-        [type, workerName, objectName]
+        () => type === 'employee' ? workerId : objectId,
+        [type, workerId, objectId]
     );
 
     const [state, setState] = useState<{

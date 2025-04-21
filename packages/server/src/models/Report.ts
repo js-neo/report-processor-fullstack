@@ -8,7 +8,7 @@ interface IReport extends Omit<IReportBase, "objectRef">, Document {
 }
 
 interface IPartialReport extends Pick<IReportBase,
-    'timestamp' | 'analysis' | 'media' | 'transcript'
+    'timestamp' | 'objectRef' | 'analysis' | 'media' | 'transcript'
 > {}
 
 const UserSchema = new Schema<IUser>({
