@@ -1,6 +1,6 @@
 // packages/client/src/utils/helpers.ts
 
-import { IReport, IAnalysisData, IGroupedReports} from "shared";
+import {IReport, IGroupedReports, IObject} from "shared";
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 
@@ -20,7 +20,7 @@ export const formatDate = (
     if (!date) return '-';
 
     const parsedDate = typeof date === 'string'
-        ? new Date(date)
+        ? new Date(date + (date.endsWith('Z') ? '' : 'Z'))
         : date;
 
     if (isNaN(parsedDate.getTime())) {
@@ -45,8 +45,9 @@ export const formatDate = (
     }).format(parsedDate);
 };
 
-export const extractLocation = (analysis: IAnalysisData): string => {
-    return analysis.objectName || "Нет данных об объекте";
+export const extractLocation = (objectRef: IObject | null | undefined): string => {
+    if (!objectRef) return "Объект не указан";
+    return objectRef.name;
 };
 
 

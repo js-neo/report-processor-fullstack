@@ -1,0 +1,168 @@
+// packages/server/src/models/Manager.ts
+import { Schema, model, Document, Types } from 'mongoose';
+import bcrypt from 'bcryptjs';
+
+interface IManagerAuth {
+    telegram_username: string;
+    telegram_id: string;
+    passwordHash: string;
+    lastLogin?: Date;
+}
+
+interface IManagerProfile {
+    fullName: string;
+    phone: string;
+    position: string;
+    objectRef: Types.ObjectId;
+    role: 'manager' | 'admin';
+}
+
+interface IManager extends Document {
+    _id: Types.ObjectId;
+    managerId: string;
+    language: string;
+    auth: IManagerAuth;
+    profile: IManagerProfile;
+    created_at: Date;
+    updated_at: Date;
+    comparePassword(candidatePassword: string): Promise<boolean>;
+}
+
+const ManagerSchema = new Schema<IManager>(
+    {
+        managerId: {
+            type: String,
+            required: [true, 'Manager ID is required'],
+            validate: {
+                validator: (v: string) => /^[a-z0-9_]{3,30}$/.test(v),
+                message: 'Invalid manager ID format (3-30 lowercase letters, numbers and underscores)'
+            }
+        },
+        language: {
+            type: String,
+            default: 'ru'
+        },
+        auth: {
+            telegram_username: {
+                type: String,
+                required: true,
+                match: [/^@[a-zA-Z0-9_]{5,32}$/, 'Invalid Telegram username format']
+            },
+            telegram_id: {
+                type: String,
+                default: ''
+            },
+            passwordHash: {
+                type: String,
+                required: true,
+                select: false
+            },
+            lastLogin: {
+                type: Date,
+                default: null
+            }
+        },
+        profile: {
+            fullName: {
+                type: String,
+                required: true,
+                trim: true,
+                minlength: 2,
+                maxlength: 50
+            },
+            phone: {
+                type: String,
+                required: true,
+                validate: {
+                    validator: function(v: string) {
+                        return /^[\d\+]{10,15}$/.test(v);
+                    },
+                    message: 'Invalid phone number format'
+                }
+            },
+            position: {
+                type: String,
+                required: true,
+                trim: true,
+                minlength: 2,
+                maxlength: 50
+            },
+            objectRef: {
+                type: Schema.Types.ObjectId,
+                ref: 'Object',
+                required: true,
+                validate: {
+                    validator: async function(v: Types.ObjectId) {
+                        const doc = await model('Object').findById(v);
+                        return !!doc;
+                    },
+                    message: 'Object does not exist'
+                }
+            },
+            role: {
+                type: String,
+                enum: ['manager', 'admin'],
+                default: 'manager'
+            }
+        }
+    },
+    {
+        timestamps: {
+            createdAt: 'created_at',
+            updatedAt: 'updated_at'
+        },
+        toJSON: {
+            virtuals: true,
+            versionKey: false,
+            transform: function(_, ret) {
+                return {
+                    _id: ret._id.toString(),
+                    managerId: ret.managerId,
+                    language: ret.language,
+                    telegram_username: ret.auth.telegram_username,
+                    telegram_id: ret.auth.telegram_id,
+                    fullName: ret.profile.fullName,
+                    phone: ret.profile.phone,
+                    position: ret.profile.position,
+                    objectRef: ret.profile.objectRef,
+                    role: ret.profile.role,
+                    created_at: ret.created_at,
+                    updated_at: ret.updated_at
+                };
+            }
+        }
+    }
+);
+
+ManagerSchema.virtual('object', {
+    ref: 'Object',
+    localField: 'profile.objectRef',
+    foreignField: '_id',
+    justOne: true
+});
+
+ManagerSchema.pre<IManager>('save', async function(next) {
+    if (!this.isModified('auth.passwordHash')) return next();
+
+    try {
+        const salt = await bcrypt.genSalt(12);
+        this.auth.passwordHash = await bcrypt.hash(this.auth.passwordHash, salt);
+        next();
+    } catch (err) {
+        next(err as Error);
+    }
+});
+
+ManagerSchema.methods.comparePassword = async function(
+    candidatePassword: string
+): Promise<boolean> {
+    return bcrypt.compare(candidatePassword, this.auth.passwordHash);
+};
+
+ManagerSchema.index({ managerId: 1 }, { unique: true });
+ManagerSchema.index({ 'auth.telegram_username': 1 }, { unique: true });
+ManagerSchema.index({ 'auth.telegram_id': 1 }, { unique: true, sparse: true });
+ManagerSchema.index({ 'profile.objectRef': 1 });
+
+export { IManager };
+export default model<IManager>('Manager', ManagerSchema);

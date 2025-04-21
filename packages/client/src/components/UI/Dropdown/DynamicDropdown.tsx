@@ -2,21 +2,12 @@
 
 import LoadingSpinner from "@/components/Common/LoadingSpinner";
 import { useMemo } from 'react';
-
-interface Worker {
-    _id: string;
-    name: string;
-}
-
-interface WorkObject {
-    _id: string;
-    objectName: string;
-}
+import {IObject, IWorker} from "shared";
 
 type DynamicDropdownProps =
     | {
     type: 'employee';
-    data: Worker[];
+    data: IWorker[];
     selectedValue: string;
     onChange: (value: string) => void;
     placeholder?: string;
@@ -25,7 +16,7 @@ type DynamicDropdownProps =
 }
     | {
     type: 'object';
-    data: WorkObject[];
+    data: IObject[];
     selectedValue: string;
     onChange: (value: string) => void;
     placeholder?: string;
@@ -45,10 +36,13 @@ const DynamicDropdown = (props: DynamicDropdownProps) => {
     } = props;
 
     const sortedData = useMemo(() => {
-        const arr = [...data];
+        if (!data || !Array.isArray(data)) return [];
+
         return type === 'employee'
-            ? (arr as Worker[]).sort((a, b) => a.name.localeCompare(b.name, "ru"))
-            : (arr as WorkObject[]).sort((a, b) => a.objectName.localeCompare(b.objectName, "ru"));
+            ? ([...data] as IWorker[]).sort((a, b) =>
+                (a.name || '').localeCompare(b.name || '', "ru"))
+            : ([...data] as IObject[]).sort((a, b) =>
+                (a.name || '').localeCompare(b.name || '', "ru"));
     }, [data, type]);
 
     if (loading) {
@@ -79,11 +73,11 @@ const DynamicDropdown = (props: DynamicDropdownProps) => {
             </option>
             {sortedData.map((item) => {
                 if (type === 'employee') {
-                    const worker = item as Worker;
+                    const worker = item as IWorker;
                     return (
                         <option
                             key={worker._id}
-                            value={worker.name}
+                            value={worker._id}
                             className="dark:bg-gray-700 dark:text-gray-100"
                         >
                             {worker.name}
@@ -91,14 +85,14 @@ const DynamicDropdown = (props: DynamicDropdownProps) => {
                     );
                 }
 
-                const workObject = item as WorkObject;
+                const workObject = item as IObject;
                 return (
                     <option
                         key={workObject._id}
-                        value={workObject.objectName}
+                        value={workObject.objectId}
                         className="dark:bg-gray-700 dark:text-gray-100"
                     >
-                        {workObject.objectName}
+                        {workObject.name}
                     </option>
                 );
             })}

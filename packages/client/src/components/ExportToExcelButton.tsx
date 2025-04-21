@@ -149,18 +149,18 @@ export const ExportToExcelButton = ({
                 cell.style = headerStyle
             })
 
-            const totalHours = reports.reduce((sum: number, report: IReport) => sum + report.analysis.time, 0)
+            const totalHours = reports.reduce((sum: number, report: IReport) => sum + (report.analysis?.time || 0), 0)
 
             Object.entries(grouped).forEach(([date, dailyReports]) => {
-                const dailyTotal = dailyReports.reduce((sum: number, r: IReport) => sum + r.analysis.time, 0)
+                const dailyTotal = dailyReports.reduce((sum: number, r: IReport) => sum + (r.analysis?.time || 0), 0)
                 const startRow = worksheet.rowCount + 1
 
                 dailyReports.forEach((report, index) => {
                     const rowData = {
                         date: index === 0 ? formatDate(date, 'dd.MM') : '',
-                        object: extractLocation(report.analysis),
+                        object: extractLocation(report.objectRef),
                         task: report.analysis.task,
-                        hours: report.analysis.time.toFixed(1),
+                        hours: (typeof report.analysis?.time === "number" ? report.analysis.time : 0).toFixed(1),
                         dailyTotal: index === 0 ? dailyTotal.toFixed(1) : '',
                         link: {text: "Ссылка", hyperlink: report.media.drive_link},
                         comment: report.transcript,

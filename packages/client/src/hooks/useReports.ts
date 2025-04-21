@@ -6,60 +6,50 @@ import { useEffect, useState, useCallback, useMemo } from 'react';
 import {
     fetchEmployeeReports,
     fetchObjectReport,
-    fetchObjects,
-    fetchWorkers
+    fetchObjects
 } from '@/lib/api';
-import { EmployeeReportsResponse, ObjectReportResponse } from "shared";
+import {EmployeeReportsResponse, IObject, ObjectReportResponse} from "shared";
 
 type ReportParams =
     | {
     type: 'employee';
-    workerName: string;
+    workerId: string;
     startDate: string;
     endDate: string;
 }
     | {
     type: 'object';
-    objectName: string;
+    objectId: string;
     startDate: string;
     endDate: string;
 };
 
-interface Worker {
-    _id: string;
-    name: string;
-    worker_id: string;
-}
-
-interface Object {
-    _id: string;
-    objectName: string;
-}
-
 type ReportState<T extends ReportParams> =
-    T extends { type: 'employee' } ? { response: EmployeeReportsResponse | null; loading: boolean; error: string | null } :
-        T extends { type: 'object' } ? { response: ObjectReportResponse | null; loading: boolean; error: string | null } :
+    T extends { type: 'employee' } ?
+        { response: EmployeeReportsResponse | null; loading: boolean; error: string | null } :
+        T extends { type: 'object' } ?
+            { response: ObjectReportResponse | null; loading: boolean; error: string | null } :
             never;
 
 export const useReports = <T extends ReportParams>(params: T): ReportState<T> => {
     const { type, startDate, endDate } = params;
 
-    const { workerName, objectName } = useMemo(() => {
+    const { workerId, objectId } = useMemo(() => {
         if (type === 'employee') {
             return {
-                workerName: (params as Extract<T, { type: 'employee' }>).workerName,
-                objectName: undefined
+                workerId: (params as Extract<T, { type: 'employee' }>).workerId,
+                objectId: undefined
             };
         }
         return {
-            workerName: undefined,
-            objectName: (params as Extract<T, { type: 'object' }>).objectName
+            workerId: undefined,
+            objectId: (params as Extract<T, { type: 'object' }>).objectId
         };
     }, [type, params]);
 
     const primaryIdentifier = useMemo(
-        () => type === 'employee' ? workerName : objectName,
-        [type, workerName, objectName]
+        () => type === 'employee' ? workerId : objectId,
+        [type, workerId, objectId]
     );
 
     const [state, setState] = useState<{
@@ -149,35 +139,9 @@ export const useReports = <T extends ReportParams>(params: T): ReportState<T> =>
     return state as ReportState<T>;
 };
 
-export const useWorkers = () => {
-    const [workers, setWorkers] = useState<Worker[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-
-    useEffect(() => {
-        const loadData = async () => {
-            try {
-                const response = await fetchWorkers();
-                setWorkers(response.data);
-            } catch (err) {
-                if (err instanceof Error) {
-                    setError(err.message || 'Ошибка загрузки данных');
-                } else {
-                    setError('Ошибка загрузки данных');
-                }
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        loadData();
-    }, []);
-
-    return { workers, loading, error };
-};
 
 export const useObjects = () => {
-    const [objects, setObjects] = useState<Object[]>([]);
+    const [objects, setObjects] = useState<IObject[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -186,6 +150,7 @@ export const useObjects = () => {
             try {
                 const response = await fetchObjects();
                 setObjects(response.data);
+
             } catch (err) {
                 if (err instanceof Error) {
                     setError(err.message || 'Ошибка загрузки данных');
@@ -202,3 +167,4 @@ export const useObjects = () => {
 
     return { objects, loading, error };
 };
+

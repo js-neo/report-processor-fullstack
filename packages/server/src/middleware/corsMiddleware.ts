@@ -5,6 +5,7 @@ import { RequestHandler } from 'express';
 const allowedCors = [
     "http://localhost:3000",
     "http://localhost:3001",
+    "http://localhost:5000",
     "https://report-processor-fullstack-client.vercel.app",
     "https://report-processor-fullstack.onrender.com",
     "https://*.vercel.app",

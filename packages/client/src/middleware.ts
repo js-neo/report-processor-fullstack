@@ -1,9 +1,10 @@
-// packages/client/src/middleware.ts
 
+// packages/client/src/middleware.ts
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 const PUBLIC_PATHS = new Set(['/auth/login', '/auth/register']);
+const DASHBOARD_PATH = '/dashboard';
 const IGNORE_PATHS = ['/_next/', '/favicon.ico'];
 
 export function middleware(request: NextRequest) {
@@ -25,14 +26,14 @@ export function middleware(request: NextRequest) {
         return NextResponse.next();
     }
 
+    if (token && PUBLIC_PATHS.has(pathname)) {
+        return NextResponse.redirect(new URL(DASHBOARD_PATH, request.url));
+    }
+
     if (!token && !PUBLIC_PATHS.has(pathname)) {
         return NextResponse.redirect(
             new URL(`/auth/login?redirect=${encodeURIComponent(pathname)}`, request.url)
         );
-    }
-
-    if (token && PUBLIC_PATHS.has(pathname)) {
-        return NextResponse.redirect(new URL('/', request.url));
     }
 
     return NextResponse.next();

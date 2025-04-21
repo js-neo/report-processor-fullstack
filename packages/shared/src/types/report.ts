@@ -1,5 +1,7 @@
 // packages/shared/src/types/report.ts
 
+import {IObject} from "./object.js";
+
 export interface IUser {
     username: string;
     telegram_id: number;
@@ -7,9 +9,9 @@ export interface IUser {
     name: string;
 }
 
-export interface IWorker {
+export interface IWorkerReport {
     name: string;
-    worker_id: string;
+    workerId: string;
     position?: string;
     salary_rate?: number;
 }
@@ -34,10 +36,9 @@ export interface IMediaData {
 }
 
 export interface IAnalysisData {
-    objectName?: string;
-    task: string;
-    workers: IWorker[];
-    time: number;
+    task: string | null;
+    workers: IWorkerReport[] | null;
+    time: number | null;
 }
 
 export interface IReportLog {
@@ -54,6 +55,7 @@ export interface IReportBase {
     media: IMediaData;
     transcript: string;
     analysis: IAnalysisData;
+    objectRef: IObject | null;
     telegram_id: string;
     report_logs: IReportLog[];
     updated_at: Date;
@@ -89,4 +91,14 @@ export interface IObjectReport {
 
 export interface IGroupedReports {
     [key: string]: IReport[];
+}
+
+export interface IReportWithObjectName extends IReport {
+    objectName: string;
+}
+
+export interface UnfilledReportsResponse {
+    success: boolean;
+    count: number;
+    data: IReportWithObjectName[];
 }

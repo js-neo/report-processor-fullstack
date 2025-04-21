@@ -1,10 +1,14 @@
 // packages/server/src/routes/workerRoutes.ts
 
-import express from 'express';
-import { getAllWorkers } from '../controllers/workerController.js';
+import {
+    getAllWorkers,
+    updateWorkerObject
+} from '../controllers/workerController.js';
+import express from "express";
 
 const router = express.Router();
 
 router.get('/', getAllWorkers);
+router.patch('/:workerId/object', updateWorkerObject);
 
 export default router;

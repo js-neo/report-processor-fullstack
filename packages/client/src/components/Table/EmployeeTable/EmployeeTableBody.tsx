@@ -11,13 +11,13 @@ interface BodyTableProps {
 
 const EmployeeTableBody = ({ reports }: BodyTableProps) => {
     const groupedReports: IGroupedReports = groupByDay(reports);
-    const totalHours = reports.reduce((sum, report) => sum + report.analysis.time, 0);
+    const totalHours = reports.reduce((sum, report) => sum + (report.analysis?.time || 0), 0);
 
     return (
         <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
         {Object.entries(groupedReports).map(([date, dailyReports]) => {
             const dailyTotal = dailyReports.reduce((sum, r) =>
-                sum + r.analysis.time, 0);
+                sum + (r.analysis?.time || 0), 0);
             return (
                 <DailyReportsGroup
                     key={date}
@@ -40,7 +40,7 @@ const EmployeeTableBody = ({ reports }: BodyTableProps) => {
 };
 
 const DailyReportsGroup = ({ date, reports, dailyTotal }: { date: string; reports: IReport[]; dailyTotal: number }) => {
-    const formattedDate = formatDate(date, 'dd');
+    const formattedDate = formatDate(date, 'dd.MM');
     const rowCount = reports.length;
 
     return (
@@ -57,14 +57,14 @@ const DailyReportsGroup = ({ date, reports, dailyTotal }: { date: string; report
                     )}
 
                     <td className="px-2 py-4 w-1/12 border border-gray-300 dark:border-gray-600 dark:text-gray-300">
-                        {extractLocation(report.analysis)}
+                        {extractLocation(report.objectRef)}
                     </td>
 
                     <td className="px-2 py-4 w-1/6 border border-gray-300 dark:border-gray-600 dark:text-gray-300">
                         {report.analysis.task}
                     </td>
                     <td className="px-2 py-4 w-1/12 border border-gray-300 dark:border-gray-600 dark:text-gray-300">
-                        {report.analysis.time ? report.analysis.time.toFixed(1) : "н/д"}
+                        {report.analysis?.time ? report.analysis.time.toFixed(1) : "н/д"}
                     </td>
                     {index === 0 && (
                         <td rowSpan={rowCount} className="px-2 py-4 w-1/12 border border-gray-300 dark:border-gray-600
