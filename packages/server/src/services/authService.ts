@@ -68,12 +68,14 @@ export const registerManager = async (
     password: string,
     objectRef: string
 ): Promise<AuthResponse> => {
+    const normalizedUsername = telegram_username.replace(/^@/, '');
+
     if (password.length < 8) {
         throw new BadRequestError('Password must be at least 8 characters');
     }
 
     const existingManager = await Manager.findOne({
-        'auth.telegram_username': telegram_username
+        'auth.telegram_username': normalizedUsername
     });
 
     if (existingManager) {
@@ -86,7 +88,7 @@ export const registerManager = async (
     const manager = new Manager({
         managerId,
         auth: {
-            telegram_username,
+            telegram_username: normalizedUsername,
             passwordHash: password,
             telegram_id: ""
         },
@@ -123,8 +125,9 @@ export const loginManager = async (
     telegram_username: string,
     password: string
 ): Promise<AuthResponse> => {
+    const normalizedUsername = telegram_username.replace(/^@/, '');
     const manager = await Manager.findOne({
-        'auth.telegram_username': telegram_username
+        'auth.telegram_username': normalizedUsername
     }).populate('profile.objectRef').select('+auth.passwordHash');
 
     if (!manager) {

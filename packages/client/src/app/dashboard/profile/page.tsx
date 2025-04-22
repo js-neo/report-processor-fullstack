@@ -6,6 +6,7 @@ import {useUser} from "@/stores/appStore";
 
 export default function ProfilePage() {
     const user = useUser();
+    const displayUsername = `@${user?.telegram_username}`;
 
     return (
         <div>
@@ -13,7 +14,7 @@ export default function ProfilePage() {
             <h1 className="text-2xl font-bold mb-4">Профиль</h1>
             <div className="space-y-4">
                 <p><strong>ФИО:</strong> {user?.fullName}</p>
-                <p><strong>Telegram:</strong> {user?.telegram_username}</p>
+                <p><strong>Telegram:</strong> {displayUsername}</p>
                 <p><strong>Номер телефона:</strong> {user?.phone}</p>
                 <p><strong>Должность:</strong> {user?.position}</p>
                 <p><strong>Роль:</strong> {user?.role === 'admin' ? 'Администратор' : 'Менеджер'}</p>

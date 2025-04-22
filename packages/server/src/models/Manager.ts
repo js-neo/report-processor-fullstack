@@ -46,7 +46,11 @@ const ManagerSchema = new Schema<IManager>(
             telegram_username: {
                 type: String,
                 required: true,
-                match: [/^@[a-zA-Z0-9_]{5,32}$/, 'Invalid Telegram username format']
+                match: [
+                    /^@?[a-zA-Z0-9_]{5,32}$/,
+                    'Telegram username должен содержать 5-32 символов (a-z, 0-9, _), символ @ опционален'
+                ],
+                set: (value: string) =>  value.replace(/^@/, '')
             },
             telegram_id: {
                 type: String,
