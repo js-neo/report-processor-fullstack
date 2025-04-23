@@ -171,6 +171,8 @@ export const getObjectPeriodReportsService = async ({
         }
     ]);
 
+    console.log("reports_server_service: ", reports);
+
     if (reports.length === 0) {
         throw new NotFoundError("Отчеты за указанный период не найдены", {
             objectName,
