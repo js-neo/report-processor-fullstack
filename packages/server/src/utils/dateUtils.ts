@@ -1,8 +1,8 @@
 // packages/server/src/utils/dateUtils.ts
 
 import {BadRequestError} from "../errors/errorClasses.js";
-import {format, parse} from "date-fns";
-
+import { parse } from "date-fns";
+import { format, toZonedTime } from 'date-fns-tz';
 
 const validateDates = (start: Date, end: Date): void => {
     if (isNaN(start.getTime())) throw new BadRequestError('Invalid start date');
@@ -36,20 +36,19 @@ const generateDailyHours = (
     start: string,
     end: string
 ): number[] => {
-    const startDate = new Date(start);
-    const endDate = new Date(end);
-    validateDates(startDate, endDate);
+    const timeZone = 'Europe/Moscow';
+    const startDate = toZonedTime(new Date(start), timeZone);
+    const endDate = toZonedTime(new Date(end), timeZone);
 
     const result: number[] = [];
     let current = new Date(startDate);
+    current.setHours(0, 0, 0, 0);
 
     while (current <= endDate) {
-        const dateKey = format(current, 'dd.MM');
-        console.log("dateKey_utils: ", dateKey);
+        const dateKey = format(current, 'dd.MM', { timeZone });
         result.push(dailyHours[dateKey] || 0);
         current.setDate(current.getDate() + 1);
     }
-    console.log("result_utils: ", result);
 
     return result;
 };
