@@ -222,6 +222,15 @@ export const getObjectPeriodReportsService = async ({
         }
     }
 
+    console.log("employees_server_service: ", Array.from(employeesMap.values()).map(emp => ({
+        start,
+        end,
+        startDate,
+        endDate,
+        dailyHours: emp.dailyHours,
+        dailyHours_gen: generateDailyHours(emp.dailyHours, start, end)
+    })));
+
     return {
         objectName,
         employees: Array.from(employeesMap.values()).map(emp => ({
