@@ -194,6 +194,9 @@ export const getObjectPeriodReportsService = async ({
         if (!report.analysis?.workers?.length) continue;
 
         const dateKey = format(new Date(report.timestamp), 'dd.MM');
+        console.log("report.timestamp_server_service: ", report.timestamp);
+        console.log("new Date(report.timestamp)_server_service: ", new Date(report.timestamp));
+        console.log("dateKey_server_service: ", dateKey);
 
         for (const worker of report.analysis.workers) {
             const workerName = worker.name;
