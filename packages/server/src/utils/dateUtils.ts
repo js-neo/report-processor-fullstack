@@ -45,9 +45,11 @@ const generateDailyHours = (
 
     while (current <= endDate) {
         const dateKey = format(current, 'dd.MM');
+        console.log("dateKey_utils: ", dateKey);
         result.push(dailyHours[dateKey] || 0);
         current.setDate(current.getDate() + 1);
     }
+    console.log("result_utils: ", result);
 
     return result;
 };
