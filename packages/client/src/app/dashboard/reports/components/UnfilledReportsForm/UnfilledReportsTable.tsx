@@ -1,4 +1,4 @@
-// packages/client/src/app/dashboard/reports/components/UnfilledReportsForm/UnfilledReportsForm.tsx
+// packages/client/src/app/dashboard/reports/components/UnfilledReportsForm/UnfilledReportsTable.tsx
 'use client';
 
 import React, { useState } from 'react';
@@ -31,31 +31,31 @@ export const UnfilledReportsTable = () => {
     };
 
     if (loading) return <LoadingSpinner />;
-    if (error) return <div className="p-4 text-red-500">{error}</div>;
-    if (reports.length === 0) return <div className="p-4">Нет незаполненных отчетов</div>;
+    if (error) return <div className="p-4 text-red-500 dark:text-red-400">{error}</div>;
+    if (reports.length === 0) return <div className="p-4 text-gray-800 dark:text-gray-200">Нет незаполненных отчетов</div>;
 
     return (
         <div className="space-y-4">
             <div className="overflow-x-auto">
                 <table className="w-full border-collapse">
-                    <thead className="bg-gray-50">
+                    <thead className="bg-gray-50 dark:bg-gray-700">
                     <tr>
-                        <th className="px-4 py-2 text-left">Сотрудник</th>
-                        <th className="px-4 py-2 text-left">Дата</th>
-                        <th className="px-4 py-2 text-left">Медиа</th>
-                        <th className="px-4 py-2 text-left">Статус</th>
-                        <th className="px-4 py-2 text-left">Действия</th>
+                        <th className="px-4 py-2 text-left text-gray-800 dark:text-gray-200">Сотрудник</th>
+                        <th className="px-4 py-2 text-left text-gray-800 dark:text-gray-200">Дата</th>
+                        <th className="px-4 py-2 text-left text-gray-800 dark:text-gray-200">Медиа</th>
+                        <th className="px-4 py-2 text-left text-gray-800 dark:text-gray-200">Статус</th>
+                        <th className="px-4 py-2 text-left text-gray-800 dark:text-gray-200">Действия</th>
                     </tr>
                     </thead>
                     <tbody>
                     {reports.map(report => (
                         <tr
                             key={report._id}
-                            className="hover:bg-gray-50 cursor-pointer"
+                            className="hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer border-b border-gray-200 dark:border-gray-600"
                             onClick={() => setSelectedReport(report)}
                         >
-                            <td className="px-4 py-2">{report.user.name}</td>
-                            <td className="px-4 py-2">
+                            <td className="px-4 py-2 text-gray-800 dark:text-gray-200">{report.user.name}</td>
+                            <td className="px-4 py-2 text-gray-800 dark:text-gray-200">
                                 {new Date(report.timestamp).toLocaleDateString('ru-RU')}
                             </td>
                             <td className="px-4 py-2">
@@ -64,7 +64,7 @@ export const UnfilledReportsTable = () => {
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     onClick={(e: React.MouseEvent) => e.stopPropagation()}
-                                    className="text-blue-500 hover:underline flex items-center"
+                                    className="text-blue-500 hover:underline dark:text-blue-400 flex items-center"
                                 >
                                     <DocumentTextIcon className="h-4 w-4 mr-1" />
                                     <span className="text-xs">Медиа</span>
@@ -119,17 +119,23 @@ const ReportStatusBadges = ({ report }: { report: IReport }) => {
     return (
         <div className="flex gap-1 flex-wrap">
             <span className={`px-2 py-1 text-xs rounded-full ${
-                report.analysis?.task ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                report.analysis?.task
+                    ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                    : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
             }`}>
                 Задача: {taskStatus}
             </span>
             <span className={`px-2 py-1 text-xs rounded-full ${
-                workersCount > 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                workersCount > 0
+                    ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                    : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
             }`}>
                 Рабочие: {workersCount}
             </span>
             <span className={`px-2 py-1 text-xs rounded-full ${
-                timeValue > 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                timeValue > 0
+                    ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                    : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
             }`}>
                 Время: {timeValue} ч
             </span>

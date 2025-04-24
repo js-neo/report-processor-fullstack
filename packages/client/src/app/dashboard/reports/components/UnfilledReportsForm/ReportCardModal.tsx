@@ -104,20 +104,20 @@ export const ReportCardModal = ({
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                        <label className="block text-sm font-medium">Сотрудник:</label>
-                        <p className="text-sm">{report.user.name}</p>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Сотрудник:</label>
+                        <p className="text-sm text-gray-800 dark:text-gray-200">{report.user.name}</p>
                     </div>
 
                     <div className="space-y-2">
-                        <label className="block text-sm font-medium">Дата:</label>
-                        <p className="text-sm">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Дата:</label>
+                        <p className="text-sm text-gray-800 dark:text-gray-200">
                             {new Date(report.timestamp).toLocaleDateString('ru-RU')}
                         </p>
                     </div>
                 </div>
 
                 <div className="space-y-2">
-                    <label htmlFor="task" className="block text-sm font-medium">
+                    <label htmlFor="task" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                         Задача:
                     </label>
                     <Textarea
@@ -128,21 +128,22 @@ export const ReportCardModal = ({
                         }
                         placeholder="Опишите задачу"
                         rows={3}
+                        className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                     />
                 </div>
 
                 <div className="space-y-2">
-                    <label className="block text-sm font-medium">Участники:</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Участники:</label>
 
                     {formData.workers?.length ? (
                         <div className="space-y-2">
                             {formData.workers.map(worker => (
-                                <div key={worker.workerId} className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                                    <span>{worker.name}</span>
+                                <div key={worker.workerId} className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-700 rounded">
+                                    <span className="text-gray-800 dark:text-gray-200">{worker.name}</span>
                                     <button
                                         type="button"
                                         onClick={() => handleRemoveWorker(worker.workerId)}
-                                        className="text-red-500 hover:text-red-700"
+                                        className="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
                                     >
                                         <XMarkIcon className="h-4 w-4" />
                                     </button>
@@ -150,7 +151,7 @@ export const ReportCardModal = ({
                             ))}
                         </div>
                     ) : (
-                        <p className="text-sm text-gray-500">Рабочие не добавлены</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">Рабочие не добавлены</p>
                     )}
 
                     {!isAddingWorker ? (
@@ -169,6 +170,7 @@ export const ReportCardModal = ({
                                     setSelectedWorkerId(e.target.value)
                                 }
                                 disabled={workersLoading || workerOptions.length === 0}
+                                className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                             >
                                 <option value="">Выберите рабочего</option>
                                 {workerOptions.map(option => (
@@ -199,7 +201,7 @@ export const ReportCardModal = ({
                 </div>
 
                 <div className="space-y-2">
-                    <label htmlFor="time" className="block text-sm font-medium">
+                    <label htmlFor="time" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                         Время работы (часы):
                     </label>
                     <Input
@@ -211,6 +213,7 @@ export const ReportCardModal = ({
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                             setFormData({...formData, time: Number(e.target.value)})
                         }
+                        className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                     />
                 </div>
 
