@@ -30,13 +30,13 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
          tooltip,
          ...props
      }, ref) => {
-
         const baseStyles = cn(
             "w-full rounded-md font-medium",
-            "inline-flex items-center justify-center",
+            "inline-flex justify-center items-center",
             "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800",
             "transition-all duration-200 ease-in-out",
-            "disabled:cursor-not-allowed"
+            "disabled:cursor-not-allowed",
+            "text-center"
         );
 
         const sizeStyles = {
@@ -78,6 +78,8 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
             ? "text-current"
             : "text-white";
 
+        const isSimpleContent = typeof children === 'string' || React.Children.count(children) === 1;
+
         return (
             <div className={cn(
                 "relative",
@@ -91,6 +93,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
                         sizeStyles[size],
                         variantStyles[variant],
                         (disabled || isLoading) && disabledStyles,
+                        !isSimpleContent && "!justify-start !items-start !text-left",
                         className
                     )}
                     disabled={disabled || isLoading}
@@ -98,12 +101,16 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
                     {...props}
                 >
                     {isLoading ? (
-                        <span className="flex items-center gap-2">
+                        <span className="inline-flex items-center justify-center gap-2">
                             <LoadingSpinner small className={spinnerColor} />
-                            {loadingText || children}
+                            <span className="text-center">{loadingText || children}</span>
                         </span>
-                    ) : (
+                    ) : isSimpleContent ? (
                         children
+                    ) : (
+                        <div className="w-full flex flex-col gap-1">
+                            {children}
+                        </div>
                     )}
                 </button>
 
