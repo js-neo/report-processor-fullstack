@@ -4,7 +4,8 @@ import {
     getAllReports,
     getWorkerPeriodReports,
     getObjectPeriodReports,
-    getUnfilledReportsForPeriod, updateReport
+    updateReport,
+    getAllReportsForPeriod
 } from '../controllers/reportController.js';
 
 const router = express.Router();
@@ -12,7 +13,7 @@ const router = express.Router();
 router.get('/', getAllReports);
 router.get('/workers/:workerId/period', getWorkerPeriodReports);
 router.get('/objects/:objectId/period', getObjectPeriodReports);
-router.get('/unfilled/:objectId/period', getUnfilledReportsForPeriod);
+router.get('/edit/:objectId/period', getAllReportsForPeriod);
 router.patch('/:reportId', updateReport);
 
 export default router;

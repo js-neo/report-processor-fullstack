@@ -6,7 +6,7 @@ import { validateDates, generateDailyHours } from "../utils/dateUtils.js";
 import { format } from "date-fns";
 import { IWorker } from "../models/Worker.js";
 import Object from "../models/Object.js";
-import { IObjectReportEmployee } from "shared";
+import {IObjectReportEmployee} from "shared";
 
 type IReportParams = {
     start: string;
@@ -15,6 +15,28 @@ type IReportParams = {
     | { workerId: string; objectId?: never }
     | { objectId: string; workerId?: never }
     );
+
+export interface ReportsResponse {
+    reports: IReport[];
+    total: number;
+    pagination: {
+        page: number;
+        limit: number;
+        totalPages: number;
+    };
+}
+
+interface DateRange {
+    start?: string;
+    end?: string;
+}
+
+interface QueryOptions {
+    page?: string | number;
+    limit?: string | number;
+    sort?: 'asc' | 'desc';
+    status?: 'all' | 'filled' | 'edit' | 'task' | 'workers' | 'time';
+}
 
 export const getAllReportService = async (): Promise<IReport[]> => {
     const reports = await Report.find()
@@ -241,89 +263,86 @@ export const getObjectPeriodReportsService = async ({
     };
 };
 
-interface DateRange {
-    start?: string;
-    end?: string;
-}
-
-interface QueryOptions {
-    page?: number;
-    limit?: number;
-    sort?: 'asc' | 'desc';
-    status?: 'task' | 'workers' | 'time' | 'all';
-}
-
-export const getUnfilledReportsService = async (
+export const getAllReportsForPeriodService = async (
     objectId: string,
-    dateRange?: DateRange,
-    options?: QueryOptions
-): Promise<{ reports: IReport[]; total: number }> => {
+    dateRange?: { start?: string; end?: string },
+    options?: {
+        page?: string | number;
+        limit?: string | number;
+        sort?: 'asc' | 'desc';
+        status?: 'all' | 'filled' | 'unfilled' | 'task' | 'workers' | 'time';
+    }
+): Promise<ReportsResponse> => {
+    console.log("objectId_server_service:", objectId);
     if (!objectId) {
-        throw new BadRequestError('objectName is required');
+        throw new BadRequestError('Объект не указан');
     }
 
-    const object = await Object.findOne({ objectId }).lean();
+    const page = typeof options?.page === 'string' ? parseInt(options.page) : options?.page ?? 1;
+    const limit = typeof options?.limit === 'string' ? parseInt(options.limit) : options?.limit ?? 10;
+    const sort = options?.sort ?? 'desc';
+    const status = options?.status ?? 'all';
 
-    console.log("objectId_server_service:", objectId);
+    if (isNaN(page)) throw new BadRequestError('Неверный параметр page');
+    if (isNaN(limit)) throw new BadRequestError('Неверный параметр limit');
+    if (page < 1) throw new BadRequestError('Номер страницы должен быть ≥ 1');
+    if (limit < 1 || limit > 100) throw new BadRequestError('Лимит должен быть 1-100');
+    if (!['asc', 'desc'].includes(sort)) throw new BadRequestError('Неверный параметр sort');
+
+    const object = await Object.findOne({ objectId }).lean();
     if (!object) {
         throw new NotFoundError("Объект не найден", { objectId });
     }
 
-    const page = options?.page ?? 1;
-    const limit = options?.limit ?? 10;
-    const sort = options?.sort ?? 'desc';
-    const status = options?.status ?? 'all';
+    const query: Record<string, any> = {
+        objectRef: object._id
+    };
 
-    const dateFilter: Record<string, any> = {};
     if (dateRange?.start && dateRange?.end) {
-        dateFilter.timestamp = {
+        query.timestamp = {
             $gte: new Date(dateRange.start),
             $lte: new Date(dateRange.end)
         };
     } else if (dateRange?.start) {
-        dateFilter.timestamp = { $gte: new Date(dateRange.start) };
+        query.timestamp = { $gte: new Date(dateRange.start) };
     } else if (dateRange?.end) {
-        dateFilter.timestamp = { $lte: new Date(dateRange.end) };
+        query.timestamp = { $lte: new Date(dateRange.end) };
     }
 
-    const statusFilter = [];
-    if (status === 'all' || status === 'task') {
-        statusFilter.push(
-            { 'analysis.task': '' },
-            { 'analysis.task': { $exists: false } },
-            { 'analysis.task': null }
-        );
+    switch (status) {
+        case 'filled':
+            query.$and = [
+                { 'analysis.task': { $exists: true, $ne: null, $nin: ['', undefined] } },
+                { 'analysis.workers': { $exists: true, $ne: null, $not: { $size: 0 } } },
+                { 'analysis.time': { $exists: true, $ne: null, $gt: 0 } }
+            ];
+            break;
+        case 'unfilled':
+            query.$or = [
+                { 'analysis.task': { $in: [null, '', undefined] } },
+                { 'analysis.workers': { $in: [null, undefined, []] } },
+                { 'analysis.time': { $in: [null, undefined, 0] } }
+            ];
+            break;
+        case 'task':
+            query.$or = [
+                { 'analysis.task': { $in: [null, '', undefined] } },
+                { 'analysis.task': { $exists: false } }
+            ];
+            break;
+        case 'workers':
+            query.$or = [
+                { 'analysis.workers': { $in: [null, undefined, []] } },
+                { 'analysis.workers': { $exists: false } }
+            ];
+            break;
+        case 'time':
+            query.$or = [
+                { 'analysis.time': { $in: [null, undefined, 0] } },
+                { 'analysis.time': { $exists: false } }
+            ];
+            break;
     }
-    if (status === 'all' || status === 'workers') {
-        statusFilter.push(
-            { 'analysis.workers': { $size: 0 } },
-            { 'analysis.workers': { $exists: false } },
-            { 'analysis.workers': null }
-        );
-    }
-    if (status === 'all' || status === 'time') {
-        statusFilter.push(
-            { 'analysis.time': 0 },
-            { 'analysis.time': { $exists: false } },
-            { 'analysis.time': null }
-        );
-    }
-
-    const query = {
-        objectRef: object._id,
-        $or: statusFilter.length ? statusFilter : [
-            { 'analysis.task': '' },
-            { 'analysis.task': { $exists: false } },
-            { 'analysis.task': null },
-            { 'analysis.workers': { $size: 0 } },
-            { 'analysis.workers': { $exists: false } },
-            { 'analysis.workers': null },
-            { 'analysis.time': 0 },
-            { 'analysis.time': { $exists: false } },
-            { 'analysis.time': null }
-        ],
-        ...dateFilter
-    };
 
     const [reports, total] = await Promise.all([
         Report.find(query)
@@ -331,11 +350,18 @@ export const getUnfilledReportsService = async (
             .skip((page - 1) * limit)
             .limit(limit)
             .lean<IReport[]>(),
-
         Report.countDocuments(query)
     ]);
 
-    return { reports, total };
+    return {
+        reports,
+        total,
+        pagination: {
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit)
+        }
+    };
 };
 
 export const updateReportService = async (

@@ -4,8 +4,7 @@ import { ParamsDictionary } from 'express-serve-static-core';
 import {
     getAllReportService,
     getObjectPeriodReportsService,
-    getWorkerPeriodReportsService,
-    getUnfilledReportsService, updateReportService
+    getWorkerPeriodReportsService, updateReportService, getAllReportsForPeriodService
 } from "../services/reportService.js";
 import { BadRequestError } from "../errors/errorClasses.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
@@ -112,20 +111,20 @@ export const getObjectPeriodReports = asyncHandler<
     }
 );
 
-interface UnfilledPeriodQuery {
+interface getAllReportsForPeriodQuery {
     start?: string;
     end?: string;
     page?: string;
     limit?: string;
     sort?: 'asc' | 'desc';
-    status?: 'task' | 'workers' | 'time' | 'all';
+    status?: 'all' | 'filled' | 'unfilled' | 'task' | 'workers' | 'time';
 }
 
-export const getUnfilledReportsForPeriod = asyncHandler<
+export const getAllReportsForPeriod = asyncHandler<
     { objectId: string },
     any,
     any,
-    UnfilledPeriodQuery
+    getAllReportsForPeriodQuery
 >(async (req, res) => {
     const { objectId } = req.params;
     const { start, end, page = '1', limit = '10', sort = 'desc', status = 'all' } = req.query;
@@ -136,46 +135,23 @@ export const getUnfilledReportsForPeriod = asyncHandler<
         throw new BadRequestError('Конечная дата должна быть позже начальной');
     }
 
-    const pageNum = parseInt(page);
-    const limitNum = parseInt(limit);
-
-    if (isNaN(pageNum) || pageNum < 1) throw new BadRequestError('Неверный параметр page');
-    if (isNaN(limitNum) || limitNum < 1 || limitNum > 100) {
-        throw new BadRequestError('Параметр limit должен быть между 1 и 100');
-    }
-
-    if (!['asc', 'desc'].includes(sort)) {
-        throw new BadRequestError('Параметр sort должен быть "asc" или "desc"');
-    }
-
-    if (!['all', 'task', 'workers', 'time'].includes(status)) {
-        throw new BadRequestError('Неверный параметр status');
-    }
-
-    const { reports, total } = await getUnfilledReportsService(
+    const result = await getAllReportsForPeriodService(
         objectId,
         { start, end },
-        {
-            page: pageNum,
-            limit: limitNum,
-            sort: sort as 'asc' | 'desc',
-            status: status as 'task' | 'workers' | 'time' | 'all'
-        }
+        { page, limit, sort, status }
     );
+
+    console.log("reports_controller: ", result);
 
     res.json({
         success: true,
-        data: reports.map(report => ({
+        data: result.reports.map(report => ({
             ...report,
             timestamp: report.timestamp.toISOString(),
             objectId
         })),
-        pagination: {
-            total,
-            page: pageNum,
-            limit: limitNum,
-            totalPages: Math.ceil(total / limitNum)
-        }
+        pagination: result.pagination,
+        total: result.total
     });
 });
 

@@ -6,11 +6,11 @@ import { useUser } from "@/stores/appStore";
 import { Button } from '@/components/UI/Button';
 import { EmployeeReportForm } from "@/app/dashboard/reports/components/EmployeeReportForm/EmployeeReportForm";
 import { ObjectReportForm } from "@/app/dashboard/reports/components/ObjectReportForm/ObjectReportForm";
-import {UnfilledReportsForm} from "@/app/dashboard/reports/components/UnfilledReportsForm/UnfilledReportsForm";
+import { EditReportsForm } from "@/app/dashboard/reports/components/EditReportsForm/EditReportsForm";
 
 export default function ReportsPage() {
     const user = useUser();
-    const [activeReportType, setActiveReportType] = useState<'employee' | 'object' | 'unfilled'>('employee');
+    const [activeReportType, setActiveReportType] = useState<'employee' | 'object' | 'edit'>('employee');
 
     if (!user?.objectRef) return null;
 
@@ -37,12 +37,12 @@ export default function ReportsPage() {
                 </Button>
 
                 <Button
-                    variant={activeReportType === 'unfilled' ? 'primary' : 'secondary'}
-                    onClick={() => setActiveReportType('unfilled')}
+                    variant={activeReportType === 'edit' ? 'primary' : 'secondary'}
+                    onClick={() => setActiveReportType('edit')}
                     className="w-full justify-start text-left px-4 py-3 h-auto"
                 >
-                    <span className="block font-medium">⚠️ Незаполненные</span>
-                    <span className="block text-sm opacity-75 mt-1">Список пропущенных отчётов</span>
+                    <span className="block font-medium">✏️ Редактировать</span>
+                    <span className="block text-sm opacity-75 mt-1">Редактирование всех отчётов</span>
                 </Button>
             </div>
 
@@ -52,14 +52,14 @@ export default function ReportsPage() {
                         <h3 className="text-2xl font-semibold">
                             {activeReportType === 'employee' && 'Отчёт по сотруднику'}
                             {activeReportType === 'object' && 'Отчёт по объекту'}
-                            {activeReportType === 'unfilled' && 'Незаполненные отчёты'}
+                            {activeReportType === 'edit' && 'Редактирование отчётов'}
                         </h3>
                     </div>
 
                     <div className="space-y-8">
                         {activeReportType === 'employee' && <EmployeeReportForm gridLayout />}
                         {activeReportType === 'object' && <ObjectReportForm gridLayout />}
-                        {activeReportType === 'unfilled' && <UnfilledReportsForm gridLayout />}
+                        {activeReportType === 'edit' && <EditReportsForm gridLayout />}
                     </div>
                 </div>
             </div>

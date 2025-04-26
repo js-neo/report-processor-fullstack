@@ -1,5 +1,4 @@
-// packages/client/src/app/dashboard/reports/components/UnfilledReportsForm/UnfilledReportsForm.tsx
-
+// packages/client/src/app/dashboard/reports/components/EditReportsForm/EditReportsForm.tsx
 'use client';
 
 import { useRouter } from 'next/navigation';
@@ -11,13 +10,13 @@ import { Select } from '@/components/UI/Select';
 import toast from "react-hot-toast";
 import {cn} from "@/utils";
 
-export const UnfilledReportsForm = ({ gridLayout = false }: { gridLayout?: boolean }) => {
+export const EditReportsForm = ({ gridLayout = false }: { gridLayout?: boolean }) => {
     const user = useUser();
     const error = useAuthError();
     const router = useRouter();
     const [startDate, setStartDate] = useState<string>('');
     const [endDate, setEndDate] = useState<string>('');
-    const [statusFilter, setStatusFilter] = useState<'all' | 'task' | 'workers' | 'time'>('all');
+    const [statusFilter, setStatusFilter] = useState<'all' | 'filled' | 'unfilled' | 'task' | 'workers' | 'time'>('all');
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
     const [limit, setLimit] = useState(10);
 
@@ -30,7 +29,7 @@ export const UnfilledReportsForm = ({ gridLayout = false }: { gridLayout?: boole
 
     const objectId = user?.objectRef?.objectId;
     const hasInvalidDates = (startDate && endDate) ? new Date(endDate) < new Date(startDate) : false;
-    const isFormValid = !objectId || !hasInvalidDates
+    const isFormValid = !objectId || !hasInvalidDates;
 
     useEffect(() => {
         if (error) {
@@ -55,8 +54,10 @@ export const UnfilledReportsForm = ({ gridLayout = false }: { gridLayout?: boole
         params.append('status', statusFilter);
         params.append('sort', sortOrder);
         params.append('limit', limit.toString());
+        params.append('page', '1');
 
-        router.push(`/reports/unfilled/${encodeURIComponent(objectId)}/period?${params.toString()}`);
+        const queryString = params.toString();
+        router.push(`/reports/edit/${encodeURIComponent(objectId)}/period${queryString ? `?${queryString}` : ''}`);
     };
 
     return (
@@ -79,9 +80,11 @@ export const UnfilledReportsForm = ({ gridLayout = false }: { gridLayout?: boole
                     <label className="block text-sm font-medium mb-2">Фильтр по статусу</label>
                     <Select
                         value={statusFilter}
-                        onChange={(e) => setStatusFilter(e.target.value as 'all' | 'task' | 'workers' | 'time')}
+                        onChange={(e) => setStatusFilter(e.target.value as 'all' | 'filled' | 'unfilled' | 'task' | 'workers' | 'time')}
                     >
-                        <option value="all">Все незаполненные</option>
+                        <option value="all">Все отчеты</option>
+                        <option value="filled">Все заполненные</option>
+                        <option value="unfilled">Все незаполненные</option>
                         <option value="task">Без задачи</option>
                         <option value="workers">Без рабочих</option>
                         <option value="time">Без времени</option>

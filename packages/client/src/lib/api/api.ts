@@ -76,53 +76,64 @@ export const fetchReports = async (
     }
 };
 
-export const fetchUnfilledReports = async (
-    objectId: string,
-    options?: {
+export const fetchAllReports = async (
+    params: {
+        objectId: string;
         startDate?: string;
         endDate?: string;
-        page?: number;
-        limit?: number;
+        page?: string;
+        limit?: string;
         sort?: 'asc' | 'desc';
-        status?: 'task' | 'workers' | 'time' | 'all';
+        status?: 'all' | 'filled' | 'unfilled' | 'task' | 'workers' | 'time';
     },
-    fetchOptions?: RequestInit
+    fetchOptions?: RequestInit & { signal?: AbortSignal }
 ): Promise<ApiListResponse<IReport>> => {
     try {
-        const params = new URLSearchParams();
+        const { objectId, ...options } = params;
+        const queryParams = new URLSearchParams();
 
-        if (options?.startDate) params.append('start', options.startDate);
-        if (options?.endDate) params.append('end', options.endDate);
-        if (options?.page) params.append('page', options.page.toString());
-        if (options?.limit) params.append('limit', options.limit.toString());
-        if (options?.sort) params.append('sort', options.sort);
-        if (options?.status) params.append('status', options.status);
-
-        const response = await fetch(
-            `${BASE_URL}/reports/unfilled/${encodeURIComponent(objectId)}/period?${params}`,
-            {
-                headers: getAuthHeaders(),
-                ...fetchOptions
+        Object.entries(options).forEach(([key, value]) => {
+            if (value !== undefined) {
+                queryParams.append(key, value);
             }
-        );
+        });
 
-        const data = await handleApiError<{
+        const url = `${BASE_URL}/reports/edit/${encodeURIComponent(objectId)}/period?${queryParams.toString()}`;
+        const response = await fetch(url, {
+            headers: getAuthHeaders(),
+            ...fetchOptions,
+            signal: fetchOptions?.signal
+        });
+
+        const responseData = await handleApiError<{
+            success: boolean;
             data: IReport[];
             pagination: {
-                total: number;
                 page: number;
                 limit: number;
                 totalPages: number;
-            }
+            };
+            total: number;
         }>(response);
 
         return {
-            data: data.data,
-            ...data.pagination
+            data: responseData.data,
+            total: responseData.total,
+            page: responseData.pagination.page,
+            limit: responseData.pagination.limit,
+            totalPages: responseData.pagination.totalPages
         };
     } catch (error) {
-        console.error('Error fetching unfilled reports:', error);
-        throw error;
+        if (error instanceof Error) {
+            if (error.name === 'AbortError') {
+                console.log('Request was aborted');
+                throw error;
+            }
+            console.error('Error fetching edit reports:', error.message);
+            throw new Error(`Failed to fetch reports: ${error.message}`);
+        }
+        console.error('Unknown error fetching reports:', error);
+        throw new Error('Unknown error occurred while fetching reports');
     }
 };
 

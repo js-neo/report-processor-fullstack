@@ -1,50 +1,102 @@
 // packages/client/src/components/UI/Pagination.tsx
-'use client';
 
-import React from 'react';
-import { Button } from './Button';
+import React, { memo, useCallback } from "react";
+import { Button } from "./Button";
+import { Select } from "./Select";
 import { cn } from "@/utils";
 
 interface PaginationProps {
     currentPage: number;
     totalPages: number;
     onPageChangeAction: (page: number) => void;
+    itemsPerPage?: number;
+    onItemsPerPageChange?: (limit: number) => void;
     className?: string;
+    itemsPerPageOptions?: number[];
 }
 
-export const Pagination = ({
-                               currentPage,
-                               totalPages,
-                               onPageChangeAction,
-                               className = ''
-                           }: PaginationProps) => {
-    if (totalPages <= 1) return null;
+export const Pagination = memo(
+    ({
+         currentPage,
+         totalPages,
+         onPageChangeAction,
+         itemsPerPage,
+         onItemsPerPageChange,
+         className = "",
+         itemsPerPageOptions = [10, 25, 50, 100],
+     }: PaginationProps) => {
+        const handlePrev = useCallback(() => {
+            onPageChangeAction(Math.max(1, currentPage - 1));
+        }, [currentPage, onPageChangeAction]);
 
-    return (
-        <div className={cn("flex justify-center items-center gap-4", className)}>
-            <Button
-                variant="secondary"
-                size="sm"
-                onClick={() => onPageChangeAction(currentPage - 1)}
-                disabled={currentPage === 1}
-                aria-label="Предыдущая страница"
+        const handleNext = useCallback(() => {
+            onPageChangeAction(Math.min(totalPages, currentPage + 1));
+        }, [currentPage, totalPages, onPageChangeAction]);
+
+        const handleLimitChange = useCallback(
+            (e: React.ChangeEvent<HTMLSelectElement>) => {
+                onItemsPerPageChange?.(Number(e.target.value));
+            },
+            [onItemsPerPageChange]
+        );
+
+        if (totalPages <= 1) return null;
+
+        return (
+            <div
+                className={cn(
+                    "flex flex-col sm:flex-row justify-between items-center gap-4",
+                    className
+                )}
             >
-                Назад
-            </Button>
-
+                {itemsPerPage && onItemsPerPageChange && (
+                    <div className="flex items-center gap-2">
             <span className="text-sm text-gray-700 dark:text-gray-300">
-                Страница <span className="font-medium">{currentPage}</span> из <span className="font-medium">{totalPages}</span>
+              Items per page:
             </span>
+                        <Select
+                            value={itemsPerPage.toString()}
+                            onChange={handleLimitChange}
+                            className="w-20"
+                        >
+                            {itemsPerPageOptions.map((option) => (
+                                <option key={option} value={option.toString()}>
+                                    {option}
+                                </option>
+                            ))}
+                        </Select>
+                    </div>
+                )}
 
-            <Button
-                variant="secondary"
-                size="sm"
-                onClick={() => onPageChangeAction(currentPage + 1)}
-                disabled={currentPage === totalPages}
-                aria-label="Следующая страница"
-            >
-                Вперед
-            </Button>
-        </div>
-    );
-};
+                <div className="flex items-center gap-4">
+                    <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={handlePrev}
+                        disabled={currentPage === 1}
+                        aria-label="Previous page"
+                    >
+                        Previous
+                    </Button>
+
+                    <span className="text-sm text-gray-700 dark:text-gray-300">
+            Page <span className="font-medium">{currentPage}</span> of{" "}
+                        <span className="font-medium">{totalPages}</span>
+          </span>
+
+                    <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={handleNext}
+                        disabled={currentPage === totalPages}
+                        aria-label="Next page"
+                    >
+                        Next
+                    </Button>
+                </div>
+            </div>
+        );
+    }
+);
+
+Pagination.displayName = "Pagination";
