@@ -1,3 +1,5 @@
+// packages/client/src/app/dashboard/components/EmployeesManagement/EmployeesManagement.tsx
+
 'use client';
 
 import toast from 'react-hot-toast';

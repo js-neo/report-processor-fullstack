@@ -3,64 +3,47 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import React, { useState } from 'react';
+import React from 'react';
+import { useForm } from 'react-hook-form';
 import { signUp } from '@/services/authService';
 import { useObjects } from '@/hooks/useReports';
 import DynamicDropdown from "@/components/UI/Dropdown/DynamicDropdown";
 import { useAuthActions } from "@/stores/appStore";
 import { Button } from "@/components/UI/Button";
 
-export default function RegisterPage() {
-    const [fullName, setFullName] = useState('');
-    const [telegramUsername, setTelegramUsername] = useState('');
-    const [position, setPosition] = useState('');
-    const [phone, setPhone] = useState('');
-    const [password, setPassword] = useState('');
-    const [selectedObject, setSelectedObject] = useState('');
-    const [error, setError] = useState('');
-    const [isSubmitting, setIsSubmitting] = useState(false);
+type FormData = {
+    fullName: string;
+    telegramUsername: string;
+    position: string;
+    phone: string;
+    password: string;
+    selectedObject: string;
+};
 
+export default function RegisterPage() {
     const router = useRouter();
     const { objects, loading: objectsLoading, error: objectsError } = useObjects();
     const { login } = useAuthActions();
 
-    const isFormValid = (
-        fullName.trim() !== '' &&
-        telegramUsername.trim() !== '' &&
-        position.trim() !== '' &&
-        phone.trim() !== '' &&
-        password.trim() !== '' &&
-        selectedObject.trim() !== ''
-    );
+    const { register, handleSubmit, setValue, formState: { errors } } = useForm<FormData>();
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-
-        if (!isFormValid) return;
-
-        setIsSubmitting(true);
-        setError('');
-
+    const onSubmit = async (data: FormData) => {
         try {
-            const { data } = await signUp({
-                fullName,
-                telegram_username: telegramUsername,
-                position,
-                phone,
-                password,
-                objectRef: selectedObject
+            const { data: responseData } = await signUp({
+                fullName: data.fullName,
+                telegram_username: data.telegramUsername,
+                position: data.position,
+                phone: data.phone,
+                password: data.password,
+                objectRef: data.selectedObject
             });
 
-            login(data.user, data.accessToken);
+            login(responseData.user, responseData.accessToken);
             router.push("/dashboard");
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'Ошибка регистрации');
-        } finally {
-            setIsSubmitting(false);
+            console.error(err);
         }
     };
-
-    const formDisabled = isSubmitting || objectsLoading || !isFormValid;
 
     return (
         <div className="max-w-2xl mx-auto mt-10 p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
@@ -68,7 +51,7 @@ export default function RegisterPage() {
                 Регистрация
             </h2>
 
-            <form onSubmit={handleSubmit} className={`space-y-6 ${isSubmitting ? 'cursor-wait' : ''}`}>
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                 <div className="space-y-4">
                     <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -76,14 +59,10 @@ export default function RegisterPage() {
                         </label>
                         <input
                             type="text"
-                            className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500
-                                dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                            value={fullName}
-                            onChange={(e) => setFullName(e.target.value)}
-                            disabled={isSubmitting || objectsLoading}
-                            placeholder="Иванов Иван Иванович"
-                            required
+                            className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                            {...register('fullName', { required: 'Полное имя обязательно' })}
                         />
+                        {errors.fullName && <p className="text-red-500">{errors.fullName.message}</p>}
                     </div>
 
                     <div>
@@ -92,14 +71,10 @@ export default function RegisterPage() {
                         </label>
                         <input
                             type="text"
-                            className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500
-                                dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                            value={telegramUsername}
-                            onChange={(e) => setTelegramUsername(e.target.value)}
-                            disabled={isSubmitting || objectsLoading}
-                            placeholder="@username"
-                            required
+                            className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                            {...register('telegramUsername', { required: 'Telegram username обязателен' })}
                         />
+                        {errors.telegramUsername && <p className="text-red-500">{errors.telegramUsername.message}</p>}
                     </div>
 
                     <div>
@@ -108,14 +83,10 @@ export default function RegisterPage() {
                         </label>
                         <input
                             type="text"
-                            className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500
-                                dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                            value={position}
-                            onChange={(e) => setPosition(e.target.value)}
-                            disabled={isSubmitting || objectsLoading}
-                            placeholder="Прораб"
-                            required
+                            className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                            {...register('position', { required: 'Должность обязательна' })}
                         />
+                        {errors.position && <p className="text-red-500">{errors.position.message}</p>}
                     </div>
 
                     <div>
@@ -124,14 +95,10 @@ export default function RegisterPage() {
                         </label>
                         <input
                             type="text"
-                            className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500
-                                dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                            value={phone}
-                            onChange={(e) => setPhone(e.target.value)}
-                            disabled={isSubmitting || objectsLoading}
-                            placeholder="89991234567"
-                            required
+                            className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                            {...register('phone', { required: 'Номер телефона обязателен' })}
                         />
+                        {errors.phone && <p className="text-red-500">{errors.phone.message}</p>}
                     </div>
 
                     <div>
@@ -140,15 +107,10 @@ export default function RegisterPage() {
                         </label>
                         <input
                             type="password"
-                            className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500
-                                dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            disabled={isSubmitting || objectsLoading}
-                            placeholder="Не менее 8 символов"
-                            required
-                            minLength={8}
+                            className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                            {...register('password', { required: 'Пароль обязателен', minLength: { value: 8, message: 'Пароль должен содержать не менее 8 символов' } })}
                         />
+                        {errors.password && <p className="text-red-500">{errors.password.message}</p>}
                     </div>
 
                     <div>
@@ -158,19 +120,19 @@ export default function RegisterPage() {
                         <DynamicDropdown
                             type="object"
                             data={objects}
-                            selectedValue={selectedObject}
-                            onChange={setSelectedObject}
+                            selectedValue=""
+                            onChange={(value) => setValue('selectedObject', value)} // Устанавливаем значение поля selectedObject
                             placeholder="Выберите объект"
                             loading={objectsLoading}
                             error={objectsError || undefined}
                         />
+                        {errors.selectedObject && <p className="text-red-500">{errors.selectedObject.message}</p>}
                     </div>
                 </div>
 
-                {(error || objectsError) && (
+                {objectsError && (
                     <div className="space-y-1">
-                        {error && <p className="text-red-500 dark:text-red-400 text-sm text-center">{error}</p>}
-                        {objectsError && <p className="text-red-500 dark:text-red-400 text-sm text-center">{objectsError}</p>}
+                        <p className="text-red-500 dark:text-red-400 text-sm text-center">{objectsError}</p>
                     </div>
                 )}
 
@@ -178,10 +140,7 @@ export default function RegisterPage() {
                     type="submit"
                     variant="primary"
                     className="w-full"
-                    isLoading={isSubmitting}
-                    loadingText="Регистрация..."
-                    disabled={formDisabled}
-                    tooltip="Заполните все обязательные поля"
+                    disabled={objectsLoading}
                 >
                     Зарегистрироваться
                 </Button>
@@ -192,7 +151,7 @@ export default function RegisterPage() {
                         type="button"
                         onClick={() => router.push('/auth/login')}
                         className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium cursor-pointer"
-                        disabled={isSubmitting || objectsLoading}
+                        disabled={objectsLoading}
                     >
                         Войдите здесь
                     </button>

@@ -30,6 +30,7 @@
     "react-hot-toast": "^2.5.2",
     "@heroicons/react": "^2.2.0",
     "date-fns-tz": "^3.2.0",
+    "react-hook-form": "^7.56.1",
     "shared": "file:../shared"
   },
   "devDependencies": {

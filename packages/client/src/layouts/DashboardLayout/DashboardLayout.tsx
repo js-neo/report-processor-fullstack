@@ -1,19 +1,24 @@
 // packages/client/src/layouts/DashboardLayout/DashboardLayout.tsx
-
 'use client';
 
 import { usePathname, useRouter } from 'next/navigation';
 import LoadingSpinner from '@/components/Common/LoadingSpinner';
 import { cn } from '@/utils/utils';
 import Link from 'next/link';
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import {useAuthState, useIsAuthenticated} from "@/stores/appStore";
 
-const tabs = [
+const baseTabs = [
     { id: 'profile', label: 'Профиль', path: '/dashboard/profile' },
     { id: 'employees', label: 'Сотрудники', path: '/dashboard/workers' },
     { id: 'reports', label: 'Отчеты', path: '/dashboard/reports' },
 ];
+
+const adminTab = {
+    id: 'create',
+    label: 'Создать',
+    path: '/dashboard/create'
+};
 
 export const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
     const router = useRouter();
@@ -21,13 +26,20 @@ export const DashboardLayout = ({ children }: { children: React.ReactNode }) => 
     const { user, isLoading: authLoading, error } = useAuthState();
     const isAuthenticated = useIsAuthenticated();
 
+    const tabs = useMemo(() => {
+        if (user?.role === 'admin') {
+            return [...baseTabs, adminTab];
+        }
+        return baseTabs;
+    }, [user?.role]);
+
+    const activeTab = tabs.find(tab => pathname.startsWith(tab.path))?.id || 'profile';
+
     useEffect(() => {
         if (!authLoading && !isAuthenticated) {
             router.push('/auth/login');
         }
     }, [authLoading, isAuthenticated, router]);
-
-    const activeTab = tabs.find(tab => pathname.startsWith(tab.path))?.id || 'profile';
 
     if (authLoading) {
         return (
@@ -64,6 +76,7 @@ export const DashboardLayout = ({ children }: { children: React.ReactNode }) => 
                     <h1 className="text-2xl font-bold dark:text-white">Личный кабинет</h1>
                     <div className="text-right">
                         <p className="text-lg font-medium dark:text-gray-100">{user.fullName}</p>
+                        <p className="text-lg font-medium dark:text-gray-100">{user.role}</p>
                         <p className="text-sm text-gray-500 dark:text-gray-400">
                             Объект: {getObjectName()}
                         </p>
