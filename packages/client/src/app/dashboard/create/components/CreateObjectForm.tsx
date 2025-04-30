@@ -90,7 +90,6 @@ export function CreateObjectForm({ onSuccess }: { onSuccess?: () => void }) {
             <div className="flex gap-2 pt-2">
             <Button
                 type="submit"
-                className="mt-4"
                 isLoading={isSubmitting}
                     >
                 Создать объект

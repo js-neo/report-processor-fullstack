@@ -52,7 +52,7 @@ export const Pagination = memo(
                 {itemsPerPage && onItemsPerPageChange && (
                     <div className="flex items-center gap-2">
             <span className="text-sm text-gray-700 dark:text-gray-300">
-              Items per page:
+              Отчётов на странице:
             </span>
                         <Select
                             value={itemsPerPage.toString()}
@@ -76,7 +76,7 @@ export const Pagination = memo(
                         disabled={currentPage === 1}
                         aria-label="Previous page"
                     >
-                        Previous
+                        Предыдущие
                     </Button>
 
                     <span className="text-sm text-gray-700 dark:text-gray-300">
@@ -91,7 +91,7 @@ export const Pagination = memo(
                         disabled={currentPage === totalPages}
                         aria-label="Next page"
                     >
-                        Next
+                        Следующие
                     </Button>
                 </div>
             </div>

@@ -69,6 +69,10 @@ export const DashboardLayout = ({ children }: { children: React.ReactNode }) => 
         }
     };
 
+    const getUserRole = (userRole: string ) => {
+        return userRole === 'admin' ? 'Администратор' : 'Руководитель'
+    }
+
     return (
         <div className="min-h-screen bg-gray-100 dark:bg-gray-800">
             <header className="bg-gray-50 dark:bg-gray-900 shadow-sm">
@@ -76,7 +80,7 @@ export const DashboardLayout = ({ children }: { children: React.ReactNode }) => 
                     <h1 className="text-2xl font-bold dark:text-white">Личный кабинет</h1>
                     <div className="text-right">
                         <p className="text-lg font-medium dark:text-gray-100">{user.fullName}</p>
-                        <p className="text-lg font-medium dark:text-gray-100">{user.role}</p>
+                        <p className="text-lg font-medium dark:text-gray-100">{getUserRole(user.role)}</p>
                         <p className="text-sm text-gray-500 dark:text-gray-400">
                             Объект: {getObjectName()}
                         </p>

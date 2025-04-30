@@ -59,6 +59,7 @@ export default function RegisterPage() {
                         </label>
                         <input
                             type="text"
+                            placeholder="Иванов Иван Иванович"
                             className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                             {...register('fullName', { required: 'Полное имя обязательно' })}
                         />
@@ -71,6 +72,7 @@ export default function RegisterPage() {
                         </label>
                         <input
                             type="text"
+                            placeholder="@username"
                             className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                             {...register('telegramUsername', { required: 'Telegram username обязателен' })}
                         />
@@ -83,6 +85,7 @@ export default function RegisterPage() {
                         </label>
                         <input
                             type="text"
+                            placeholder="Прораб"
                             className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                             {...register('position', { required: 'Должность обязательна' })}
                         />
@@ -95,6 +98,7 @@ export default function RegisterPage() {
                         </label>
                         <input
                             type="text"
+                            placeholder="89991234567"
                             className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                             {...register('phone', { required: 'Номер телефона обязателен' })}
                         />
@@ -107,6 +111,7 @@ export default function RegisterPage() {
                         </label>
                         <input
                             type="password"
+                            placeholder="Не менее 8 символов"
                             className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                             {...register('password', { required: 'Пароль обязателен', minLength: { value: 8, message: 'Пароль должен содержать не менее 8 символов' } })}
                         />
