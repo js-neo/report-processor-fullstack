@@ -3,13 +3,13 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { signUp } from '@/services/authService';
 import { useObjects } from '@/hooks/useObject';
-import DynamicDropdown from "@/components/UI/Dropdown/DynamicDropdown";
 import { useAuthActions } from "@/stores/appStore";
 import { Button } from "@/components/UI/Button";
+import { Select } from "@/components/UI/Select";
 
 type FormData = {
     fullName: string;
@@ -24,10 +24,35 @@ export default function RegisterPage() {
     const router = useRouter();
     const { objects, loading: objectsLoading, error: objectsError } = useObjects();
     const { login } = useAuthActions();
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [submitError, setSubmitError] = useState('');
 
-    const { register, handleSubmit, setValue, formState: { errors } } = useForm<FormData>();
+    const {
+        register,
+        handleSubmit,
+        setValue,
+        watch,
+        formState: { errors, isValid }
+    } = useForm<FormData>({
+        mode: 'onChange',
+        defaultValues: {
+            selectedObject: ""
+        }
+    });
+
+    const selectedObjectValue = watch('selectedObject');
+    const formDisabled = isSubmitting || objectsLoading || !isValid;
+
+    useEffect(() => {
+        if (objects.length > 0 && !selectedObjectValue) {
+            setValue('selectedObject', objects[0]._id);
+        }
+    }, [objects, setValue, selectedObjectValue]);
 
     const onSubmit = async (data: FormData) => {
+        setIsSubmitting(true);
+        setSubmitError('');
+
         try {
             const { data: responseData } = await signUp({
                 fullName: data.fullName,
@@ -41,7 +66,10 @@ export default function RegisterPage() {
             login(responseData.user, responseData.accessToken);
             router.push("/dashboard");
         } catch (err) {
+            setSubmitError(err instanceof Error ? err.message : 'Ошибка регистрации');
             console.error(err);
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -51,7 +79,7 @@ export default function RegisterPage() {
                 Регистрация
             </h2>
 
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+            <form onSubmit={handleSubmit(onSubmit)} className={`space-y-6 ${isSubmitting ? 'cursor-wait' : ''}`}>
                 <div className="space-y-4">
                     <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -61,7 +89,11 @@ export default function RegisterPage() {
                             type="text"
                             placeholder="Иванов Иван Иванович"
                             className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                            {...register('fullName', { required: 'Полное имя обязательно' })}
+                            disabled={isSubmitting || objectsLoading}
+                            {...register('fullName', {
+                                required: 'Полное имя обязательно',
+                                onChange: () => setSubmitError('')
+                            })}
                         />
                         {errors.fullName && <p className="text-red-500">{errors.fullName.message}</p>}
                     </div>
@@ -74,7 +106,11 @@ export default function RegisterPage() {
                             type="text"
                             placeholder="@username"
                             className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                            {...register('telegramUsername', { required: 'Telegram username обязателен' })}
+                            disabled={isSubmitting || objectsLoading}
+                            {...register('telegramUsername', {
+                                required: 'Telegram username обязателен',
+                                onChange: () => setSubmitError('')
+                            })}
                         />
                         {errors.telegramUsername && <p className="text-red-500">{errors.telegramUsername.message}</p>}
                     </div>
@@ -87,7 +123,11 @@ export default function RegisterPage() {
                             type="text"
                             placeholder="Прораб"
                             className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                            {...register('position', { required: 'Должность обязательна' })}
+                            disabled={isSubmitting || objectsLoading}
+                            {...register('position', {
+                                required: 'Должность обязательна',
+                                onChange: () => setSubmitError('')
+                            })}
                         />
                         {errors.position && <p className="text-red-500">{errors.position.message}</p>}
                     </div>
@@ -100,7 +140,11 @@ export default function RegisterPage() {
                             type="text"
                             placeholder="89991234567"
                             className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                            {...register('phone', { required: 'Номер телефона обязателен' })}
+                            disabled={isSubmitting || objectsLoading}
+                            {...register('phone', {
+                                required: 'Номер телефона обязателен',
+                                onChange: () => setSubmitError('')
+                            })}
                         />
                         {errors.phone && <p className="text-red-500">{errors.phone.message}</p>}
                     </div>
@@ -113,7 +157,15 @@ export default function RegisterPage() {
                             type="password"
                             placeholder="Не менее 8 символов"
                             className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                            {...register('password', { required: 'Пароль обязателен', minLength: { value: 8, message: 'Пароль должен содержать не менее 8 символов' } })}
+                            disabled={isSubmitting || objectsLoading}
+                            {...register('password', {
+                                required: 'Пароль обязателен',
+                                minLength: {
+                                    value: 8,
+                                    message: 'Пароль должен содержать не менее 8 символов'
+                                },
+                                onChange: () => setSubmitError('')
+                            })}
                         />
                         {errors.password && <p className="text-red-500">{errors.password.message}</p>}
                     </div>
@@ -122,22 +174,46 @@ export default function RegisterPage() {
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                             Объект
                         </label>
-                        <DynamicDropdown
-                            type="object"
-                            data={objects}
-                            selectedValue=""
-                            onChange={(value) => setValue('selectedObject', value)} // Устанавливаем значение поля selectedObject
-                            placeholder="Выберите объект"
-                            loading={objectsLoading}
-                            error={objectsError || undefined}
-                        />
-                        {errors.selectedObject && <p className="text-red-500">{errors.selectedObject.message}</p>}
+                        {objectsLoading ? (
+                            <div className="p-2 border rounded-md bg-gray-50 dark:bg-gray-700">
+                                Загрузка объектов...
+                            </div>
+                        ) : objectsError ? (
+                            <div className="text-red-500 dark:text-red-400">
+                                {objectsError}
+                            </div>
+                        ) : (
+                            <Select
+                                {...register('selectedObject', {
+                                    required: 'Объект обязателен',
+                                    onChange: () => setSubmitError('')
+                                })}
+                                value={selectedObjectValue}
+                                onChange={(e) => setValue('selectedObject', e.target.value)}
+                                disabled={isSubmitting || objectsLoading}
+                            >
+                                <option value="" disabled>
+                                    Выберите объект
+                                </option>
+                                {objects
+                                    .sort((a, b) => a.name.localeCompare(b.name))
+                                    .map((object) => (
+                                        <option key={object._id} value={object._id}>
+                                            {object.name}
+                                        </option>
+                                    ))}
+                            </Select>
+                        )}
+                        {errors.selectedObject && (
+                            <p className="text-red-500">{errors.selectedObject.message}</p>
+                        )}
                     </div>
                 </div>
 
-                {objectsError && (
+                {(submitError || objectsError) && (
                     <div className="space-y-1">
-                        <p className="text-red-500 dark:text-red-400 text-sm text-center">{objectsError}</p>
+                        {submitError && <p className="text-red-500 dark:text-red-400 text-sm text-center">{submitError}</p>}
+                        {objectsError && <p className="text-red-500 dark:text-red-400 text-sm text-center">{objectsError}</p>}
                     </div>
                 )}
 
@@ -145,7 +221,10 @@ export default function RegisterPage() {
                     type="submit"
                     variant="primary"
                     className="w-full"
-                    disabled={objectsLoading}
+                    isLoading={isSubmitting}
+                    loadingText="Регистрация..."
+                    disabled={formDisabled}
+                    tooltip={!isValid ? "Заполните все обязательные поля" : undefined}
                 >
                     Зарегистрироваться
                 </Button>
@@ -156,7 +235,7 @@ export default function RegisterPage() {
                         type="button"
                         onClick={() => router.push('/auth/login')}
                         className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium cursor-pointer"
-                        disabled={objectsLoading}
+                        disabled={isSubmitting || objectsLoading}
                     >
                         Войдите здесь
                     </button>
