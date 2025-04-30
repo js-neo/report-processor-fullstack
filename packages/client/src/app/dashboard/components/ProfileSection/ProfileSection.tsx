@@ -2,7 +2,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useObjects } from '@/hooks/useReports';
+import { useObjects } from '@/hooks/useObject';
 import { Button } from '@/components/UI/Button';
 import { Select } from '@/components/UI/Select';
 import {useUser, useAuthActions} from "@/stores/appStore";

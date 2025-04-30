@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation';
 import LoadingSpinner from '@/components/Common/LoadingSpinner';
 import { CreateWorkerForm } from './components/CreateWorkerForm';
 import { UserIcon, BuildingOfficeIcon } from '@heroicons/react/24/outline';
+import {CreateObjectForm} from "@/app/dashboard/create/components/CreateObjectForm";
 
 export default function CreatePage() {
     const [activeTab, setActiveTab] = useState<'worker' | 'object'>('worker');
@@ -79,7 +80,7 @@ export default function CreatePage() {
 
             <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm p-6 transition-all duration-200">
                 {activeTab === 'worker' && <CreateWorkerForm />}
-                {/* {activeTab === 'object' && <CreateObjectForm />} */}
+                {activeTab === 'object' && <CreateObjectForm />}
             </div>
         </div>
     );

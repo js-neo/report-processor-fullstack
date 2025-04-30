@@ -5,7 +5,7 @@
 import { useForm } from 'react-hook-form';
 import { Button } from '@/components/UI/Button';
 import { Input } from '@/components/UI/Input';
-import { useObjects } from '@/hooks/useReports';
+import { useObjects } from '@/hooks/useObject';
 import { toast } from 'react-hot-toast';
 import { cn } from "@/utils";
 import { useRouter } from 'next/navigation';

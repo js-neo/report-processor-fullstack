@@ -5,10 +5,9 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import {
     fetchEmployeeReports,
-    fetchObjectReport,
-    fetchObjects
+    fetchObjectReport
 } from '@/lib/api';
-import {EmployeeReportsResponse, IObject, ObjectReportResponse} from "shared";
+import {EmployeeReportsResponse, ObjectReportResponse} from "shared";
 
 type ReportParams =
     | {
@@ -140,31 +139,5 @@ export const useReports = <T extends ReportParams>(params: T): ReportState<T> =>
 };
 
 
-export const useObjects = () => {
-    const [objects, setObjects] = useState<IObject[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
 
-    useEffect(() => {
-        const loadData = async () => {
-            try {
-                const response = await fetchObjects();
-                setObjects(response.data);
-
-            } catch (err) {
-                if (err instanceof Error) {
-                    setError(err.message || 'Ошибка загрузки данных');
-                } else {
-                    setError('Ошибка загрузки данных');
-                }
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        loadData();
-    }, []);
-
-    return { objects, loading, error };
-};
 

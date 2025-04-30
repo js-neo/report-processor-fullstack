@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { signUp } from '@/services/authService';
-import { useObjects } from '@/hooks/useReports';
+import { useObjects } from '@/hooks/useObject';
 import DynamicDropdown from "@/components/UI/Dropdown/DynamicDropdown";
 import { useAuthActions } from "@/stores/appStore";
 import { Button } from "@/components/UI/Button";

@@ -1,4 +1,3 @@
-/*
 'use client';
 
 import { CreateObjectForm } from '../components/CreateObjectForm';
@@ -17,8 +16,8 @@ export default function CreateObjectPage() {
     return (
         <div className="space-y-6">
             <CreateObjectForm
-                onSuccess={() => router.push('/dashboard/objects')}
+                onSuccess={() => router.push('/dashboard')}
             />
         </div>
     );
-}*/
+}

@@ -6,15 +6,9 @@ interface IObject extends Document {
     objectId: string;
     name: string;
     address: string;
-    coordinates: string;
-    managers: Types.ObjectId[];
-    workers: Types.ObjectId[];
+    coordinates?: string;
     created_at: Date;
     updated_at: Date;
-}
-
-function convertObjectIdsToStrings(ids?: Types.ObjectId[]): string[] {
-    return ids?.map((id: Types.ObjectId) => id.toString()) || [];
 }
 
 const ObjectSchema = new Schema<IObject>(
@@ -39,16 +33,8 @@ const ObjectSchema = new Schema<IObject>(
         },
         coordinates: {
             type: String,
-            required: true
-        },
-        managers: [{
-            type: Schema.Types.ObjectId,
-            ref: 'Manager'
-        }],
-        workers: [{
-            type: Schema.Types.ObjectId,
-            ref: 'Worker'
-        }]
+            required: false
+        }
     },
     {
         timestamps: {
@@ -65,8 +51,6 @@ const ObjectSchema = new Schema<IObject>(
                     name: ret.name,
                     address: ret.address,
                     coordinates: ret.coordinates,
-                    managers: convertObjectIdsToStrings(ret.managers),
-                    workers: convertObjectIdsToStrings(ret.workers),
                     created_at: ret.created_at,
                     updated_at: ret.updated_at
                 };

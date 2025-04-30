@@ -2,3 +2,4 @@
 
 export * from "./api"
 export * from "./workerAPI"
+export * from "./objectAPI"

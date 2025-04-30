@@ -1,6 +1,6 @@
 // packages/client/src/lib/api.ts
 
-import {EmployeeReportsResponse, IObject, IReport, ObjectReportResponse} from "shared";
+import {EmployeeReportsResponse, IReport, ObjectReportResponse} from "shared";
 import {getAuthHeaders, handleApiError, ApiListResponse} from "@/lib/utils/apiUtils";
 import {BASE_URL} from "@/config";
 
@@ -43,19 +43,6 @@ export const fetchObjectReport = async (
             ...options
         }
     );
-
-    return handleApiError(response);
-};
-
-
-export const fetchObjects = async (
-    options?: RequestInit
-): Promise<ApiListResponse<IObject>> => {
-    const response = await fetch(`${BASE_URL}/objects`, {
-        headers: getAuthHeaders(),
-        credentials: 'include',
-        ...options
-    });
 
     return handleApiError(response);
 };
