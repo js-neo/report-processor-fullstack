@@ -9,7 +9,7 @@ import {
 } from '../errors/errorClasses.js';
 import jwt from 'jsonwebtoken';
 import { ObjectId } from 'mongodb';
-import {generateBaseId_2, getUniqueId} from "shared";
+import {generateBaseId, getUniqueId} from "shared";
 
 const JWT_SECRET = process.env.JWT_SECRET as string;
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '1h';
@@ -34,6 +34,17 @@ interface TokenPayload {
     phone: string;
     role: string;
 }
+
+export const normalizePhoneNumber = (phone: string): string => {
+    const digitsOnly = phone.replace(/\D/g, '');
+    if (digitsOnly.length !== 11) {
+        throw new BadRequestError('Номер должен содержать 11 цифр');
+    }
+    if (!/^[78]/.test(digitsOnly)) {
+        throw new BadRequestError('Номер должен начинаться с 7 или 8');
+    }
+    return digitsOnly.startsWith('7') ? '8' + digitsOnly.slice(1) : digitsOnly;
+};
 
 const getJwtOptions = (): jwt.SignOptions => ({
     expiresIn: JWT_EXPIRES_IN as jwt.SignOptions['expiresIn']
@@ -69,20 +80,25 @@ export const registerManager = async (
     objectRef: string
 ): Promise<AuthResponse> => {
     const normalizedUsername = telegram_username.replace(/^@/, '');
+    const normalizedPhone = normalizePhoneNumber(phone);
 
     if (password.length < 8) {
-        throw new BadRequestError('Password must be at least 8 characters');
+        throw new BadRequestError('Пароль должен быть не менее 8 символов');
     }
 
-    const existingManager = await Manager.findOne({
-        'auth.telegram_username': normalizedUsername
-    });
+    const [existingManager, existingPhone] = await Promise.all([
+        Manager.findOne({ 'auth.telegram_username': normalizedUsername }),
+        Manager.findOne({ 'profile.phone': normalizedPhone })
+    ]);
 
     if (existingManager) {
-        throw new BadRequestError('Telegram username already exists');
+        throw new BadRequestError('Имя пользователя телеграмм уже используется');
+    }
+    if (existingPhone) {
+        throw new BadRequestError('Номер телефона уже зарегистрирован');
     }
 
-    const baseId = generateBaseId_2(fullName);
+    const baseId = generateBaseId(fullName);
     const managerId = await getUniqueId(baseId, Manager, "managerId");
 
     const manager = new Manager({
@@ -95,7 +111,7 @@ export const registerManager = async (
         profile: {
             fullName,
             position,
-            phone,
+            phone: normalizedPhone,
             objectRef: new ObjectId(objectRef),
             role: 'manager'
         }
@@ -111,7 +127,7 @@ export const registerManager = async (
     console.log("populateManager_service: ", populateManager);
 
     if (!populateManager) {
-        throw new BadRequestError('Failed to populate manager after registration');
+        throw new BadRequestError('Не удалось заполнить экземпляр руководителя после регистрации');
     }
 
     const payload = createTokenPayload(populateManager);
@@ -131,12 +147,12 @@ export const loginManager = async (
     }).populate('profile.objectRef').select('+auth.passwordHash');
 
     if (!manager) {
-        throw new NotFoundError('Manager not found');
+        throw new NotFoundError('Руководитель не найден');
     }
 
     const isMatch = await manager.comparePassword(password);
     if (!isMatch) {
-        throw new UnauthorizedError('Invalid credentials');
+        throw new UnauthorizedError('Неверные учетные данные');
     }
 
     const payload = createTokenPayload(manager);
@@ -152,8 +168,8 @@ export const validateToken = (token: string): TokenPayload => {
         return jwt.verify(token, JWT_SECRET) as TokenPayload;
     } catch (err) {
         if (err instanceof jwt.TokenExpiredError) {
-            throw new UnauthorizedError('Token expired');
+            throw new UnauthorizedError('Токен истек');
         }
-        throw new UnauthorizedError('Invalid token');
+        throw new UnauthorizedError('Недействительный токен');
     }
 };

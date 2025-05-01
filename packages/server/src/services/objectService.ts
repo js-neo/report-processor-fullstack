@@ -1,7 +1,7 @@
 // packages/server/src/services/objectService.ts
 import { Types } from 'mongoose';
 import Object from '../models/Object.js';
-import { generateBaseId_2, getUniqueId } from 'shared';
+import { generateBaseId, getUniqueId } from 'shared';
 import axios from 'axios';
 
 export interface IObjectCreateParams {
@@ -61,7 +61,7 @@ export const getAllObjects = async (): Promise<IObjectResponse[]> => {
 export const createObject = async (params: IObjectCreateParams): Promise<IObjectResponse> => {
     const { name, address } = params;
 
-    const baseId = generateBaseId_2(name);
+    const baseId = generateBaseId(name);
     const objectId = await getUniqueId(baseId, Object, "objectId");
 
     const coordinates = params.coordinates || await geocodeAddress(address);

@@ -2,7 +2,7 @@
 import mongoose, {Types} from 'mongoose';
 import Worker from '../models/Worker.js';
 import {BadRequestError, ForbiddenError, NotFoundError} from '../errors/errorClasses.js';
-import {generateBaseId_2, getUniqueId, IObject} from 'shared';
+import {generateBaseId, getUniqueId, IObject} from 'shared';
 
 type PopulatedWorker = Omit<InstanceType<typeof Worker>, 'objectRef'> & {
     objectRef: IObject | null;
@@ -86,7 +86,7 @@ export const createWorker = async (
         }
     }
 
-    const baseId = generateBaseId_2(name);
+    const baseId = generateBaseId(name);
     const workerId = await getUniqueId(baseId, Worker, "workerId");
 
     const worker = new Worker({

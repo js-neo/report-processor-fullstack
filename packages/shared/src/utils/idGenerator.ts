@@ -3,7 +3,7 @@
 import { transliterate } from "transliteration";
 type TransliterationMap = { [key: string]: string };
 
-export const generateBaseId = (input: string): string => {
+export const generateBaseId_transliterate = (input: string): string => {
     const transliterated = transliterate(input, {
         replace: [
             [/\s+/g, '_'],    // Пробелы → _
@@ -57,15 +57,25 @@ const transliterationMap: TransliterationMap = {
     '{': '_', '}': '_', '<': '_', '>': '_'
 };
 
-export const generateBaseId_2 = (input: string): string => {
+export const generateBaseId = (input: string): string => {
     return input
         .toLowerCase()
-        .normalize('NFD') // Разбиваем диакритические знаки
-        .replace(/[\u0300-\u036f]/g, '') // Удаляем диакритики
         .split('')
-        .map(char => transliterationMap[char] || '')
+        .map(char => {
+            // Если символ кириллический — оставляем как есть для маппинга
+            if (/[\u0400-\u04FF]/.test(char)) {
+                return transliterationMap[char] || char;
+            }
+            // Латиница: удаляем диакритики
+            const normalizedChar = char
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, '');
+            return transliterationMap[normalizedChar] || char;
+        })
         .join('')
-        .replace(/[^a-z0-9_]/g, '') // Фильтр оставшихся символов
-        .replace(/_{2,}/g, '_') // Убираем дубли подчеркиваний
-        .replace(/(^_|_$)/g, ''); // Убираем подчеркивания по краям
+        .replace(/[^a-z0-9_]/g, '_') // Фильтр оставшихся невалидных символов
+        .replace(/_{2,}/g, '_')      // Убираем дубли подчеркиваний
+        .replace(/(^_|_$)/g, '');    // Убираем подчеркивания по краям
 };
+
+

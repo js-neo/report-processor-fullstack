@@ -40,6 +40,19 @@ export default function RegisterPage() {
         }
     });
 
+    const phoneValidation = {
+        required: 'Номер телефона обязателен',
+        validate: (value: string) => {
+            const digitsOnly = value.replace(/\D/g, '');
+            if (!digitsOnly) return 'Введите номер телефона';
+            if (!/^[78]\d{10}$/.test(digitsOnly)) {
+                return 'Введите 11-значный номер, начинающийся с +7 или 8';
+            }
+            return true;
+        },
+        onChange: () => setSubmitError('')
+    };
+
     const selectedObjectValue = watch('selectedObject');
     const formDisabled = isSubmitting || objectsLoading || !isValid;
 
@@ -137,14 +150,11 @@ export default function RegisterPage() {
                             Номер телефона
                         </label>
                         <input
-                            type="text"
+                            type="tel"
                             placeholder="89991234567"
                             className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                             disabled={isSubmitting || objectsLoading}
-                            {...register('phone', {
-                                required: 'Номер телефона обязателен',
-                                onChange: () => setSubmitError('')
-                            })}
+                            {...register('phone', phoneValidation)}
                         />
                         {errors.phone && <p className="text-red-500">{errors.phone.message}</p>}
                     </div>
