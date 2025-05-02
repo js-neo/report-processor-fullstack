@@ -111,21 +111,28 @@ export default function RegisterPage() {
                         {errors.fullName && <p className="text-red-500">{errors.fullName.message}</p>}
                     </div>
 
-                    <div>
+                    <div className="relative">
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                             Telegram username
                         </label>
-                        <input
-                            type="text"
-                            placeholder="@username"
-                            className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                            disabled={isSubmitting || objectsLoading}
-                            {...register('telegramUsername', {
-                                required: 'Telegram username обязателен',
-                                onChange: () => setSubmitError('')
-                            })}
-                        />
-                        {errors.telegramUsername && <p className="text-red-500">{errors.telegramUsername.message}</p>}
+                        <div className="flex items-center">
+    <span className="p-2 bg-gray-100 dark:bg-gray-700 rounded-l-md border border-r-0 dark:border-gray-600">
+      @
+    </span>
+                            <input
+                                type="text"
+                                placeholder="username"
+                                className="flex-1 p-2 border rounded-r-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                                disabled={isSubmitting || objectsLoading}
+                                {...register('telegramUsername', {
+                                    required: 'Введите имя пользователя',
+                                    pattern: {
+                                        value: /^\w+$/,
+                                        message: 'Только буквы, цифры и подчеркивание'
+                                    }
+                                })}
+                            />
+                        </div>
                     </div>
 
                     <div>
@@ -134,7 +141,7 @@ export default function RegisterPage() {
                         </label>
                         <input
                             type="text"
-                            placeholder="Прораб"
+                            defaultValue="Прораб"
                             className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                             disabled={isSubmitting || objectsLoading}
                             {...register('position', {
